@@ -25,7 +25,7 @@ const Header = () => {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrollY > 80
-            ? "backdrop-blur-md bg-white/70 shadow-lg py-3"
+            ? "backdrop-blur-md shadow-lg py-3"
             : "backdrop-blur-sm py-3"
           }`}
       >
@@ -33,7 +33,7 @@ const Header = () => {
           {/* Logo */}
           <motion.a
             href="#"
-            className="relative text-2xl font-bold bg-gradient-to-r from-teal-900 via-blue-500 to-indigo-600 bg-clip-text text-transparent 
+            className="relative text-2xl font-bold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent 
                       whitespace-nowrap overflow-hidden pr-2
                       [animation:typing_3s_steps(8,theme(colors.transparent))_forwards]"
             whileHover={{ scale: 1.05 }}
@@ -63,7 +63,7 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {/* Search */}
             <motion.button
-              className="hidden md:flex bg-gradient-to-r from-teal-500 to-indigo-600 text-white px-6 py-2 rounded-full hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 items-center gap-2"
+              className="hidden md:flex bg-gradient-to-r from-teal-500 to-indigo-600 text-white px-6 py-2 rounded-full hover:shadow-lg items-center gap-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -74,7 +74,7 @@ const Header = () => {
             {/* 🔑 Sign In Button */}
             <Link to="/signin">
               <motion.button
-                className="hidden md:flex border-2 border-teal-900 text-teal-900 px-6 py-2 rounded-full font-medium hover:bg-teal-600 hover:text-white transition-all duration-300 items-center gap-2"
+                className="hidden md:flex border-2 border-teal-900 text-teal-900 px-6 py-2 rounded-full font-medium hover:bg-teal-600 text-white transition-all duration-300 items-center gap-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

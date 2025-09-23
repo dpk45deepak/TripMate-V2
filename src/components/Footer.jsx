@@ -20,7 +20,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-extrabold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent mb-4">
-              GoBeyond
+              TripMate
             </h3>
             <p className="mb-6 text-gray-400 leading-relaxed">
               Making your travel dreams come true with exceptional experiences
@@ -106,7 +106,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-12 pt-8 text-center text-sm text-gray-400">
-          <p>© 2025 GoBeyond Travel. All rights reserved.</p>
+          <p>© 2025 TripMate Travel. All rights reserved.</p>
         </div>
       </div>
     </footer>

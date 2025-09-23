@@ -3,10 +3,15 @@ import "./App.css";
 
 // Pages
 import LandingPage from "./Pages/LandingPage";
-import Dashboard from './Pages/Dashboard'
+import Profile from './Pages/Profile'
+import Explore from "./Pages/Explore";
 import ItineraryPlanner from "./Pages/ItineraryPlanner";
 import Recommendations from "./Pages/Recommendations";
 import SavedTrips from "./Pages/SavedTrips";
+import Preferences from "./Pages/Preferences";
+import HomePage from './Pages/Home';
+import Highlights from './components/Highlights';
+
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/SignUp";
 
@@ -15,9 +20,13 @@ function App() {
     <Routes>
       {/* Landing page */}
       <Route path="/" element={<LandingPage />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/highlights" element={<Highlights />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/explore" element={<Explore />} />
       <Route path="/itinerary" element={<ItineraryPlanner />} />
       <Route path="/recommendations" element={<Recommendations />} />
+      <Route path="/preferences" element={<Preferences />} />
       <Route path="/saved-trips" element={<SavedTrips />} />
 
       {/* Auth pages */}

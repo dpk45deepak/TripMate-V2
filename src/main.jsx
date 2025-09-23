@@ -8,7 +8,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+    <div className="bg-gradient-to-br from-gray-50 to-blue-50">
       <App />
+    </div>
     </BrowserRouter>
   </React.StrictMode>
 );
