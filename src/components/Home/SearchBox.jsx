@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Calendar,
   Users,
@@ -10,7 +10,7 @@ import {
   Hotel,
   Sparkles,
   Menu,
-  X
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -25,7 +25,8 @@ export default function SearchBox() {
   const [activeTab, setActiveTab] = useState("Hotel");
   const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
+  // Corrected initial state: adults should be at least 1 in most scenarios. Changed from 2.
+  const [guests, setGuests] = useState({ adults: 1, children: 0, rooms: 1 });
   const [checkInDate, setCheckInDate] = useState("2023-10-23");
   const [checkOutDate, setCheckOutDate] = useState("2023-10-25");
   const [destination, setDestination] = useState("Bali, Indonesia");
@@ -42,37 +43,52 @@ export default function SearchBox() {
 
     checkScreenSize();
     setIsMounted(true);
-    
+
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Corrected: Moved handleClickOutside inside useEffect or use useCallback to ensure it uses the latest state/ref.
+  // Using useCallback for optimization is good practice here.
+  const handleClickOutside = useCallback((event) => {
+    if (
+      guestDropdownRef.current &&
+      !guestDropdownRef.current.contains(event.target)
+    ) {
+      setIsGuestDropdownOpen(false);
+    }
+  }, []); // Dependencies are not needed as handleClickOutside only uses guestDropdownRef.current and setIsGuestDropdownOpen
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        guestDropdownRef.current &&
-        !guestDropdownRef.current.contains(event.target)
-      ) {
-        setIsGuestDropdownOpen(false);
-      }
-    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [handleClickOutside]); // Added handleClickOutside to dependency array
 
+  // Fixed: Ensure minimum guest count is 1 for adults, 1 for rooms (for Hotel only).
   const handleGuestChange = (type, operation) => {
-    setGuests((prev) => ({
-      ...prev,
-      [type]:
-        operation === "increase" ? prev[type] + 1 : Math.max(0, prev[type] - 1),
-    }));
+    setGuests((prev) => {
+      let newValue;
+      if (operation === "increase") {
+        newValue = prev[type] + 1;
+      } else {
+        // Adults must be at least 1. Children/Rooms can be 0 (except rooms minimum 1 when shown)
+        const min = type === "adults" ? 1 : type === "rooms" && activeTab === "Hotel" ? 1 : 0;
+        newValue = Math.max(min, prev[type] - 1);
+      }
+      return {
+        ...prev,
+        [type]: newValue,
+      };
+    });
   };
 
   const getGuestSummary = () => {
     const { adults, children, rooms } = guests;
-    let summary = `${adults + children} Guest${adults + children !== 1 ? 's' : ''}`;
+    const totalGuests = adults + children;
+    let summary = `${totalGuests} Guest${totalGuests !== 1 ? 's' : ''}`;
+    // Fixed: Only include 'rooms' in summary for 'Hotel' tab.
     if (activeTab === "Hotel") summary += `, ${rooms} Room${rooms !== 1 ? 's' : ''}`;
-    return isMobile ? `${adults + children}` : summary;
+    return isMobile ? `${totalGuests}` : summary;
   };
 
   const handleSearch = () => {
@@ -87,11 +103,17 @@ export default function SearchBox() {
   };
 
   // Handle tab click with proper state update
+  // Fixed:
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
-    // Reset guest rooms when switching to non-hotel tabs
+    // Fixed: Reset guest rooms when switching to non-hotel tabs.
+    // Also ensures guest dropdown closes if the active tab changes.
+    setIsGuestDropdownOpen(false);
     if (tabId !== "Hotel") {
-      setGuests(prev => ({ ...prev, rooms: 1 }));
+      setGuests(prev => ({ ...prev, rooms: 1 })); // Set rooms to 1 (minimal) or other minimal state
+    } else {
+      // Ensure adults is at least 1 when switching to Hotel.
+      setGuests(prev => ({ ...prev, adults: Math.max(1, prev.adults) }));
     }
   };
 
@@ -121,7 +143,10 @@ export default function SearchBox() {
           <div className="p-3 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={() => {
+                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                  setIsGuestDropdownOpen(false); // Close guest dropdown when opening menu
+                }}
                 className="flex items-center space-x-2 text-gray-700"
               >
                 {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -158,12 +183,12 @@ export default function SearchBox() {
                         onClick={() => {
                           handleTabClick(tab.id);
                           setIsMobileMenuOpen(false);
+                          setIsGuestDropdownOpen(false); // Added: Ensure guest dropdown closes
                         }}
-                        className={`flex items-center justify-center space-x-2 p-3 rounded-lg text-sm font-medium transition-all ${
-                          activeTab === tab.id
+                        className={`flex items-center justify-center space-x-2 p-3 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
                             ? `${tab.bgColor} ${tab.color} border-2 border-current`
                             : "text-gray-600 bg-gray-50 border-2 border-transparent"
-                        }`}
+                          }`}
                       >
                         <IconComponent size={16} />
                         <span>{tab.id}</span>
@@ -216,7 +241,10 @@ export default function SearchBox() {
             {/* Guests */}
             <div className="relative" ref={guestDropdownRef}>
               <button
-                onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)}
+                onClick={() => {
+                  setIsGuestDropdownOpen(!isGuestDropdownOpen);
+                  setIsMobileMenuOpen(false); // Added: Ensure mobile menu closes when opening guest dropdown
+                }}
                 className="w-full flex items-center justify-between bg-gray-50 px-3 py-3 rounded-lg border border-gray-200"
               >
                 <div className="flex items-center">
@@ -224,9 +252,8 @@ export default function SearchBox() {
                   <span className="text-sm text-gray-900">{getGuestSummary()}</span>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-500 transition-transform ${
-                    isGuestDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-gray-500 transition-transform ${isGuestDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -239,6 +266,7 @@ export default function SearchBox() {
                     className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-20"
                   >
                     <div className="space-y-3">
+                      {/* Fixed logic for room display based on activeTab */}
                       {["adults", "children", ...(activeTab === "Hotel" ? ["rooms"] : [])].map(
                         (type) => (
                           <div
@@ -254,7 +282,8 @@ export default function SearchBox() {
                               <button
                                 onClick={() => handleGuestChange(type, "decrease")}
                                 className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={type === "rooms" ? guests[type] <= 1 : guests[type] <= 0}
+                                // Fixed: Minimum adult count is 1, minimum room count is 1 for Hotel.
+                                disabled={type === "adults" ? guests[type] <= 1 : type === "rooms" ? guests[type] <= 1 : guests[type] <= 0}
                               >
                                 −
                               </button>
@@ -309,18 +338,17 @@ export default function SearchBox() {
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
           const isActive = activeTab === tab.id;
-          
+
           return (
             <motion.button
               key={tab.id}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => handleTabClick(tab.id)}
-              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all flex-1 min-w-[120px] text-center text-sm font-medium ${
-                isActive
+              onClick={() => handleTabClick(tab.id)} // Uses the improved handleTabClick
+              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all flex-1 min-w-[120px] text-center text-sm font-medium ${isActive
                   ? "bg-white shadow-md border-2 border-current"
                   : "text-gray-600 hover:text-gray-900 border-2 border-transparent"
-              } ${isActive ? tab.color : ""}`}
+                } ${isActive ? tab.color : ""}`}
             >
               <IconComponent
                 className={`w-4 h-4 ${isActive ? tab.color : "text-gray-400"}`}
@@ -388,9 +416,8 @@ export default function SearchBox() {
               <span className="text-sm text-gray-900">{getGuestSummary()}</span>
             </div>
             <ChevronDown
-              className={`w-4 h-4 text-gray-500 transition-transform ${
-                isGuestDropdownOpen ? "rotate-180" : ""
-              }`}
+              className={`w-4 h-4 text-gray-500 transition-transform ${isGuestDropdownOpen ? "rotate-180" : ""
+                }`}
             />
           </motion.button>
 
@@ -404,6 +431,7 @@ export default function SearchBox() {
                 className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10"
               >
                 <div className="space-y-3">
+                  {/* Fixed logic for room display based on activeTab */}
                   {["adults", "children", ...(activeTab === "Hotel" ? ["rooms"] : [])].map(
                     (type) => (
                       <div
@@ -419,7 +447,8 @@ export default function SearchBox() {
                           <button
                             onClick={() => handleGuestChange(type, "decrease")}
                             className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={type === "rooms" ? guests[type] <= 1 : guests[type] <= 0}
+                            // Fixed: Minimum adult count is 1, minimum room count is 1 for Hotel.
+                            disabled={type === "adults" ? guests[type] <= 1 : type === "rooms" ? guests[type] <= 1 : guests[type] <= 0}
                           >
                             −
                           </button>

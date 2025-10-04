@@ -1,367 +1,317 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// --- Updated Destination Data with real images & details ---
-const destinations = [
-    {
-      id: 1,
-      name: "Cape Town, South Africa",
-      description:
-        "Cape Town is known for its stunning coastal scenery, Table Mountain, and vibrant cultural scene.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDlT6tlAdHXl_S0wPkCyj7YuWpHL4gS2LnqQ&s",
-      temperature: "20°C",
-      rating: "4.7",
-      features: ["Mountains", "Beaches", "Adventure", "Culture"],
-      price: "$1,300",
-    },
-    {
-      id: 2,
-      name: "Santorini, Greece",
-      description:
-        "Santorini is one of the Cyclades islands in the Aegean Sea. Its whitewashed houses and sunsets are world-famous.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSokKSBi8lwGX3NfsPOAjloQAIdWfOol2b6jA&s",
-      temperature: "24°C",
-      rating: "4.8",
-      features: ["Beaches", "Volcanic", "Romantic", "Historic"],
-      price: "$1,200",
-    },
-    {
-      id: 3,
-      name: "Paris, France",
-      description:
-        "Paris is famous for its café culture, the Eiffel Tower, the Louvre Museum, and architecture along the Seine.",
-      image:
-        "https://media.gettyimages.com/id/1952253409/photo/skyline-paris.jpg?s=612x612&w=gi&k=20&c=o4oU1qKDveiFAbBnMZB9ungwZpjfL6qNPt-j78SPFN4=",
-      temperature: "16°C",
-      rating: "4.6",
-      features: ["Romantic", "Museums", "Architecture", "Food"],
-      price: "$1,100",
-    },
-    {
-      id: 4,
-      name: "Dublin, Ireland",
-      description:
-        "Dublin is known for its literary history, vibrant nightlife, historic buildings, and friendly locals.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmJpC-KZUhbZYLpt8F4yEaXSHQZg5EUQV_Ag&s",
-      temperature: "12°C",
-      rating: "4.5",
-      features: ["Historic", "Culture", "Pubs", "Scenic"],
-      price: "$1,000",
-    },
-    {
-      id: 5,
-      name: "Queenstown, New Zealand",
-      description:
-        "Queenstown is famous for adventure sports, lakes, mountains, and breathtaking natural landscapes.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR17Sbmx0S72kyFXe28gtnDs_rrHapwkUT1l_nrFUeLtBxpPEEkxUdigEYhcd9YOQkRxW8&usqp=CAU",
-      temperature: "14°C",
-      rating: "4.9",
-      features: ["Adventure", "Lakes", "Mountains", "Hiking"],
-      price: "$1,400",
-    },
-    {
-      id: 6,
-      name: "Kyoto, Japan",
-      description:
-        "Kyoto is known for its classical Buddhist temples, gardens, imperial palaces, and traditional wooden houses.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA7JeZ1Ihvt-D1wDn6c7y-2G1E5Zb3zJrJQg&s",
-      temperature: "18°C",
-      rating: "4.9",
-      features: ["Temples", "Gardens", "Traditional", "Cultural"],
-      price: "$1,500",
-    },
-    {
-      id: 7,
-      name: "Rome, Italy",
-      description:
-        "Rome is renowned for its ancient ruins, art, culture, and delicious Italian cuisine.",
-      image:
-        "https://www.shutterstock.com/image-photo/aerial-panoramic-cityscape-rome-italy-600nw-2248023259.jpg",
-      temperature: "19°C",
-      rating: "4.7",
-      features: ["Historic", "Architecture", "Food", "Culture"],
-      price: "$1,250",
-    },
-    {
-      id: 8,
-      name: "Rio de Janeiro, Brazil",
-      description:
-        "Rio is famous for its Copacabana and Ipanema beaches, Christ the Redeemer, and vibrant Carnival.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpMpoVGndYkLIQL-FUeTtyo2YpHwHrPZDFPA&s",
-      temperature: "27°C",
-      rating: "4.6",
-      features: ["Beaches", "Carnival", "Mountains", "Adventure"],
-      price: "$1,350",
-    },
-    {
-      id: 9,
-      name: "Banff, Canada",
-      description:
-        "Banff is a resort town in the Canadian Rockies, known for stunning mountains, turquoise lakes, and outdoor adventures.",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH703gfmuh99Ld29s6N_Y1I0g_y2q6FdKVWQ&s",
-      temperature: "8°C",
-      rating: "4.8",
-      features: ["Mountains", "Lakes", "Hiking", "Skiing"],
-      price: "$1,400",
-    },
-    {
-      id: 10,
-      name: "Dubai, UAE",
-      description:
-        "Dubai is known for its futuristic skyscrapers, luxury shopping, desert safaris, and artificial islands.",
-      image:
-        "https://c4.wallpaperflare.com/wallpaper/996/638/569/city-dubai-arabic-dream-burj-khalifa-united-arab-emirates-desktop-wallpaper-hd-2560%C3%971440-wallpaper-preview.jpg",
-      temperature: "33°C",
-      rating: "4.7",
-      features: ["Luxury", "Shopping", "Desert", "Modern"],
-      price: "$1,600",
-    },
-  ];
-  
+import { Map, Zap, Ship, MessageCircle, Twitter, Instagram, Facebook, BookOpen, Star, StarHalf, Sun, Waves, Anchor, Bird } from 'lucide-react';
 
-// --- Destinations Section Component ---
-const DestinationsSection = () => {
-    const [active, setActive] = useState(0);
+// --- MOCK DATA ---
+const islandsData = [
+  {
+    id: 1,
+    name: "Isla Mujeres",
+    tagline: "Paradise Found: The Island of Women",
+    description: "Snorkeling in tropical waters, climbing a pyramid, and exploring the breathtaking cliffside views at Punta Sur are just a few samples of what Isla Mujeres has to offer. Experience the tranquil, turquoise Caribbean waters.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiEJyvqU9vUaSQhrOGibPL11a0yZBWes-9pygw1LgEtekO00guKBSUa0alY8LpFD6Btc&usqp=CAU",
+    rating: 5,
+    features: [
+      { icon: Sun, label: 'Beach Life' },
+      { icon: Waves, label: 'Snorkeling' },
+      { icon: Anchor, label: 'Yachting' },
+      { icon: Ship, label: 'Ferry Access' },
+    ]
+  },
+  {
+    id: 2,
+    name: "Isla Holbox",
+    tagline: "The Bohemian Gateway: A True Escape",
+    description: "Located off the north coast of the Yucatán Peninsula, Holbox is car-free and famous for its unpaved roads and vibrant street art. It is best known for being a seasonal home to the majestic whale sharks.",
+    image: "https://i.ytimg.com/vi/UByINB69_xo/maxresdefault.jpg",
+    rating: 4.5,
+    features: [
+      { icon: Bird, label: 'Flamingos' },
+      { icon: Ship, label: 'Whale Sharks' },
+      { icon: Zap, label: 'Bioluminescence' },
+      { icon: Map, label: 'Nature Reserve' },
+    ]
+  },
+  {
+    id: 3,
+    name: "Cozumel",
+    tagline: "Diver's Dream: World-Class Reefs",
+    description: "Cozumel is a large, predominantly flat island off the eastern coast of Mexico's Yucatán Peninsula, renowned for its incredible coral reefs and crystal-clear visibility, making it a global hub for scuba diving.",
+    image: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/689520918.jpg?k=b3c606100a5c03a35c8f446d226f3ca9537fdda9d07aa18983f6a8bc383375b4&o=&hp=1",
+    rating: 5,
+    features: [
+      { icon: Waves, label: 'Scuba Dive' },
+      { icon: Anchor, label: 'Cruising' },
+      { icon: Sun, label: 'Great Weather' },
+      { icon: Ship, label: 'Port City' },
+    ]
+  }
+];
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setActive((prev) => (prev + 1) % destinations.length);
-        }, 6000);
-        return () => clearInterval(interval);
-    }, []);
+// --- COMPONENTS ---
 
-    return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            {/* Background Image with Overlay */}
-            <motion.div
-                key={destinations[active].id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.5 }}
-                className="absolute inset-0 z-0"
-            >
-                <img
-                    src={destinations[active].image}
-                    alt="background"
-                    className="w-full h-full object-cover brightness-75"
-                />
-                <div className="absolute inset-0 bg-black/40"></div>
-            </motion.div>
+// Helper component for Star Rating
+const RatingStars = ({ rating }) => {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-            {/* Main Content Container with White Border */}
-            <motion.div
-                className="relative z-20 w-[95%] max-w-6xl rounded-xl py-8 px-20 flex flex-col lg:flex-row items-center"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                style={{
-                    borderImage: "linear-gradient(45deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)) 1",
-                    borderRadius: '35px'
-                }}
-            >
-                {/* Left Side - Main Content */}
-                <div className="lg:w-1/2 mb-8 lg:mb-0 lg:pr-8">
-                    {/* Header Section */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="mb-8"
-                    >
-                        <h1 className="text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                            Explore the World with <span className="text-blue-300">Confidence</span>
-                        </h1>
-                        <p className="text-xl text-white/90 leading-relaxed">
-                            Your trusted partner in unforgettable travel experiences. Let us take you to breathtaking 
-                            destinations with ease and comfort.
-                        </p>
-                    </motion.div>
-
-                    {/* Destination Details */}
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={destinations[active].id}
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 50 }}
-                            transition={{ duration: 0.7 }}
-                        >
-                            <DestinationDetail destination={destinations[active]} />
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
-
-                {/* Right Side - Cards Container */}
-                <div className="lg:w-1/2 flex flex-col items-end">
-                    {/* Cards Label */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="mb-4 self-start lg:self-end"
-                    >
-                        <h3 className="text-2xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
-                            Popular Destinations
-                        </h3>
-                    </motion.div>
-
-                    {/* Horizontal Cards Scroll */}
-                    <motion.div
-                        className="flex space-x-6 overflow-x-auto pb-6 w-full max-w-2xl scrollbar-hide"
-                        initial={{ x: 100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ 
-                            type: "spring", 
-                            stiffness: 100, 
-                            damping: 20,
-                            delay: 0.6
-                        }}
-                        style={{ 
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none'
-                        }}
-                    >
-                        {destinations.map((dest, i) => (
-                            <motion.div
-                                key={dest.id}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="flex-shrink-0"
-                            >
-                                <DestinationCard 
-                                    destination={dest} 
-                                    isActive={i === active}
-                                    onClick={() => setActive(i)} 
-                                />
-                            </motion.div>
-                        ))}
-                    </motion.div>
-
-                    {/* Navigation Dots */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.8 }}
-                        className="flex space-x-3 mt-4 self-center lg:self-end"
-                    >
-                        {destinations.map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setActive(i)}
-                                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                                    i === active ? 'bg-white scale-125' : 'bg-white/50'
-                                }`}
-                            />
-                        ))}
-                    </motion.div>
-                </div>
-            </motion.div>
-
-            {/* Decorative Elements */}
-            <motion.div
-                className="absolute top-10 left-10 text-white/10 text-6xl"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-                ✈
-            </motion.div>
-            <motion.div
-                className="absolute bottom-10 right-10 text-white/10 text-4xl"
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-            >
-                🌴
-            </motion.div>
-        </section>
-    );
+  return (
+    <div className="flex space-x-0.5">
+      {Array(fullStars).fill(0).map((_, i) => <Star key={`full-${i}`} className="w-4 h-4 fill-yellow-400 stroke-yellow-400" />)}
+      {hasHalfStar && <StarHalf key="half" className="w-4 h-4 fill-yellow-400 stroke-yellow-400" />}
+      {Array(emptyStars).fill(0).map((_, i) => <Star key={`empty-${i}`} className="w-4 h-4 fill-gray-500 stroke-gray-500" />)}
+    </div>
+  );
 };
 
-// Updated DestinationCard component to match the style
-const DestinationCard = ({ destination, isActive, onClick }) => {
+
+// Component for the sliding island content
+const IslandCard = React.memo(({ island, isVisible }) => {
+    // Variants for the vertical slide-in/slide-out animation
+    const cardVariants = {
+        initial: { y: "100%", opacity: 0 },
+        in: { y: "0%", opacity: 1 },
+        out: { y: "-100%", opacity: 0 },
+    };
+
+    if (!isVisible) return null;
+
     return (
         <motion.div
-            layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.5 }}
-            className={`relative w-64 h-80 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-300 ${
-                isActive ? 'ring-4 ring-blue-400 shadow-2xl' : 'ring-2 ring-white/30 shadow-lg'
-            }`}
-            onClick={onClick}
+            key={island.id}
+            variants={cardVariants}
+            initial="initial"
+            animate="in"
+            exit="out"
+            // FIX: Replaced invalid cubic-bezier with 'easeInOut'
+            transition={{ duration: 0.7, ease: "easeInOut" }} 
+            className="absolute top-0 left-0 w-full h-full p-8 flex flex-col justify-between"
         >
-            <div className="relative h-full">
+            {/* Image Section */}
+            <div className="h-2/3 relative mb-4 rounded-xl shadow-2xl overflow-hidden">
                 <img
-                    src={destination.image}
-                    alt={destination.name}
-                    className="w-full h-full object-cover"
+                    src={island.image}
+                    alt={island.name}
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/1000x800/007bff/ffffff?text=Image+Unavailable"; }}
                 />
-                <div className="absolute inset-0 bg-black/40"></div>
-                
-                {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <h3 className="text-white font-bold text-lg mb-1">{destination.name.split(',')[0]}</h3>
-                    <div className="flex justify-between items-center">
-                        <span className="text-blue-300 font-bold">{destination.price}</span>
-                        <div className="flex items-center">
-                            <i className="fas fa-star text-yellow-400 mr-1"></i>
-                            <span className="text-white text-sm">{destination.rating}</span>
+            </div>
+
+            {/* Content Section */}
+            <div className="bg-white/10 backdrop-blur-md p-6 rounded-xl text-white shadow-xl flex flex-col md:flex-row justify-between flex-grow">
+                <div className="md:w-1/2 mb-4 md:mb-0">
+                    <h3 className="text-3xl font-bold mb-1 text-teal-400">{island.name}</h3>
+                    <p className="text-sm italic mb-4">{island.tagline}</p>
+                    <p className="text-xs leading-relaxed text-gray-200">{island.description}</p>
+                </div>
+
+                <div className="md:w-1/2 md:pl-8">
+                    <h4 className="text-lg font-semibold mb-2">Explore Features</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                        {island.features.map((feature, index) => (
+                            <div key={index} className="flex items-center space-x-2 text-sm">
+                                <feature.icon className="w-4 h-4 text-teal-300" />
+                                <span className="text-gray-200">{feature.label}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between">
+                        <div>
+                            <span className="text-sm text-gray-300 mr-2">Rating:</span>
+                            <RatingStars rating={island.rating} />
                         </div>
+                        <button className="flex items-center text-sm font-semibold px-4 py-2 bg-teal-500 hover:bg-teal-600 transition duration-300 rounded-full shadow-lg shadow-teal-500/50">
+                            Book Now <span className="ml-2">&rsaquo;</span>
+                        </button>
                     </div>
                 </div>
-                
-                {/* Temperature Badge */}
-                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
-                    <span className="text-white font-semibold text-sm">{destination.temperature}</span>
+            </div>
+        </motion.div>
+    );
+});
+IslandCard.displayName = 'IslandCard';
+
+
+// Main App Component
+const App = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isIntroAnimating, setIsIntroAnimating] = useState(true);
+
+  const activeIsland = islandsData[activeIndex];
+
+  // Logic for Auto-Rotation (mimics the video's flow)
+  useEffect(() => {
+    if (isIntroAnimating) return; // Wait for intro to finish
+
+    const interval = setInterval(() => {
+      setActiveIndex((prevIndex) => (prevIndex + 1) % islandsData.length);
+    }, 8000); // Change every 8 seconds
+
+    return () => clearInterval(interval);
+  }, [isIntroAnimating]);
+
+  // Handle Intro Animation Finish
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsIntroAnimating(false);
+    }, 3000); // Intro screen duration
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Variant for the text on the left hero side
+  const textVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } },
+  };
+
+  // Variant for the main intro text
+  const introVariants = {
+    hidden: { scale: 1, opacity: 1, y: 0 },
+    // FIX: Replaced invalid cubic-bezier with 'easeOut'
+    exit: { scale: 0.8, opacity: 0, y: -50, transition: { duration: 1, ease: "easeOut" } },
+    appear: { opacity: 1, scale: 1, transition: { duration: 1.5, ease: "easeOut" } }
+  }
+
+
+  return (
+    <div className='w-full p-2'>
+      {/* Main Content Card (Simulates the video's outer box) */}
+      <div className="relative w-full h-screen aspect-video bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+        {/* --- Background Image/Video Simulation --- */}
+        <div className="absolute inset-0 z-0">
+          {/* Using a static image for the dynamic video background */}
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZHzb3ASXhWVXTyVp3TuLh7VWVAna7qfVq9BGxws9-w0C5BRP5cmmM1aQP7lcV20ySLmA&usqp=CAU"
+            alt="Tropical Beach Background"
+            className="w-full h-full object-cover"
+          />
+          {/* Dark Overlay for better text contrast */}
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+
+
+        {/* --- Intro Splash Screen Animation (Mimics 0:00 - 0:03) --- */}
+        <AnimatePresence>
+          {isIntroAnimating && (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center z-50 bg-teal-500/80 backdrop-blur-sm"
+              variants={introVariants}
+              initial="appear"
+              exit="exit"
+            >
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="text-7xl md:text-[10vw] font-extrabold text-white tracking-widest"
+              >
+                MEXICO
+              </motion.h1>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+
+        {/* --- Main Content Overlay (Mimics 0:03 - 0:09) --- */}
+        <motion.div
+            className={`absolute inset-0 p-8 flex transition-opacity duration-1000 ${isIntroAnimating ? 'opacity-0' : 'opacity-100'}`}
+        >
+          {/* Left Column - Hero Content & Socials */}
+          <div className="w-full lg:w-1/2 flex flex-col justify-between text-white z-10">
+            {/* Nav and Logo */}
+            <div className="flex justify-between items-start">
+                <motion.div initial={{ y: -20, opacity: 0 }} animate={!isIntroAnimating ? { y: 0, opacity: 1 } : {}} transition={{ delay: 1, duration: 0.5 }}>
+                    <h2 className="text-xl font-bold">Mexico Island<span className="text-teal-400">.</span></h2>
+                </motion.div>
+                <motion.nav
+                    className="space-x-6 hidden md:flex text-sm font-medium"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={!isIntroAnimating ? { y: 0, opacity: 1 } : {}}
+                    transition={{ delay: 1.2, duration: 0.5 }}
+                >
+                    <a href="#" className="hover:text-teal-400 transition">Explore</a>
+                    <a href="#" className="hover:text-teal-400 transition">About</a>
+                    <a href="#" className="hover:text-teal-400 transition">Contact</a>
+                </motion.nav>
+            </div>
+
+            {/* Hero Text */}
+            <div className="my-auto">
+              <motion.h1
+                className="text-6xl md:text-8xl font-extrabold leading-tight tracking-tighter"
+                variants={textVariants}
+                initial="hidden"
+                animate={!isIntroAnimating ? "visible" : "hidden"}
+                transition={{ delay: 1.5, duration: 0.8 }}
+              >
+                Explore <br />
+                Our Islands
+              </motion.h1>
+
+              <motion.p
+                className="mt-4 max-w-md text-sm text-gray-200"
+                variants={textVariants}
+                initial="hidden"
+                animate={!isIntroAnimating ? "visible" : "hidden"}
+                transition={{ delay: 1.8, duration: 0.8 }}
+              >
+                Snorkeling in tropical waters, climbing ancient pyramids, and exploring the hidden world of cenotes are just a few samples of what Mexico has to offer.
+              </motion.p>
+
+              <motion.button
+                className="mt-8 flex items-center text-lg font-semibold px-8 py-3 bg-teal-500 hover:bg-teal-600 transition duration-300 rounded-full shadow-xl shadow-teal-500/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={!isIntroAnimating ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 2, duration: 0.6 }}
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                Book Now
+              </motion.button>
+            </div>
+
+            {/* Social Icons (Bottom Left) */}
+            <motion.div
+              className="flex flex-col space-y-4"
+              initial={{ x: -20, opacity: 0 }}
+              animate={!isIntroAnimating ? { x: 0, opacity: 1 } : {}}
+              transition={{ delay: 2.2, duration: 0.6 }}
+            >
+              <a href="#" aria-label="Facebook"><Facebook className="w-5 h-5 hover:text-teal-400 transition" /></a>
+              <a href="#" aria-label="Twitter"><Twitter className="w-5 h-5 hover:text-teal-400 transition" /></a>
+              <a href="#" aria-label="Instagram"><Instagram className="w-5 h-5 hover:text-teal-400 transition" /></a>
+              <a href="#" aria-label="Message"><MessageCircle className="w-5 h-5 hover:text-teal-400 transition" /></a>
+            </motion.div>
+          </div>
+
+          {/* Right Column - Sliding Content (Main Animation) */}
+          <div className="w-full lg:w-1/2 p-4 md:p-8 z-20">
+            <div className="relative w-full h-full">
+                <AnimatePresence mode="wait">
+                    <IslandCard key={activeIsland.id} island={activeIsland} isVisible={!isIntroAnimating} />
+                </AnimatePresence>
+                {/* Navigation Dots (Optional, for manual control) */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col space-y-3 p-2 bg-white/10 backdrop-blur-sm rounded-full shadow-lg">
+                    {islandsData.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setActiveIndex(index)}
+                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                index === activeIndex ? 'bg-teal-400 w-5 h-5' : 'bg-gray-400 opacity-50 hover:opacity-100'
+                            }`}
+                            aria-label={`Go to ${islandsData[index].name}`}
+                        />
+                    ))}
                 </div>
             </div>
+          </div>
         </motion.div>
-    );
-};
-
-// Updated DestinationDetail component
-const DestinationDetail = ({ destination }) => {
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20"
-        >
-            <h2 className="text-3xl font-bold text-white mb-3">{destination.name}</h2>
-            <p className="text-white/90 mb-4 leading-relaxed">{destination.description}</p>
-            
-            <div className="flex flex-wrap gap-2 mb-4">
-                {destination.features.map((feature, index) => (
-                    <span key={index} className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                        {feature}
-                    </span>
-                ))}
-            </div>
-            
-            <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-600 transition-colors w-full"
-            >
-                Book Now - {destination.price}
-            </motion.button>
-        </motion.div>
-    );
-};
-
-// --- Main App Component ---
-const App = () => (
-    <div className="App h-screen">
-        <DestinationsSection />
+      </div>
     </div>
-);
+  );
+};
 
 export default App;

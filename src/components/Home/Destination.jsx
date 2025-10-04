@@ -225,7 +225,7 @@ const Destination = () => {
             variants={containerVariants}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {destinations.map((destination, index) => (
+            {destinations.slice(0,3).map((destination, index) => (
               <motion.div
                 key={destination.id}
                 variants={cardVariants}

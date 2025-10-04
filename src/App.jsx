@@ -1,16 +1,18 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 
-// Pages
+// Main Pages
 import LandingPage from "./Pages/LandingPage";
+import HomePage from './Pages/Home';
 import Profile from './Pages/Profile'
 import Explore from "./Pages/Explore";
+import NewPage from './Pages/FinalPage';
+
+// Helpers
 import ItineraryPlanner from "./Pages/ItineraryPlanner";
-import Recommendations from "./Pages/Recommendations";
-import SavedTrips from "./Pages/SavedTrips";
-import Preferences from "./Pages/Preferences";
-import HomePage from './Pages/Home';
-import Highlights from './components/Highlights';
+import Recommendations from "./Pages/Others/Recommendations";
+import Preferences from "./Pages/Others/Preferences";
+import Highlights from './components/LandingPage/Highlights';
 
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/SignUp";
@@ -27,7 +29,7 @@ function App() {
       <Route path="/itinerary" element={<ItineraryPlanner />} />
       <Route path="/recommendations" element={<Recommendations />} />
       <Route path="/preferences" element={<Preferences />} />
-      <Route path="/saved-trips" element={<SavedTrips />} />
+      <Route path="/new" element={<NewPage />} />
 
       {/* Auth pages */}
       <Route path="/signin" element={<SignIn />} />

@@ -4,8 +4,8 @@ import { Menu, X, Search, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // imported files 
-import SignIn from "../components/Auth/SignIn";
-import SignUp from "../components/Auth/SignUp";
+import SignIn from "../Auth/SignIn";
+import SignUp from "../Auth/SignUp";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,7 +32,7 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           {/* Logo */}
           <motion.a
-            href="#"
+            href=""
             className="relative text-2xl font-bold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent 
                       whitespace-nowrap overflow-hidden pr-2
                       [animation:typing_3s_steps(8,theme(colors.transparent))_forwards]"
@@ -47,7 +47,7 @@ const Header = () => {
             {["Home", "Trips", "Deals", "About", "Contact"].map((item, index) => (
               <motion.a
                 key={index}
-                href={`#${item.toLowerCase()}`}
+                href={`${item.toLowerCase()}`}
                 className="font-medium transition-colors duration-300 relative py-1 group 
                 bg-gradient-to-r from-teal-900 via-blue-500 to-indigo-600 bg-clip-text text-transparent
                 hover:from-teal-900 hover:via-blue-600 hover:to-indigo-700"
