@@ -6,9 +6,9 @@ import {
   MapPin, Search, Globe, Calendar, Users, ChevronLeft, ChevronRight 
 } from "lucide-react";
 
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import HeroSection from "../components/HeroSection";
+import Header from "../components/LandingPage/Header";
+import Footer from "../components/LandingPage/Footer";
+import HeroSection from "../components/LandingPage/HeroSection";
 import TypingText from "../components/TypingText";
 
 // Animated section component with enhanced options

@@ -8,18 +8,18 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #3b82f6; /* Thumb color */
+    background-color: #84aff4; /* Thumb color */
     border-radius: 8px;
     border: 2px solid #f0f0f0; /* Optional padding effect */
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #2563eb; /* Thumb hover color */
+    background-color: #84aff4; /* Thumb hover color */
   }
   
   /* Firefox */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #3b82f6 #f0f0f0; /* thumb color | track color */
+    scrollbar-color: #84aff4 #f0f0f0; /* thumb color | track color */
   }
   
