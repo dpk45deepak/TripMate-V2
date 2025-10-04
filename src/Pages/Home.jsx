@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
 // CSS
-import '../components/Home/Home.css'
+import '../components/Home/Home.css';
 
 // Pages
 import Navbar from "../components/Home/Navbar";
