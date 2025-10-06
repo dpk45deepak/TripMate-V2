@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Calendar,
   Users,
@@ -15,6 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SearchBox() {
+  const navigate = useNavigate();
   const tabs = [
     { id: "Hotel", icon: Hotel, color: "text-blue-600", bgColor: "bg-blue-50" },
     { id: "Flight", icon: Plane, color: "text-emerald-600", bgColor: "bg-emerald-50" },
@@ -25,15 +27,21 @@ export default function SearchBox() {
   const [activeTab, setActiveTab] = useState("Hotel");
   const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Corrected initial state: adults should be at least 1 in most scenarios. Changed from 2.
   const [guests, setGuests] = useState({ adults: 1, children: 0, rooms: 1 });
-  const [checkInDate, setCheckInDate] = useState("2023-10-23");
-  const [checkOutDate, setCheckOutDate] = useState("2023-10-25");
+  const [checkInDate, setCheckInDate] = useState(getDefaultDate(0));
+  const [checkOutDate, setCheckOutDate] = useState(getDefaultDate(2));
   const [destination, setDestination] = useState("Bali, Indonesia");
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const guestDropdownRef = useRef(null);
+
+  // Helper function to get default dates
+  function getDefaultDate(daysFromNow = 0) {
+    const date = new Date();
+    date.setDate(date.getDate() + daysFromNow);
+    return date.toISOString().split('T')[0];
+  }
 
   // Check screen size
   useEffect(() => {
@@ -43,13 +51,11 @@ export default function SearchBox() {
 
     checkScreenSize();
     setIsMounted(true);
-
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Corrected: Moved handleClickOutside inside useEffect or use useCallback to ensure it uses the latest state/ref.
-  // Using useCallback for optimization is good practice here.
+  // Handle click outside guest dropdown
   const handleClickOutside = useCallback((event) => {
     if (
       guestDropdownRef.current &&
@@ -57,67 +63,96 @@ export default function SearchBox() {
     ) {
       setIsGuestDropdownOpen(false);
     }
-  }, []); // Dependencies are not needed as handleClickOutside only uses guestDropdownRef.current and setIsGuestDropdownOpen
+  }, []);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [handleClickOutside]); // Added handleClickOutside to dependency array
+  }, [handleClickOutside]);
 
-  // Fixed: Ensure minimum guest count is 1 for adults, 1 for rooms (for Hotel only).
+  // Handle guest count changes
   const handleGuestChange = (type, operation) => {
     setGuests((prev) => {
+      const currentValue = prev[type];
       let newValue;
+
       if (operation === "increase") {
-        newValue = prev[type] + 1;
+        newValue = currentValue + 1;
+        // Set reasonable maximum limits
+        if (type === "adults" && newValue > 10) return prev;
+        if (type === "children" && newValue > 6) return prev;
+        if (type === "rooms" && newValue > 8) return prev;
       } else {
-        // Adults must be at least 1. Children/Rooms can be 0 (except rooms minimum 1 when shown)
-        const min = type === "adults" ? 1 : type === "rooms" && activeTab === "Hotel" ? 1 : 0;
-        newValue = Math.max(min, prev[type] - 1);
+        // Set minimum limits
+        const min = type === "adults" ? 1 : type === "rooms" ? 1 : 0;
+        newValue = Math.max(min, currentValue - 1);
       }
-      return {
-        ...prev,
-        [type]: newValue,
-      };
+
+      return { ...prev, [type]: newValue };
     });
   };
 
+  // Get guest summary text
   const getGuestSummary = () => {
     const { adults, children, rooms } = guests;
     const totalGuests = adults + children;
+    
+    if (isMobile) {
+      return `${totalGuests}`;
+    }
+    
     let summary = `${totalGuests} Guest${totalGuests !== 1 ? 's' : ''}`;
-    // Fixed: Only include 'rooms' in summary for 'Hotel' tab.
-    if (activeTab === "Hotel") summary += `, ${rooms} Room${rooms !== 1 ? 's' : ''}`;
-    return isMobile ? `${totalGuests}` : summary;
+    if (activeTab === "Hotel") {
+      summary += `, ${rooms} Room${rooms !== 1 ? 's' : ''}`;
+    }
+    return summary;
   };
 
+  // Handle search submission
   const handleSearch = () => {
-    console.log("Searching:", {
-      activeTab,
-      destination,
-      checkInDate,
-      checkOutDate,
-      guests,
-    });
-    alert(`Searching for ${destination} from ${checkInDate} to ${checkOutDate} for ${guests.adults + guests.children} guests`);
+    const searchParams = new URLSearchParams();
+    searchParams.append("destination", destination);
+    searchParams.append("checkInDate", checkInDate);
+    searchParams.append("checkOutDate", checkOutDate);
+    searchParams.append("adults", guests.adults);
+    searchParams.append("children", guests.children);
+    searchParams.append("rooms", guests.rooms);
+
+    navigate(`/search?${searchParams.toString()}`);
   };
 
-  // Handle tab click with proper state update
-  // Fixed:
+  // Handle tab switching with proper state reset
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
-    // Fixed: Reset guest rooms when switching to non-hotel tabs.
-    // Also ensures guest dropdown closes if the active tab changes.
     setIsGuestDropdownOpen(false);
+    setIsMobileMenuOpen(false); // FIX: Close mobile menu when tab is selected
+    
+    // Reset guest configuration based on tab type
     if (tabId !== "Hotel") {
-      setGuests(prev => ({ ...prev, rooms: 1 })); // Set rooms to 1 (minimal) or other minimal state
+      setGuests(prev => ({ 
+        adults: Math.max(1, prev.adults), 
+        children: prev.children, 
+        rooms: 1 
+      }));
     } else {
-      // Ensure adults is at least 1 when switching to Hotel.
-      setGuests(prev => ({ ...prev, adults: Math.max(1, prev.adults) }));
+      // For hotel, ensure minimum configuration
+      setGuests(prev => ({ 
+        adults: Math.max(1, prev.adults), 
+        children: prev.children, 
+        rooms: Math.max(1, prev.rooms) 
+      }));
     }
   };
 
-  // Don't render anything until we know the screen size
+  // Quick destination selection
+  const handleQuickDestination = (city) => {
+    setDestination(`${city}`);
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  // Don't render until we know screen size
   if (!isMounted) {
     return (
       <div className="w-full max-w-6xl mx-auto p-4">
@@ -129,7 +164,7 @@ export default function SearchBox() {
     );
   }
 
-  // Mobile simplified view
+  // Mobile view
   if (isMobile) {
     return (
       <div className="w-full mx-auto px-4 md:p-0">
@@ -139,29 +174,27 @@ export default function SearchBox() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="px-2 w-full bg-white rounded-xl shadow-2xl border border-gray-200"
         >
-          {/* Mobile Header with Active Tab Display */}
+          {/* Mobile Header - FIXED: Now shows the actual active tab */}
           <div className="p-3 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(!isMobileMenuOpen);
-                  setIsGuestDropdownOpen(false); // Close guest dropdown when opening menu
+                  setIsGuestDropdownOpen(false);
                 }}
                 className="flex items-center space-x-2 text-gray-700"
               >
                 {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
                 <span className="font-medium text-sm">
-                  {tabs.find(tab => tab.id === activeTab)?.id}
+                  {activeTab} {/* FIX: Directly use activeTab state */}
                 </span>
               </button>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleSearch}
-                  className="bg-blue-600 p-2 rounded-lg text-white"
-                >
-                  <Search size={16} />
-                </button>
-              </div>
+              <button
+                onClick={handleSearch}
+                className="bg-blue-600 p-2 rounded-lg text-white"
+              >
+                <Search size={16} />
+              </button>
             </div>
           </div>
 
@@ -177,18 +210,17 @@ export default function SearchBox() {
                 <div className="grid grid-cols-2 gap-2 p-3">
                   {tabs.map((tab) => {
                     const IconComponent = tab.icon;
+                    const isActive = activeTab === tab.id; // FIX: Check if this tab is active
+                    
                     return (
                       <button
                         key={tab.id}
-                        onClick={() => {
-                          handleTabClick(tab.id);
-                          setIsMobileMenuOpen(false);
-                          setIsGuestDropdownOpen(false); // Added: Ensure guest dropdown closes
-                        }}
-                        className={`flex items-center justify-center space-x-2 p-3 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
+                        onClick={() => handleTabClick(tab.id)} // FIX: Use the handler directly
+                        className={`flex items-center justify-center space-x-2 p-3 rounded-lg text-sm font-medium transition-all ${
+                          isActive
                             ? `${tab.bgColor} ${tab.color} border-2 border-current`
                             : "text-gray-600 bg-gray-50 border-2 border-transparent"
-                          }`}
+                        }`}
                       >
                         <IconComponent size={16} />
                         <span>{tab.id}</span>
@@ -222,6 +254,7 @@ export default function SearchBox() {
                   type="date"
                   value={checkInDate}
                   onChange={(e) => setCheckInDate(e.target.value)}
+                  min={getDefaultDate(0)}
                   className="bg-transparent outline-none flex-1 text-sm text-gray-900"
                 />
               </div>
@@ -233,6 +266,7 @@ export default function SearchBox() {
                   type="date"
                   value={checkOutDate}
                   onChange={(e) => setCheckOutDate(e.target.value)}
+                  min={checkInDate}
                   className="bg-transparent outline-none flex-1 text-sm text-gray-900"
                 />
               </div>
@@ -243,7 +277,7 @@ export default function SearchBox() {
               <button
                 onClick={() => {
                   setIsGuestDropdownOpen(!isGuestDropdownOpen);
-                  setIsMobileMenuOpen(false); // Added: Ensure mobile menu closes when opening guest dropdown
+                  setIsMobileMenuOpen(false);
                 }}
                 className="w-full flex items-center justify-between bg-gray-50 px-3 py-3 rounded-lg border border-gray-200"
               >
@@ -252,8 +286,9 @@ export default function SearchBox() {
                   <span className="text-sm text-gray-900">{getGuestSummary()}</span>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-500 transition-transform ${isGuestDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-gray-500 transition-transform ${
+                    isGuestDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -266,7 +301,6 @@ export default function SearchBox() {
                     className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-20"
                   >
                     <div className="space-y-3">
-                      {/* Fixed logic for room display based on activeTab */}
                       {["adults", "children", ...(activeTab === "Hotel" ? ["rooms"] : [])].map(
                         (type) => (
                           <div
@@ -275,15 +309,20 @@ export default function SearchBox() {
                           >
                             <div>
                               <div className="font-medium text-gray-900 text-sm capitalize">
-                                {type}
+                                {type === "children" ? "Children (0-17)" : type}
                               </div>
                             </div>
                             <div className="flex items-center space-x-3">
                               <button
                                 onClick={() => handleGuestChange(type, "decrease")}
                                 className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                // Fixed: Minimum adult count is 1, minimum room count is 1 for Hotel.
-                                disabled={type === "adults" ? guests[type] <= 1 : type === "rooms" ? guests[type] <= 1 : guests[type] <= 0}
+                                disabled={
+                                  type === "adults" 
+                                    ? guests[type] <= 1 
+                                    : type === "rooms" 
+                                    ? guests[type] <= 1 
+                                    : guests[type] <= 0
+                                }
                               >
                                 −
                               </button>
@@ -312,7 +351,7 @@ export default function SearchBox() {
               {["Bangkok", "Paris", "Tokyo", "Dubai"].map((city) => (
                 <button
                   key={city}
-                  onClick={() => setDestination(`${city}`)}
+                  onClick={() => handleQuickDestination(city)}
                   className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
                 >
                   {city}
@@ -333,7 +372,7 @@ export default function SearchBox() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-100"
     >
-      {/* Tabs - Fixed with proper click handling */}
+      {/* Tabs */}
       <div className="flex bg-gray-100 rounded-xl p-1 mb-4 overflow-x-auto">
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
@@ -344,11 +383,12 @@ export default function SearchBox() {
               key={tab.id}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => handleTabClick(tab.id)} // Uses the improved handleTabClick
-              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all flex-1 min-w-[120px] text-center text-sm font-medium ${isActive
+              onClick={() => handleTabClick(tab.id)}
+              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all flex-1 min-w-[120px] text-center text-sm font-medium ${
+                isActive
                   ? "bg-white shadow-md border-2 border-current"
                   : "text-gray-600 hover:text-gray-900 border-2 border-transparent"
-                } ${isActive ? tab.color : ""}`}
+              } ${isActive ? tab.color : ""}`}
             >
               <IconComponent
                 className={`w-4 h-4 ${isActive ? tab.color : "text-gray-400"}`}
@@ -386,6 +426,7 @@ export default function SearchBox() {
               type="date"
               value={checkInDate}
               onChange={(e) => setCheckInDate(e.target.value)}
+              min={getDefaultDate(0)}
               className="bg-transparent outline-none flex-1 text-sm text-gray-900"
             />
           </div>
@@ -399,6 +440,7 @@ export default function SearchBox() {
               type="date"
               value={checkOutDate}
               onChange={(e) => setCheckOutDate(e.target.value)}
+              min={checkInDate}
               className="bg-transparent outline-none flex-1 text-sm text-gray-900"
             />
           </div>
@@ -416,8 +458,9 @@ export default function SearchBox() {
               <span className="text-sm text-gray-900">{getGuestSummary()}</span>
             </div>
             <ChevronDown
-              className={`w-4 h-4 text-gray-500 transition-transform ${isGuestDropdownOpen ? "rotate-180" : ""
-                }`}
+              className={`w-4 h-4 text-gray-500 transition-transform ${
+                isGuestDropdownOpen ? "rotate-180" : ""
+              }`}
             />
           </motion.button>
 
@@ -431,7 +474,6 @@ export default function SearchBox() {
                 className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10"
               >
                 <div className="space-y-3">
-                  {/* Fixed logic for room display based on activeTab */}
                   {["adults", "children", ...(activeTab === "Hotel" ? ["rooms"] : [])].map(
                     (type) => (
                       <div
@@ -440,15 +482,20 @@ export default function SearchBox() {
                       >
                         <div>
                           <div className="font-medium text-gray-900 text-sm capitalize">
-                            {type}
+                            {type === "children" ? "Children (0-17)" : type}
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
                           <button
                             onClick={() => handleGuestChange(type, "decrease")}
                             className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                            // Fixed: Minimum adult count is 1, minimum room count is 1 for Hotel.
-                            disabled={type === "adults" ? guests[type] <= 1 : type === "rooms" ? guests[type] <= 1 : guests[type] <= 0}
+                            disabled={
+                              type === "adults" 
+                                ? guests[type] <= 1 
+                                : type === "rooms" 
+                                ? guests[type] <= 1 
+                                : guests[type] <= 0
+                            }
                           >
                             −
                           </button>
@@ -494,7 +541,7 @@ export default function SearchBox() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ delay: i * 0.05 }}
-            onClick={() => setDestination(`${city}`)}
+            onClick={() => handleQuickDestination(city)}
             className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
           >
             {city}

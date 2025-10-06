@@ -10,9 +10,7 @@ import NewPage from './Pages/FinalPage';
 
 // Helpers
 import ItineraryPlanner from "./Pages/ItineraryPlanner";
-import Recommendations from "./Pages/Others/Recommendations";
-import Preferences from "./Pages/Others/Preferences";
-import Highlights from './components/LandingPage/Highlights';
+import SearchResults from "./Pages/SearchResults";
 
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/SignUp";
@@ -23,13 +21,11 @@ function App() {
       {/* Landing page */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={<HomePage />} />
-      <Route path="/highlights" element={<Highlights />} />
-      <Route path="/profile" element={<Profile />} />
       <Route path="/explore" element={<Explore />} />
       <Route path="/itinerary" element={<ItineraryPlanner />} />
-      <Route path="/recommendations" element={<Recommendations />} />
-      <Route path="/preferences" element={<Preferences />} />
-      <Route path="/new" element={<NewPage />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/final" element={<NewPage />} />
+      <Route path="/search" element={<SearchResults />} />
 
       {/* Auth pages */}
       <Route path="/signin" element={<SignIn />} />
