@@ -5,7 +5,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="w-full bg-white py-3 px-6 md:px-12 lg:px-20 flex items-center justify-between rounded-none md:rounded-xl shadow-sm rounded-xl my-1">
+    <header className="w-full py-3 px-6 md:px-20 lg:px-50 flex items-center justify-between rounded-none md:rounded-xl rounded-xl my-1">
       {/* Logo */}
       <div className="flex items-center">
         <span className="text-2xl font-extrabold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">

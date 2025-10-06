@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -11,13 +11,15 @@ import {
   Search,
   ChevronDown,
   MapPin,
-  Calendar,
   Filter,
   Menu,
   X,
   ChevronRight,
   Sun,
   Cloud,
+  Bell,
+  User,
+  Plus
 } from 'lucide-react';
 
 // --- Static Data ---
@@ -70,9 +72,135 @@ const itemVariants = {
 };
 
 const sidebarVariants = {
-  hidden: { x: -200, opacity: 0 },
-  visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
+  hidden: { x: '-100%', opacity: 0 },
+  visible: { x: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 30 } },
 };
+
+// --- Helper Components ---
+
+/**
+ * Renders the Header/Navbar for the Main Content area.
+ */
+const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar }) => (
+  <motion.div 
+    variants={itemVariants} 
+    className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white sticky top-0 border-b border-gray-100 shadow-sm lg:shadow-none"
+  >
+    {/* Left Section: Menu Button and Title */}
+    <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1 sm:max-w-[200px]">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={toggleSidebar}
+        className="p-2 lg:hidden bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-lg transition-all duration-200 active:scale-95"
+        aria-label="Toggle Sidebar"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+      
+      {/* Mobile Title - Only visible on small screens */}
+      <h1 className="text-2xl md:hidden font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+        Dashboard
+      </h1>
+      
+      {/* Desktop Logo/Title - Hidden on mobile */}
+      <div className="hidden lg:flex items-center space-x-2 ml-2">
+        <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+          <span className="text-white font-bold text-sm">T</span>
+        </div>
+        <span className="md:text-sm font-extrabold bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 bg-clip-text text-transparent">TripMate</span>
+      </div>
+    </div>
+
+    {/* Search Bar - Adaptive width */}
+    <div className="relative w-full sm:flex-1 sm:max-w-2xl order-3 sm:order-2 mt-2 sm:mt-0">
+      <Search className="w-4 h-4 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+      <input
+        type="text"
+        placeholder="Search destinations, schedules..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full p-3 pl-11 pr-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+      />
+      {/* Mobile search shortcut */}
+      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 sm:hidden">
+        <kbd className="px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded border border-gray-300">⌘</kbd>
+      </div>
+    </div>
+
+    {/* Right Section: Profile and Actions */}
+    <div className="flex items-center space-x-3 order-2 sm:order-3 w-full sm:w-auto justify-between sm:justify-end">
+      {/* Notification and Quick Actions */}
+      <div className="flex items-center space-x-2">
+        {/* Notification Bell */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all relative"
+          aria-label="Notifications"
+        >
+          <Bell className="w-5 h-5 text-gray-600" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+        </motion.button>
+
+        {/* Quick Add Button - Hidden on smallest screens */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="hidden xs:flex items-center space-x-1 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-all"
+          aria-label="Add New"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Add</span>
+        </motion.button>
+      </div>
+
+      {/* User Profile */}
+      <div className="flex items-center space-x-2 cursor-pointer p-1.5 rounded-xl hover:bg-gray-50 transition-all active:scale-95">
+        {/* Avatar with status indicator */}
+        <div className="relative">
+          <img 
+            src="https://placehold.co/40x40/4CAF50/ffffff?text=JM" 
+            alt="Jemmy Max" 
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm" 
+          />
+          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
+        </div>
+        
+        {/* User Info - Hidden on very small screens */}
+        <div className="hidden xs:block min-w-0 flex-1">
+          <p className="font-semibold text-gray-800 text-sm truncate max-w-[80px] sm:max-w-[100px]">
+            Jemmy Max
+          </p>
+          <p className="text-xs text-gray-500 truncate">Traveler</p>
+        </div>
+        
+        {/* Dropdown Chevron - Hidden on mobile */}
+        <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
+      </div>
+    </div>
+  </motion.div>
+);
+
+
+/**
+ * Renders the Navigation Link for the sidebar.
+ */
+const NavLink = ({ name, icon: Icon, linkKey, currentActive, onClick }) => {
+  const active = linkKey === currentActive;
+  return (
+    <motion.div
+      variants={itemVariants}
+      whileHover={{ x: active ? 0 : 5 }}
+      onClick={() => onClick(linkKey)}
+      className={`flex items-center space-x-3 p-3 rounded-xl cursor-pointer transition-all duration-200
+        ${active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' : 'text-gray-600 hover:bg-gray-100'}`}
+    >
+      <Icon className="w-5 h-5" />
+      <span className={`font-semibold text-sm ${active ? 'text-white' : 'text-gray-700'}`}>{name}</span>
+    </motion.div>
+  );
+};
+
 
 // --- Modal Component ---
 const DetailModal = ({ item, onClose }) => {
@@ -83,17 +211,17 @@ const DetailModal = ({ item, onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto"
       onClick={onClose}
     >
       <motion.div
         initial={{ y: -50, opacity: 0, scale: 0.8 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 50, opacity: 0, scale: 0.8 }}
-        className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl relative"
+        className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl relative my-8"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
       >
-        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition z-10" aria-label="Close Modal">
           <X className="w-5 h-5 text-gray-700" />
         </button>
 
@@ -122,9 +250,9 @@ const DetailModal = ({ item, onClose }) => {
   );
 };
 
-
 // --- Calendar Component ---
 const CalendarDisplay = () => {
+  // ... (CalendarDisplay logic remains the same)
   const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   const dates = [
     null, null, null, 1, 2, 3, 4,
@@ -160,6 +288,7 @@ const CalendarDisplay = () => {
   );
 };
 
+
 // --- Schedule Item Component ---
 const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
   <motion.div variants={itemVariants} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer mb-2">
@@ -173,22 +302,34 @@ const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
       </div>
     </div>
     <div className="flex items-center space-x-1">
-      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+      <div className="w-2 h-2 rounded-full bg-green-500 mr-2 hidden sm:block"></div>
       <ChevronRight className="w-4 h-4 text-gray-400" />
     </div>
   </motion.div>
 );
 
+
 // --- Main App Component ---
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState('dashboard'); // State for active navigation
-  const [searchTerm, setSearchTerm] = useState(''); // State for search input
-  const [selectedItem, setSelectedItem] = useState(null); // State for modal detail
+  const [activeNav, setActiveNav] = useState('dashboard');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  // Search filtering logic
+  // Close sidebar on navigation item click (important for mobile UX)
+  const handleNavLinkClick = (key) => {
+    setActiveNav(key);
+    if (window.innerWidth < 1024) { // 1024px is Tailwind's 'lg' breakpoint
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // Close modal when an item is booked/closed
+  const closeModal = () => setSelectedItem(null);
+
+  // Search filtering logic (combined for both sections)
   const filteredDestinations = destinations.filter(dest =>
     dest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dest.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -199,22 +340,32 @@ export default function App() {
     item.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Navigation Links in Sidebar
-  const NavLink = ({ name, icon: Icon, linkKey, currentActive, onClick }) => {
-    const active = linkKey === currentActive;
-    return (
-      <motion.div
-        variants={itemVariants}
-        whileHover={{ x: active ? 0 : 5 }}
-        onClick={() => onClick(linkKey)}
-        className={`flex items-center space-x-3 p-3 rounded-xl cursor-pointer transition-all 
-            ${active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' : 'text-gray-600 hover:bg-gray-100'}`}
-      >
-        <Icon className="w-5 h-5" />
-        <span className={`font-semibold text-sm ${active ? 'text-white' : 'text-gray-700'}`}>{name}</span>
-      </motion.div>
-    );
-  };
+  // Feature Card (Green Safari, Night Camping, etc.)
+  const FeatureCard = ({ id, title, location, rating, image, color, onClick }) => (
+    <motion.div
+      variants={itemVariants}
+      onClick={() => onClick({ id, title, location, rating, image, color })} // Pass full data to set as selectedItem
+      whileHover={{ scale: 1.02 }}
+      className={`relative h-64 rounded-xl shadow-lg overflow-hidden cursor-pointer flex flex-col justify-end p-4 transition-all duration-300 ease-in-out hover:shadow-2xl`}
+    >
+      <div className="absolute inset-0">
+        <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
+        <div className="absolute inset-0 bg-black/30"></div>
+      </div>
+
+      <div className="relative z-10 text-white">
+        <h3 className="text-lg font-bold">{title}</h3>
+        <div className="flex items-center space-x-2 text-sm mt-1">
+          <MapPin className="w-3 h-3" />
+          <span>{location}</span>
+        </div>
+        <div className="flex items-center space-x-1 mt-2">
+          <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+          <span className="text-sm font-semibold">{rating}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
 
   // Discount Banner in Sidebar
   const DiscountBanner = () => (
@@ -234,40 +385,11 @@ export default function App() {
     </motion.div>
   );
 
-  // Feature Card (Green Safari, Night Camping, etc.)
-  const FeatureCard = ({ title, location, rating, image, color, onClick }) => (
-    <motion.div
-      variants={itemVariants}
-      onClick={onClick} // Added click handler
-      whileHover={{ scale: 1.02 }}
-      className={`relative h-64 rounded-xl shadow-lg overflow-hidden cursor-pointer flex flex-col justify-end p-4 transition-all duration-300 ease-in-out hover:shadow-2xl`}
-    >
-      {/* Placeholder image layer */}
-      <div className="absolute inset-0">
-        <img src={image} alt={title} className="w-full h-full object-cover" />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/30"></div>
-      </div>
-
-      <div className="relative z-10 text-white">
-        <h3 className="text-lg font-bold">{title}</h3>
-        <div className="flex items-center space-x-2 text-sm mt-1">
-          <MapPin className="w-3 h-3" />
-          <span>{location}</span>
-        </div>
-        <div className="flex items-center space-x-1 mt-2">
-          <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-          <span className="text-sm font-semibold">{rating}</span>
-        </div>
-      </div>
-    </motion.div>
-  );
-
   // Destination Item (Small list)
   const DestinationItem = ({ title, location, rating, price, image }) => (
     <motion.div variants={itemVariants} className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer mb-2">
       <div className="flex items-center space-x-3">
-        <img src={image} alt={title} className="w-12 h-12 rounded-lg object-cover" />
+        <img src={image} alt={title} className="w-12 h-12 rounded-lg object-cover" loading="lazy" />
         <div>
           <h4 className="font-semibold text-gray-800">{title}</h4>
           <div className="flex items-center text-xs text-gray-500">
@@ -278,7 +400,7 @@ export default function App() {
       </div>
       <div className="text-right">
         <p className="text-sm font-bold text-gray-800">Rs. {price}</p>
-        <div className="flex items-center text-xs text-yellow-600">
+        <div className="flex items-center text-xs text-yellow-600 justify-end">
           <Star className="w-3 h-3 fill-yellow-500" />
           <span className="ml-1">{rating}</span>
         </div>
@@ -287,26 +409,31 @@ export default function App() {
   );
 
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 p-2 lg:hidden bg-emerald-500 text-white rounded-full shadow-lg"
-      >
-        {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
+    <div className="min-h-screen bg-gray-100 ">
+      {/* Mobile Sidebar Overlay (outside the main content box) */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={toggleSidebar}
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
       <motion.div
-        className="mx-auto w-full bg-white rounded-3xl shadow-2xl p-4 lg:p-8 overflow-hidden relative"
+        className="mx-auto w-full bg-white rounded-3xl shadow-2xl overflow-hidden relative"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="lg:grid lg:grid-cols-[250px_1fr_300px] gap-8 h-full">
+        <div className="lg:grid lg:grid-cols-[250px_1fr_300px] h-full min-h-screen">
 
           {/* --- 1. Sidebar (Desktop/Mobile) --- */}
           <AnimatePresence>
-            {(isSidebarOpen || window.innerWidth >= 1024) && (
+            {(isSidebarOpen || window.innerWidth >= 1024) && ( // isSidebarOpen logic is handled by wrapper
               <motion.div
                 key="sidebar"
                 variants={sidebarVariants}
@@ -314,30 +441,37 @@ export default function App() {
                 animate="visible"
                 exit="hidden"
                 className={`
-                  absolute lg:relative top-0 left-0 h-screen w-64 lg:w-auto 
-                  bg-white z-40 p-4 lg:p-0 lg:border-r-0
-                  ${isSidebarOpen ? 'block border-r' : 'hidden'} lg:block
-                  overflow-y-auto
+                  fixed lg:relative top-0 left-0 h-full w-64 
+                  bg-white z-40 p-6 shadow-xl lg:shadow-none 
+                  overflow-y-auto flex flex-col justify-between
+                  ${isSidebarOpen ? 'block' : 'hidden'} lg:block
                 `}
               >
-                <motion.h1 variants={itemVariants} className="text-2xl font-extrabold text-gray-900 mt-2 mb-8">
-                  <h1 className="text-2xl font-extrabold bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 bg-clip-text text-transparent mt-2 mb-8">
-                    TripMate
-                  </h1>
-                </motion.h1>
-                <nav className="space-y-2">
-                  {navItems.map(item => (
-                    <NavLink
-                      key={item.key}
-                      name={item.name}
-                      icon={item.icon}
-                      linkKey={item.key}
-                      currentActive={activeNav}
-                      onClick={setActiveNav}
-                    />
-                  ))}
-                </nav>
-                <DiscountBanner />
+                <div>
+                  <div className="flex justify-between items-center mb-10">
+                    <h1 className="text-2xl font-extrabold bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                      TripMate
+                    </h1>
+                    <button onClick={toggleSidebar} className="lg:hidden p-1 rounded-full text-gray-700 hover:bg-gray-100" aria-label="Close Sidebar">
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+                  
+                  <nav className="space-y-2">
+                    {navItems.map(item => (
+                      <NavLink
+                        key={item.key}
+                        name={item.name}
+                        icon={item.icon}
+                        linkKey={item.key}
+                        currentActive={activeNav}
+                        onClick={handleNavLinkClick}
+                      />
+                    ))}
+                  </nav>
+                  <DiscountBanner />
+                </div>
+
                 <motion.div variants={itemVariants} className="mt-12 pt-4 border-t border-gray-200">
                   <NavLink
                     name="Log out"
@@ -351,111 +485,97 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          {/* --- 2. Main Dashboard Content --- */}
-          <div className="col-span-1 p-4 lg:p-0">
-            <motion.div variants={itemVariants} className="mb-8">
-              <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent mt-2 mb-8 py-2">
-                Hello, Deepak
-              </h1>
-              <p className="text-gray-500 text-sm">Welcome back and explore the world</p>
-            </motion.div>
+          {/* --- 2. Main Dashboard Content (Middle) --- */}
+          <div className="col-span-1 flex flex-col overflow-y-auto">
+            {/* Header/Search Area */}
+            <DashboardHeader
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              toggleSidebar={toggleSidebar}
+            />
 
-            {/* Search Bar and User Profile */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
-              <div className="relative flex-grow w-full">
-                <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search destinations or schedule..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)} // Search state handler
-                  className="w-full p-3 pl-12 border border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 transition"
-                />
-              </div>
-              <div className="flex items-center space-x-2 flex-shrink-0">
-                <img src="https://placehold.co/40x40/4CAF50/ffffff?text=JM" alt="User" className="w-10 h-10 rounded-full object-cover" />
-                <div className="hidden sm:block">
-                  <p className="font-semibold text-gray-800 text-sm">Jemmy Max</p>
-                  <p className="text-xs text-gray-500">Traveler Enthusiast</p>
+            <div className="p-4 sm:p-6 lg:p-8 flex-grow">
+              {/* Welcome Message */}
+              <motion.div variants={itemVariants} className="mb-8 mt-4">
+                <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
+                  Hello, Deepak
+                </h1>
+                <p className="text-gray-500 text-sm">Welcome back and explore the world</p>
+              </motion.div>
+
+              {/* Feature Cards Grid */}
+              <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+                {featureCards.map((card) => (
+                  <FeatureCard
+                    key={card.id}
+                    {...card}
+                    onClick={setSelectedItem} // Open Modal on click
+                  />
+                ))}
+              </motion.div>
+
+              {/* Best Destination & Filters */}
+              <motion.div variants={itemVariants} className="flex justify-between items-center mb-4 mt-6">
+                <div className="flex flex-col">
+                  <h3 className="text-xl font-bold text-gray-800">Best Destination</h3>
+                  <p className="text-xs text-gray-500">
+                    {filteredDestinations.length} Destination{filteredDestinations.length !== 1 ? 's' : ''} found
+                  </p>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 cursor-pointer" />
-              </div>
-            </motion.div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer hover:text-emerald-500">
+                  <Filter className="w-4 h-4" />
+                  <span>Filters</span>
+                </div>
+              </motion.div>
 
-            {/* Feature Cards Grid */}
-            <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              {featureCards.map((card, index) => (
-                <FeatureCard
-                  key={index}
-                  {...card}
-                  onClick={() => setSelectedItem(card)} // Open Modal on click
-                />
-              ))}
-            </motion.div>
-
-            {/* Best Destination & Filters */}
-            <motion.div variants={itemVariants} className="flex justify-between items-center mb-4 mt-6">
-              <div className="flex flex-col">
-                <h3 className="text-xl font-bold text-gray-800">Best Destination</h3>
-                <p className="text-xs text-gray-500">
-                  {filteredDestinations.length} Destination{filteredDestinations.length !== 1 ? 's' : ''} found
-                </p>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer hover:text-emerald-500">
-                <Filter className="w-4 h-4" />
-                <span>Filters</span>
-              </div>
-            </motion.div>
-
-            {/* Destination List Grid */}
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {filteredDestinations.length > 0 ? (
-                filteredDestinations.map((dest, index) => (
-                  <DestinationItem key={index} {...dest} />
-                ))
-              ) : (
-                <p className="text-gray-500 mt-4 text-sm col-span-2">No destinations match "{searchTerm}"</p>
-              )}
-            </motion.div>
+              {/* Destination List Grid */}
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {filteredDestinations.length > 0 ? (
+                  filteredDestinations.map((dest) => (
+                    <DestinationItem key={dest.id} {...dest} />
+                  ))
+                ) : (
+                  <p className="text-gray-500 mt-4 text-sm col-span-2">No destinations match "{searchTerm}"</p>
+                )}
+              </motion.div>
+            </div>
           </div>
 
           {/* --- 3. Right Panel (Calendar and Schedule) --- */}
-          <div className="col-span-1 lg:p-0 border-t lg:border-t-0 lg:border-l border-gray-100 mt-8 lg:mt-0 px-10">
-            <motion.div variants={itemVariants} className="mb-8">
-              <p className="text-sm text-gray-400 text-right">...</p> {/* Placeholder for more menu */}
+          <div className="col-span-1 p-4 lg:p-6 xl:p-8 border-t lg:border-t-0 lg:border-l border-gray-100 overflow-y-auto">
+            <motion.div variants={itemVariants} className="mt-4 lg:mt-0">
+              <p className="text-sm text-gray-400 text-right">...</p>
             </motion.div>
 
             <CalendarDisplay />
 
-            <motion.div variants={itemVariants} className="mb-4 p-4">
+            <motion.div variants={itemVariants} className="mb-4">
               <h3 className="text-xl font-semibold text-gray-800">My Schedule</h3>
             </motion.div>
 
             <motion.div
-              className="space-y-3 px-4"
+              className="space-y-3"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
               {filteredSchedule.length > 0 ? (
-                filteredSchedule.map((item, index) => (
-                  <ScheduleItem key={index} {...item} />
+                filteredSchedule.map((item) => (
+                  <ScheduleItem key={item.id} {...item} />
                 ))
               ) : (
                 <p className="text-gray-500 mt-2 text-sm">No schedules match "{searchTerm}"</p>
               )}
             </motion.div>
 
-            {/* Let's Explore Banner - Placed here for layout matching */}
+            {/* Let's Explore Banner */}
             <motion.div variants={itemVariants} className="mt-8 bg-gray-900 rounded-xl shadow-lg p-6 text-white text-center relative overflow-hidden">
-              {/* Image Placeholder */}
-              <img src="https://placehold.co/100x100/4CAF50/ffffff?text=Traveler" alt="Traveler" className="absolute top-0 right-0 h-full w-1/3 object-cover opacity-30" />
-
+              <img src="https://placehold.co/100x100/4CAF50/ffffff?text=Traveler" alt="Traveler" className="absolute top-0 right-0 h-full w-1/3 object-cover opacity-30" loading="lazy" />
               <div className="relative z-10">
                 <h3 className="text-2xl font-bold">Let's Explore the beauty</h3>
                 <p className="text-sm mt-2 text-gray-300">Get special offers & news</p>
@@ -468,24 +588,16 @@ export default function App() {
                 </motion.button>
               </div>
             </motion.div>
-
           </div>
         </div>
-        {/* Mobile Sidebar Overlay */}
-        {isSidebarOpen && (
-          <div
-            onClick={toggleSidebar}
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          ></div>
-        )}
       </motion.div>
 
-      {/* Detail Modal component, shown only when an item is selected */}
+      {/* Detail Modal component */}
       <AnimatePresence>
         {selectedItem && (
-          <DetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          <DetailModal item={selectedItem} onClose={closeModal} />
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

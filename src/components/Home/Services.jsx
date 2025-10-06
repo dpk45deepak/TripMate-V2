@@ -45,7 +45,7 @@ const CustomerReviewSection = () => (
         className="py-20 px-4"
     >
         <div className="max-w-6xl mx-auto">
-            <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center mb-2">
+            <motion.h2 variants={itemVariants} className="text-5xl sm:text-4xl font-extrabold text-gray-900 text-center mb-2">
                 What Our Customer Say?
             </motion.h2>
             <motion.p variants={itemVariants} className="text-gray-600 text-center mb-12">
@@ -60,7 +60,7 @@ const CustomerReviewSection = () => (
                         className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 relative"
                     >
                         <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 mb-4" />
-                        <p className="text-gray-700 italic mb-6">"{review.text}"</p>
+                        <p className="text-gray-700 text-xl italic mb-6">"{review.text}"</p>
                         <div className="flex items-center space-x-4">
                             <img src={review.avatar} alt={review.name} className="w-12 h-12 rounded-full object-cover border-2 border-green-500" />
                             <div>

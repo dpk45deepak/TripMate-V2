@@ -54,89 +54,6 @@ const AnimatedSection = ({
     );
 };
 
-// Enhanced Parallax banner component
-const ParallaxBanner = () => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-  
-  const y = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.6, 1, 0.6]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
-  
-  return (
-    <section ref={ref} className="h-screen md:h-[80vh] relative overflow-hidden">
-      <motion.div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          y,
-          opacity,
-          scale,
-          backgroundImage: "url('https://imageio.forbes.com/specials-images/imageserve/67ac817aaafb1450166f9090/Fontvieille-Harbour-in-Monaco/0x0.jpg?format=jpg&width=960')"
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/70 flex items-center justify-center">
-        <div className="text-center text-white px-4 max-w-4xl mx-auto">
-          <AnimatedSection direction="down" delay={0.3}>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-shadow-lg">
-              Journeys Beyond Imagination
-            </h2>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.5}>
-            <p className="text-xl md:text-2xl font-light mb-8 text-shadow-md max-w-2xl mx-auto">
-              Let us guide you to the world's most breathtaking destinations. Your adventure starts here.
-            </p>
-          </AnimatedSection>
-          <AnimatedSection direction="up" delay={0.7}>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex flex-col sm:flex-row gap-4"
-            >
-              <Link to="/destinations">
-                <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-colors duration-300 flex items-center justify-center gap-2">
-                  Explore Destinations
-                  <ArrowRight size={20} />
-                </button>
-              </Link>
-              <Link to="/about">
-                <button className="bg-transparent border-2 border-white hover:bg-white/10 text-white font-bold py-4 px-8 rounded-full transition-colors duration-300">
-                  Learn More
-                </button>
-              </Link>
-            </motion.div>
-          </AnimatedSection>
-        </div>
-      </div>
-      
-      {/* Scroll indicator */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="text-white flex flex-col items-center"
-        >
-          <span className="text-sm mb-2">Scroll to explore</span>
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-1 h-3 bg-white rounded-full mt-2"
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-    </section>
-  );
-};
-
 // Enhanced Testimonials section with carousel
 const Testimonials = () => {
   const testimonials = [
@@ -301,7 +218,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-20 md:px-60 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-6">
         <AnimatedSection direction="up" className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Us</h2>
@@ -342,39 +259,10 @@ const LandingPage = () => {
   return (
     <div className="bg-white text-gray-800 font-sans overflow-hidden">
       <Header />
-      
       <main>
-        <HeroSection />
-        {/* <ParallaxBanner /> */}
-        
+        <HeroSection />        
         <FeaturesSection />
-        
         <Testimonials />
-        
-        
-        {/* Call to Action */}
-        {/* <AnimatedSection direction="up">
-          <section className="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-20">
-            <div className="container mx-auto px-6 text-center">
-              <h2 className="text-4xl font-extrabold mb-4">Ready for Your Next Adventure?</h2>
-              <p className="text-lg mb-8 max-w-2xl mx-auto text-purple-100">
-                Explore our curated trips and start planning your dream vacation today.
-              </p>
-              <Link to="/signup">
-                <motion.button 
-                  whileHover={{ 
-                    scale: 1.05, 
-                    boxShadow: "0px 10px 25px rgba(0,0,0,0.2)" 
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-white text-purple-600 font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 hover:bg-gray-50"
-                >
-                  Explore Trips
-                </motion.button>
-              </Link>
-            </div>
-          </section>
-        </AnimatedSection> */}
       </main>
 
       <Footer />
