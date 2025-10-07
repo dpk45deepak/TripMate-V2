@@ -12,6 +12,7 @@ import NewPage from './Pages/FinalPage';
 import ItineraryPlanner from "./Pages/ItineraryPlanner";
 import SearchResults from "./Pages/SearchResults";
 
+// Authentication
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/SignUp";
 

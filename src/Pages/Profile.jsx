@@ -34,15 +34,18 @@ const navItems = [
 ];
 
 const featureCards = [
-  { id: 1, title: 'Green Safari', location: 'Green Mountain', rating: 4.9, image: 'https://placehold.co/400x250/08A63D/ffffff?text=Mountain+View', color: 'bg-green-600' },
-  { id: 2, title: 'Night Camping', location: 'Lightning lake', rating: 4.8, image: 'https://placehold.co/400x250/2E2E6A/ffffff?text=Night+Sky', color: 'bg-indigo-700' },
-  { id: 3, title: 'Mount Climbing', location: 'Green Valley', rating: 5.0, image: 'https://placehold.co/400x250/4CAF50/ffffff?text=Climbing', color: 'bg-emerald-500' },
+  { id: 1, title: 'Green Safari', location: 'Green Mountain', rating: 4.9, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQroVTt14mdvCHXBrGHPzkm9ROZI5eJD_NH6w&s', color: 'bg-green-600' },
+  { id: 2, title: 'Night Camping', location: 'Lightning lake', rating: 4.8, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT632_6m6XxAXxR_jPzJXeXv9lhdaam5Q7C7Q&s', color: 'bg-indigo-700' },
+  { id: 3, title: 'Mount Climbing', location: 'Green Valley', rating: 5.0, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkDvj7r8rwNewrf4Olj8PpX6NzKsETsJTI4Q&s', color: 'bg-emerald-500' },
 ];
 
+// best choice if not image: 'https://placehold.co/400x250/4CAF50/ffffff?text=Climbing'
+
+
 const destinations = [
-  { id: 10, title: 'Green wood forest', location: 'Tilangauna', rating: 4.5, price: '999', image: 'https://placehold.co/60x60/88AA77/ffffff?text=Forest' },
-  { id: 11, title: 'Green Forest Camp', location: 'Chennai', rating: 4.0, price: '799', image: 'https://placehold.co/60x60/338866/ffffff?text=Camp' },
-  { id: 12, title: 'Desert Festival', location: 'Rajeshthan', rating: 4.8, price: '899', image: 'https://placehold.co/60x60/CC9933/ffffff?text=Desert' },
+  { id: 10, title: 'Green wood forest', location: 'Tilangauna', rating: 4.5, price: '999', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLx7klwRMyT2UiLVrJSwxR_ZSbjZ1p3bU7DA&s' },
+  { id: 11, title: 'Beauty of Beaches', location: 'Chennai', rating: 4.0, price: '799', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGsq2pWQK5wqczkL4u2DcwJDl1P-iQOi7zow&s' },
+  { id: 12, title: 'Desert Festival', location: 'Rajeshthan', rating: 4.8, price: '899', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFPgiXsbJGh5rEF5e3EECcMPV7h-g9FUl7pw&s' },
 ];
 
 const scheduleItems = [

@@ -18,13 +18,13 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function SearchBox() {
   const navigate = useNavigate();
   const tabs = [
+    { id: "Holiday / Trip", icon: Sparkles, color: "text-amber-600", bgColor: "bg-amber-50" },
     { id: "Hotel", icon: Hotel, color: "text-blue-600", bgColor: "bg-blue-50" },
     { id: "Flight", icon: Plane, color: "text-emerald-600", bgColor: "bg-emerald-50" },
     { id: "Bus & Train", icon: Bus, color: "text-purple-600", bgColor: "bg-purple-50" },
-    { id: "Holiday", icon: Sparkles, color: "text-amber-600", bgColor: "bg-amber-50" },
   ];
 
-  const [activeTab, setActiveTab] = useState("Hotel");
+  const [activeTab, setActiveTab] = useState("Holiday");
   const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [guests, setGuests] = useState({ adults: 1, children: 0, rooms: 1 });
@@ -118,7 +118,8 @@ export default function SearchBox() {
     searchParams.append("children", guests.children);
     searchParams.append("rooms", guests.rooms);
 
-    navigate(`/search?${searchParams.toString()}`);
+    // navigate(`/search?${searchParams.toString()}`);
+    navigate(`/final?${searchParams.toString()}`);
   };
 
   // Handle tab switching with proper state reset
