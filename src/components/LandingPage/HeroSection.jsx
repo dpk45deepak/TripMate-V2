@@ -243,7 +243,7 @@ const EnhancedHeroSection = () => {
           </div>
 
           {/* Destinations Grid - Enhanced Card Design */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:px-20">
             {tripLocations.map((trip, index) => (
               <motion.div 
                 key={index}

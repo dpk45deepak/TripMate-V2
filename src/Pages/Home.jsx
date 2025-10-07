@@ -50,7 +50,6 @@ export default function Home() {
   const [servicesRef, servicesInView] = useAnimatedInView(0.1);
   const [destinationRef, destinationInView] = useAnimatedInView(0.1);
 
-
   // Check screen size on mount and resize (existing logic)
   useEffect(() => {
     const checkScreenSize = () => {
@@ -77,59 +76,61 @@ export default function Home() {
     <div className="font-sans bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800 relative mx-1 md:mx-10">
       <Navbar />
       
-      {/* Hero Section (No scrolling animation needed, it's the first view) */}
-      <div className="relative mb-20 rounded-xl">
+      {/* Hero Section with proper SearchBox positioning */}
+      <div className="relative mb-32 md:mb-40 rounded-xl overflow-visible">
         <Hero />
 
-        {/* SearchBox: Uses initial/animate on mount */}
+        {/* SearchBox: Fixed positioning issues */}
         <motion.div
           variants={textVariants}
           initial="hidden"
           animate="visible"
           transition={{ delay: 0.4 }}
-          className={`absolute left-1/2 transform -translate-x-1/2 w-full px-4 sm:px-6 ${
-            isMobile ? "-bottom-40" : "-bottom-6 md:-bottom-36"
+          className={`absolute left-1/2 transform -translate-x-1/2 w-full px-4 sm:px-6 z-20 ${
+            isMobile ? "top-full mt-[-4em]" : "top-full md:mt-[-4em]"
           }`}
-          >
+        >
           <div className="max-w-4xl mx-auto">
             <SearchBox />
           </div>
         </motion.div>
       </div>
 
-      {/* Highlights Section: Scroll Animation */}
-      <motion.div
-        ref={highlightsRef}
-        variants={sectionVariants}
-        initial="hidden"
-        animate={highlightsInView ? "visible" : "hidden"}
-      >
-        <Highlights />
-        <WorldMap />
-      </motion.div>
+      {/* Add margin top to push content below the SearchBox */}
+      <div className="mt-20 md:mt-32">
+        {/* Highlights Section: Scroll Animation */}
+        <motion.div
+          ref={highlightsRef}
+          variants={sectionVariants}
+          initial="hidden"
+          animate={highlightsInView ? "visible" : "hidden"}
+        >
+          <Highlights />
+          <WorldMap />
+        </motion.div>
 
-      {/* Destination Section: Scroll Animation */}
-      <motion.div
-        ref={destinationRef}
-        variants={sectionVariants}
-        initial="hidden"
-        animate={destinationInView ? "visible" : "hidden"}
-        className="pt-20 md:pt-0"
-      >
-        <Destination />
-      </motion.div>
+        {/* Destination Section: Scroll Animation */}
+        <motion.div
+          ref={destinationRef}
+          variants={sectionVariants}
+          initial="hidden"
+          animate={destinationInView ? "visible" : "hidden"}
+          className="pt-20 md:pt-0"
+        >
+          <Destination />
+        </motion.div>
 
-      {/* Services Section: Scroll Animation */}
-      <motion.div
-        ref={servicesRef}
-        variants={sectionVariants}
-        initial="hidden"
-        animate={servicesInView ? "visible" : "hidden"}
-      >
-        <Services />
-        <Pricing />
-      </motion.div>
-
+        {/* Services Section: Scroll Animation */}
+        <motion.div
+          ref={servicesRef}
+          variants={sectionVariants}
+          initial="hidden"
+          animate={servicesInView ? "visible" : "hidden"}
+        >
+          <Services />
+          <Pricing />
+        </motion.div>
+      </div>
     </div>
     <Footer />
     </>

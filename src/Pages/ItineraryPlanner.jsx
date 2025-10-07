@@ -66,22 +66,6 @@ export default function TravelApp() {
       price: "$980",
       description: "Table Mountain and coastal beauty",
     },
-    {
-      id: 3,
-      title: "Adventure Ski",
-      img: "https://images.unsplash.com/photo-1517824806704-9040b037703b",
-      rating: 4.7,
-      price: "$1,500",
-      description: "Ski resorts and winter sports",
-    },
-    {
-      id: 4,
-      title: "Island Escape",
-      img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-      rating: 4.8,
-      price: "$2,300",
-      description: "Tropical paradise getaway",
-    },
   ];
 
   const filteredCards = cards.filter(
@@ -109,7 +93,7 @@ export default function TravelApp() {
       {/* Mobile Header and Menu Button */}
       <div className="lg:hidden p-4 flex justify-between items-center bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          layla.ai
+          TripMate.ai
         </h1>
         <button>
           <Bars3Icon className="w-7 h-7 text-gray-700" />
@@ -140,10 +124,10 @@ export default function TravelApp() {
               whileHover={{ scale: 1.05 }}
               className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
             >
-              layla.ai
+              TripMate.ai
             </motion.h1>
 
-            <div className="relative mb-4">
+            <div className="relative my-4">
               <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
@@ -164,7 +148,7 @@ export default function TravelApp() {
                   className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
                     activeTab === item.label
                       ? "bg-blue-500 text-white shadow-lg"
-                      : "text-gray-600 hover:bg-blue-50 hover:text-blue-500"
+                      : "text-gray-600 hover:bg-blue-70 hover:text-blue-500"
                   }`}
                 >
                   {item.icon}
@@ -173,7 +157,7 @@ export default function TravelApp() {
               ))}
             </div>
 
-            <div className="mt-auto p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white">
+            <div className="mt-auto md:mt-50 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white">
               <div className="flex items-center gap-3">
                 <img
                   src="https://pbs.twimg.com/profile_images/1590968738358079488/IY9Gx6Ok_400x400.jpg"
@@ -197,7 +181,7 @@ export default function TravelApp() {
       {/* Main Content */}
       <div className="flex-1 p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16 lg:mb-0">
         {/* Chat Section */}
-        <div className="lg:col-span-2 bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col gap-6">
+        <div className="lg:col-span-2 bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col gap-6 h-screen">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               Where to today, Elon?
@@ -219,7 +203,7 @@ export default function TravelApp() {
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                   L
                 </div>
-                <span className="font-semibold">Layla AI</span>
+                <span className="font-semibold">TripMate AI</span>
               </div>
               Hey Elon! Ready for your next adventure? 🌍 I'm here to help you plan the perfect trip.
               Ask me anything about destinations, flights, or accommodations!
@@ -265,7 +249,7 @@ export default function TravelApp() {
           <div className="mt-auto relative">
             <input
               type="text"
-              placeholder="Ask Layla about your next destination..."
+              placeholder="Ask TripMate about your next destination..."
               className="w-full p-4 pr-12 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
             />
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">

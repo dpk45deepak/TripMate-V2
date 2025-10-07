@@ -1,7 +1,65 @@
-import React from "react";
+import React, { useState, useRef,  useEffect } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Star, MapPin, Users, Hotel, ArrowRight } from "lucide-react";
+import { Clock, Shield, Globe } from 'lucide-react';
+
+
+// Scroll Animated Section Component
+const ScrollAnimatedSection = ({ children, className = "" }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Feature Card Component
+const FeatureCard = ({ feature, index }) => {
+    return (
+      <ScrollAnimatedSection className="flex flex-col items-center text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+        <div className={`p-4 rounded-2xl bg-gradient-to-r ${feature.color} mb-4`}>
+          <feature.icon className="w-8 h-8 text-white" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{feature.title}</h3>
+        <p className="text-gray-600 text-sm">{feature.description}</p>
+      </ScrollAnimatedSection>
+    );
+  };
+
 
 // Animation variants
 const containerVariants = {
@@ -51,6 +109,34 @@ const statsVariants = {
     },
   }),
 };
+
+// Additional content data
+const featuresData = [
+    {
+      icon: Shield,
+      title: "Safe & Secure",
+      description: "Your safety is our top priority. All our partners are vetted and certified.",
+      color: "from-green-500 to-teal-500"
+    },
+    {
+      icon: Users,
+      title: "Expert Guides",
+      description: "Learn from local experts who know the hidden gems and best spots.",
+      color: "from-blue-500 to-purple-500"
+    },
+    {
+      icon: Globe,
+      title: "Global Coverage",
+      description: "We offer experiences in over 50 countries worldwide.",
+      color: "from-orange-500 to-red-500"
+    },
+    {
+      icon: Clock,
+      title: "24/7 Support",
+      description: "Round-the-clock customer support for all your travel needs.",
+      color: "from-purple-500 to-pink-500"
+    }
+  ];
 
 // Custom Hook for InView Detection
 function useAnimatedInView(threshold = 0.3) {
@@ -324,43 +410,23 @@ export default function Highlights() {
           </motion.div>
         </div>
 
-        {/* Additional Features */}
-        <motion.div
-          initial="hidden"
-          animate={sectionInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="grid md:grid-cols-3 gap-6 mt-8"
-        >
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              custom={index}
-              whileHover={{
-                y: -5,
-                transition: { type: "spring", stiffness: 300 },
-              }}
-              className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30 cursor-pointer"
-            >
-              <motion.div
-                whileHover={{
-                  scale: 1.1,
-                  rotate: 5,
-                  transition: { type: "spring", stiffness: 200 },
-                }}
-                className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4"
-              >
-                <span className="text-cyan-600 font-bold text-4xl">
-                  {feature.icon}
-                </span>
-              </motion.div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-2xl">
-                {feature.title}
-              </h3>
-              <p className="text-sm text-gray-600">{feature.text}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Features Section */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <ScrollAnimatedSection className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+            Why Choose <span className="text-teal-500">Us</span>?
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            We provide exceptional travel experiences with attention to every detail, ensuring your journey is unforgettable.
+          </p>
+        </ScrollAnimatedSection>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuresData.map((feature, index) => (
+            <FeatureCard key={feature.title} feature={feature} index={index} />
+          ))}
+        </div>
+      </div>
       </div>
     </motion.section>
   );

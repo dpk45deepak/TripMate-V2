@@ -23,7 +23,7 @@ const Header = () => {
         className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 sm:px-6 lg:px-8"
       >
         <div
-          className={`w-full max-w-6xl flex justify-between items-center rounded-2xl transition-all duration-300 mt-1 ${
+          className={`w-full max-w-6xl flex justify-between items-center rounded-2xl transition-all duration-300 mt-2 shadow-xl ${
             scrollY > 80
               ? "backdrop-blur-md shadow-lg py-2 bg-white"
               : "backdrop-blur-sm py-2 bg-white"
