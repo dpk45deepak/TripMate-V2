@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.app{
+    margin: 0px ;
+}

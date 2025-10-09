@@ -18,13 +18,13 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function SearchBox() {
   const navigate = useNavigate();
   const tabs = [
-    { id: "Holiday / Trip", icon: Sparkles, color: "text-amber-600", bgColor: "bg-amber-50" },
     { id: "Hotel", icon: Hotel, color: "text-blue-600", bgColor: "bg-blue-50" },
+    { id: "Holiday", icon: Sparkles, color: "text-amber-600", bgColor: "bg-amber-50" },
     { id: "Flight", icon: Plane, color: "text-emerald-600", bgColor: "bg-emerald-50" },
     { id: "Bus & Train", icon: Bus, color: "text-purple-600", bgColor: "bg-purple-50" },
   ];
 
-  const [activeTab, setActiveTab] = useState("Holiday");
+  const [activeTab, setActiveTab] = useState("Hotel");
   const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [guests, setGuests] = useState({ adults: 1, children: 0, rooms: 1 });

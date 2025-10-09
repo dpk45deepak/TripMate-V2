@@ -6,7 +6,6 @@ import { useInView } from "react-intersection-observer";
 import '../components/Home/Home.css';
 
 // Pages
-import Navbar from "../components/Home/Navbar";
 import Hero from "../components/Home/Hero";
 import SearchBox from "../components/Home/SearchBox";
 import Highlights from "../components/Home/Highlights";
@@ -73,9 +72,7 @@ export default function Home() {
 
   return (
     <>
-    <div className="font-sans bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800 relative mx-1 md:mx-10">
-      <Navbar />
-      
+    <div className="font-sans bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800 relative">      
       {/* Hero Section with proper SearchBox positioning */}
       <div className="relative mb-32 md:mb-40 rounded-xl overflow-visible">
         <Hero />
@@ -105,8 +102,10 @@ export default function Home() {
           initial="hidden"
           animate={highlightsInView ? "visible" : "hidden"}
         >
-          <Highlights />
-          <WorldMap />
+          <div>
+            <Highlights />
+            <WorldMap />
+          </div>
         </motion.div>
 
         {/* Destination Section: Scroll Animation */}
@@ -127,8 +126,10 @@ export default function Home() {
           initial="hidden"
           animate={servicesInView ? "visible" : "hidden"}
         >
-          <Services />
-          <Pricing />
+          <div>
+            <Services />
+            <Pricing />
+          </div>
         </motion.div>
       </div>
     </div>

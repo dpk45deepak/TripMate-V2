@@ -25,7 +25,7 @@ const destinations = [
     country: 'NORWAY',
     flag: '🇳🇴',
     title: 'The Nature Out of Power',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLEfBpyjUeaTlJE09x8zQHXO9nUqvPFNdvCw&s',
     details: {
       location: 'Sogn og Fjordane',
       altitude: '1,500m',
@@ -50,7 +50,7 @@ const destinations = [
     country: 'AUSTRIA',
     flag: '🇦🇹',
     title: 'Tyrolean Alps Discovery',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8O9BHfPU4i4pF8A0iaQTwNF8LLPuOcJDE9-IQ6pc9vaBR4K5NHbvhLyhS2sjjcYKMl2k&usqp=CAU',
     details: {
       location: 'Tyrol Region',
       altitude: '2,565m',
@@ -75,7 +75,7 @@ const destinations = [
     country: 'BELGIUM',
     flag: '🇧🇪',
     title: 'Peaceful Nature Retreat',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD6QKn9fq_s8PQ3Uw_KOvqp3gt3U_MaqX8sw&s',
     details: {
       location: 'Ardennes Forest',
       altitude: '300m',
@@ -100,7 +100,7 @@ const destinations = [
     country: 'SWITZERLAND',
     flag: '🇨🇭',
     title: 'Alpine Wonderland Adventure',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-anDYN3k5qk0Nx1lLngC7Gd8aFT4Bq_E1yA&s',
     details: {
       location: 'Interlaken Region',
       altitude: '3,454m',
@@ -125,7 +125,7 @@ const destinations = [
     country: 'ITALY',
     flag: '🇮🇹',
     title: 'Dolomites Mountain Escape',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+    image: 'http://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREPG6vtwoBpOlHQO5OWaaRZTfY_6KIpgLZuEqQfna81SZoM4zIyoXTLrj5bcgtN-a7Q-Y&usqp=CAU',
     details: {
       location: 'South Tyrol',
       altitude: '2,200m',
@@ -530,8 +530,8 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
 
   const images = [
     destination.image,
-    'https://images.unsplash.com/photo-1464822759843-3bd5c2c4cecb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80',
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80'
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqgh3IMJ4X_Ns5N8lwlH2D9RmXYhM3jdApSPpZZaq-_FYG0BHvQvwp0VJp9UDtj7eboLU&usqp=CAU',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl4ULA9B61drhQIoMfkOx68j64NYfuF66MgA&s'
   ];
 
   const IconText = ({ icon: Icon, text, subtext }) => (

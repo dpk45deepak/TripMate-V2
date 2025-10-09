@@ -5,7 +5,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="w-full py-3 px-6 md:px-20 lg:px-50 flex items-center justify-between rounded-none md:rounded-xl rounded-xl my-1">
+    <header className="w-full py-2 px-6 md:px-20 flex items-center justify-between rounded-none md:rounded-xl gap-30 rounded-xl my-1">
       {/* Logo */}
       <div className="flex items-center">
         <span className="text-2xl font-extrabold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
@@ -34,9 +34,9 @@ export default function Navbar() {
 
       {/* Auth Buttons (Desktop) */}
       <div className="hidden md:flex items-center space-x-4">
-        <button className="px-4 py-2 rounded-lg bg-pink-600 text-white font-medium hover:bg-pink-700 transition-colors">
-          Logout
-        </button>
+      <button className="px-4 py-2 rounded-lg border font-semibold hover:text-pink-700 text-pink-600 transition-colors">
+            Logout
+          </button>
       </div>
 
       {/* Mobile Hamburger */}
@@ -48,7 +48,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="absolute top-14 left-0 w-full bg-white shadow-md rounded-b-xl md:hidden flex flex-col space-y-4 px-10 py-4 font-medium text-gray-700 z-50">
+        <div className="absolute top-12 left-0 w-full bg-white shadow-md rounded-b-xl md:hidden flex flex-col space-y-4 px-10 py-4 font-medium text-gray-700 z-50">
           <a href="/home" className=" text-blue-500 hover:text-blue-600">
             Home
           </a>
@@ -62,7 +62,7 @@ export default function Navbar() {
             Profile
           </a>
           <hr className="border-gray-200" />
-          <button className="px-4 py-2 rounded-lg bg-pink-600 text-white font-medium hover:bg-pink-700 transition-colors">
+          <button className="px-4 py-2 rounded-lg border text-pink-600 hover:text-pink-800 transition-colors">
             Logout
           </button>
         </div>
