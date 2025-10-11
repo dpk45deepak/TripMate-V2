@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Centralised Backend API file
+import BACKEND_API from '../Services/Backend';
+
 // Enhanced Icons with better organization
 const icons = {
   Menu: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>,
@@ -15,143 +18,208 @@ const icons = {
   ArrowRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>,
   Heart: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
   Users: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-  Filter: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+  Filter: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+  Cloud: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
+  IndianRupee: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 12h12"/><path d="M6 16h12"/><path d="M6 8h12"/><path d="M15 6v12"/><path d="M9 6v12"/></svg>
 };
 
-// Enhanced mock data with more destinations and details
-const destinations = [
-  {
-    id: 1,
-    country: 'NORWAY',
-    flag: '🇳🇴',
-    title: 'The Nature Out of Power',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLEfBpyjUeaTlJE09x8zQHXO9nUqvPFNdvCw&s',
-    details: {
-      location: 'Sogn og Fjordane',
-      altitude: '1,500m',
-      rating: 4.8,
-      reviews: 1200,
-      price: 349,
-      description: 'Experience the raw, untamed beauty of Norway\'s western fjords. Kayak through glassy waters, hike majestic trails, and witness the Northern Lights in this pristine arctic landscape.',
-      amenities: ['Private Cabins', 'Guided Hikes', 'Sauna Access', 'Fjord Cruise', 'Northern Lights Tour', 'Wildlife Watching'],
-      hotel: 'Fjord View Retreat',
-      duration: '7 days',
-      distance: '25 km',
-      dates: 'May 10 - May 17',
-      people: 12,
-      difficulty: 'Moderate',
-      season: 'Spring',
-      highlights: ['Geirangerfjord', 'Trolltunga', 'Besseggen Ridge'],
-      included: ['Accommodation', 'All Meals', 'Expert Guides', 'Equipment Rental']
-    }
-  },
-  {
-    id: 2,
-    country: 'AUSTRIA',
-    flag: '🇦🇹',
-    title: 'Tyrolean Alps Discovery',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8O9BHfPU4i4pF8A0iaQTwNF8LLPuOcJDE9-IQ6pc9vaBR4K5NHbvhLyhS2sjjcYKMl2k&usqp=CAU',
-    details: {
-      location: 'Tyrol Region',
-      altitude: '2,565m',
-      rating: 4.9,
-      reviews: 910,
-      price: 488,
-      description: 'Discover the magic of the Austrian Mountains. Perfect for summer hiking and winter skiing, the Alps offer breathtaking views and charming village stays with authentic local experiences.',
-      amenities: ['Mountain Lodge', 'Ski Pass Included', 'Thermal Spa', 'Local Cuisine Workshop', 'Cable Car Tickets', 'Wine Tasting'],
-      hotel: 'Hotel Royal',
-      duration: '5 days',
-      distance: '10 km',
-      dates: 'Jun 20 - Jun 25',
-      people: 18,
-      difficulty: 'Easy',
-      season: 'Summer',
-      highlights: ['Innsbruck', 'Kitzbühel', 'Zillertal Valley'],
-      included: ['Luxury Accommodation', 'Breakfast & Dinner', 'Ski Equipment', 'Spa Access']
-    }
-  },
-  {
-    id: 3,
-    country: 'BELGIUM',
-    flag: '🇧🇪',
-    title: 'Peaceful Nature Retreat',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD6QKn9fq_s8PQ3Uw_KOvqp3gt3U_MaqX8sw&s',
-    details: {
-      location: 'Ardennes Forest',
-      altitude: '300m',
-      rating: 4.5,
-      reviews: 550,
-      price: 210,
-      description: 'A tranquil getaway in the heart of the Ardennes. Enjoy cycling, nature photography, and local breweries in this serene forest landscape away from the hustle of city life.',
-      amenities: ['Bike Rental', 'Gourmet Meals', 'Stargazing Tour', 'River Kayaking', 'Brewery Visit', 'Photography Workshop'],
-      hotel: 'Ardennes Lodge',
-      duration: '4 days',
-      distance: '8 km',
-      dates: 'Apr 22 - Apr 26',
-      people: 8,
-      difficulty: 'Easy',
-      season: 'Spring',
-      highlights: ['Bastogne', 'La Roche-en-Ardenne', 'Semois Valley'],
-      included: ['Cozy Lodge', 'All Meals', 'Activity Equipment', 'Local Guide']
-    }
-  },
-  {
-    id: 4,
-    country: 'SWITZERLAND',
-    flag: '🇨🇭',
-    title: 'Alpine Wonderland Adventure',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-anDYN3k5qk0Nx1lLngC7Gd8aFT4Bq_E1yA&s',
-    details: {
-      location: 'Interlaken Region',
-      altitude: '3,454m',
-      rating: 4.9,
-      reviews: 1250,
-      price: 599,
-      description: 'Journey through the heart of the Swiss Alps with breathtaking mountain passes, crystal-clear lakes, and charming alpine villages that will leave you speechless.',
-      amenities: ['Luxury Chalet', 'Train Pass', 'Guided Tours', 'Cheese Tasting', 'Mountain Railway', 'Lake Cruise'],
-      hotel: 'Alpine Grand Hotel',
-      duration: '8 days',
-      distance: '35 km',
-      dates: 'Jul 15 - Jul 23',
-      people: 15,
-      difficulty: 'Challenging',
-      season: 'Summer',
-      highlights: ['Jungfraujoch', 'Lake Brienz', 'Grindelwald'],
-      included: ['5-Star Hotel', 'All Transportation', 'Professional Guide', 'All Activities']
-    }
-  },
-  {
-    id: 5,
-    country: 'ITALY',
-    flag: '🇮🇹',
-    title: 'Dolomites Mountain Escape',
-    image: 'http://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREPG6vtwoBpOlHQO5OWaaRZTfY_6KIpgLZuEqQfna81SZoM4zIyoXTLrj5bcgtN-a7Q-Y&usqp=CAU',
-    details: {
-      location: 'South Tyrol',
-      altitude: '2,200m',
-      rating: 4.7,
-      reviews: 890,
-      price: 420,
-      description: 'Explore the stunning UNESCO World Heritage site of the Dolomites with its dramatic peaks, emerald lakes, and rich Italian-Austrian cultural fusion.',
-      amenities: ['Mountain Hut', 'Via Ferrata Gear', 'Wine Tour', 'Cooking Class', 'Spa Access', 'Photography Guide'],
-      hotel: 'Dolomiti Lodge',
-      duration: '6 days',
-      distance: '28 km',
-      dates: 'Sep 5 - Sep 11',
-      people: 10,
-      difficulty: 'Moderate',
-      season: 'Autumn',
-      highlights: ['Tre Cime di Lavaredo', 'Lago di Braies', 'Alpe di Siusi'],
-      included: ['Mountain Accommodation', 'All Meals', 'Expert Mountain Guide', 'Equipment Rental']
-    }
-  }
-];
+// Weather Widget Component
+const WeatherWidget = ({ location, country }) => {
+  const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-// Filter options
-const filters = {
-  season: ['All', 'Spring', 'Summer', 'Autumn', 'Winter'],
-  difficulty: ['All', 'Easy', 'Moderate', 'Challenging'],
-  priceRange: ['All', '$0-250', '$251-400', '$401+']
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        setLoading(true);
+        // Using OpenWeatherMap API - you'll need to replace with your API key
+        const apiKey = process.env.REACT_APP_WEATHER_API_KEY || 'demo_key';
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?q=${location},${country}&appid=${apiKey}&units=metric`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Group by day and take first 5 days
+          const dailyData = data.list.filter((item, index) => index % 8 === 0).slice(0, 5);
+          setWeatherData(dailyData);
+        }
+      } catch (error) {
+        console.error('Error fetching weather:', error);
+        // Fallback mock data
+        setWeatherData(generateMockWeather());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+  }, [location, country]);
+
+  const generateMockWeather = () => {
+    const weatherConditions = ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy', 'Clear'];
+    const temperatures = [18, 22, 25, 20, 23];
+    
+    return Array.from({ length: 5 }, (_, i) => ({
+      dt: Date.now() / 1000 + i * 86400,
+      main: { temp: temperatures[i] },
+      weather: [{ main: weatherConditions[i], description: weatherConditions[i].toLowerCase() }],
+      dt_txt: new Date(Date.now() + i * 86400000).toISOString()
+    }));
+  };
+
+  const getWeatherIcon = (condition) => {
+    switch (condition.toLowerCase()) {
+      case 'sunny':
+      case 'clear':
+        return '☀️';
+      case 'cloudy':
+      case 'partly cloudy':
+        return '⛅';
+      case 'rainy':
+        return '🌧️';
+      default:
+        return '🌤️';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white p-4 rounded-2xl shadow-lg border border-gray-100">
+        <h3 className="text-xl font-bold text-indigo-800 mb-4">5-Day Weather Forecast</h3>
+        <div className="flex space-x-4 overflow-x-auto">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-20 text-center animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-2"></div>
+              <div className="h-6 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white p-4 rounded-2xl shadow-lg border border-gray-100">
+      <h3 className="text-xl font-bold text-indigo-800 mb-4">5-Day Weather Forecast</h3>
+      <div className="flex space-x-4 overflow-x-auto pb-2">
+        {weatherData?.map((day, index) => (
+          <motion.div
+            key={index}
+            className="flex-shrink-0 w-20 text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="text-sm font-semibold text-gray-600 mb-2">
+              {new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}
+            </div>
+            <div className="text-2xl mb-2">{getWeatherIcon(day.weather[0].main)}</div>
+            <div className="text-lg font-bold text-gray-800">{Math.round(day.main.temp)}°C</div>
+            <div className="text-xs text-gray-500 capitalize mt-1">{day.weather[0].description}</div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Currency Converter Component
+const CurrencyConverter = ({ basePrice, country, location }) => {
+  const [convertedPrice, setConvertedPrice] = useState(null);
+  const [exchangeRate, setExchangeRate] = useState(null);
+  const [targetCurrency, setTargetCurrency] = useState('USD');
+  const [loading, setLoading] = useState(false);
+
+  // Currency mapping for different countries
+  const countryCurrencyMap = {
+    'NORWAY': 'NOK',
+    'AUSTRIA': 'EUR',
+    'BELGIUM': 'EUR', 
+    'SWITZERLAND': 'CHF',
+    'ITALY': 'EUR',
+    'INDIA': 'INR',
+    'USA': 'USD',
+    'UK': 'GBP',
+    'JAPAN': 'JPY',
+    'AUSTRALIA': 'AUD',
+    'CANADA': 'CAD'
+  };
+
+  useEffect(() => {
+    const currency = countryCurrencyMap[country] || 'USD';
+    setTargetCurrency(currency);
+    convertCurrency(basePrice, currency);
+  }, [basePrice, country]);
+
+  const convertCurrency = async (amount, toCurrency) => {
+    setLoading(true);
+    try {
+      // Using a free currency API - you might want to use a more reliable one
+      const response = await fetch(`https://api.exchangerate.host/latest?base=INR&symbols=${toCurrency}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        const rate = data.rates[toCurrency];
+        setExchangeRate(rate);
+        setConvertedPrice((amount * rate).toFixed(2));
+      }
+    } catch (error) {
+      console.error('Error converting currency:', error);
+      // Fallback rates
+      const fallbackRates = {
+        'USD': 0.012, 'EUR': 0.011, 'GBP': 0.0095, 
+        'NOK': 0.13, 'CHF': 0.011, 'JPY': 1.8, 
+        'AUD': 0.018, 'CAD': 0.016
+      };
+      const rate = fallbackRates[toCurrency] || 0.012;
+      setExchangeRate(rate);
+      setConvertedPrice((amount * rate).toFixed(2));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCurrencySymbol = (currency) => {
+    const symbols = {
+      'USD': '$', 'EUR': '€', 'GBP': '£', 'INR': '₹',
+      'NOK': 'kr', 'CHF': 'CHF', 'JPY': '¥', 
+      'AUD': 'A$', 'CAD': 'C$'
+    };
+    return symbols[currency] || currency;
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-green-50 to-teal-100 p-4 rounded-2xl border border-green-200">
+      <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+        <icons.IndianRupee className="w-4 h-4 mr-2 text-green-600" />
+        Currency Conversion
+      </h4>
+      {loading ? (
+        <div className="animate-pulse">
+          <div className="h-6 bg-green-200 rounded mb-2"></div>
+          <div className="h-4 bg-green-200 rounded"></div>
+        </div>
+      ) : convertedPrice && exchangeRate ? (
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Indian Rupee:</span>
+            <span className="font-bold text-gray-800">₹{basePrice}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">{targetCurrency}:</span>
+            <span className="font-bold text-green-700">
+              {getCurrencySymbol(targetCurrency)}{convertedPrice}
+            </span>
+          </div>
+          <div className="text-xs text-gray-500 text-right">
+            1 INR = {exchangeRate.toFixed(4)} {targetCurrency}
+          </div>
+        </div>
+      ) : (
+        <div className="text-sm text-gray-500">Conversion unavailable</div>
+      )}
+    </div>
+  );
 };
 
 // Enhanced Card Component
@@ -227,7 +295,7 @@ const DestinationCard = ({ destination, onSelect, large = false, isFavorite, onT
               <icons.Calendar className="w-4 h-4 mr-1 text-teal-500" />
               <span>{details.dates}</span>
             </div>
-            <div className="text-lg font-bold text-teal-600">${details.price}</div>
+            <div className="text-lg font-bold text-teal-600">₹{details.price * 83}</div>
           </div>
           <motion.div
             className="w-10 h-10 bg-gradient-to-r from-teal-500 to-indigo-500 rounded-full flex items-center justify-center text-white cursor-pointer shadow-lg"
@@ -268,7 +336,7 @@ const DestinationCard = ({ destination, onSelect, large = false, isFavorite, onT
             <icons.Calendar className="w-3 h-3 mr-1 text-teal-400" /> 
             {details.dates.split(' - ')[0]}...
           </p>
-          <span className="text-sm font-bold text-teal-600">${details.price}</span>
+          <span className="text-sm font-bold text-teal-600">₹{(details.price * 83).toLocaleString()}</span>
         </div>
       </div>
       
@@ -306,9 +374,7 @@ const DestinationCard = ({ destination, onSelect, large = false, isFavorite, onT
 };
 
 // Filter Component
-const FilterBar = ({ activeFilters, onFilterChange, resultsCount }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
+const FilterBar = ({ activeFilters, onFilterChange, resultsCount, tripType, onTripTypeChange }) => {
   return (
     <div className="relative">
       <div className="flex flex-wrap items-center gap-4 p-4 bg-white rounded-2xl shadow-lg">
@@ -322,11 +388,31 @@ const FilterBar = ({ activeFilters, onFilterChange, resultsCount }) => {
           )}
         </div>
         
+        {/* Trip Type Filter */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">Trip Type:</span>
+          <div className="flex flex-wrap gap-2">
+            {['All', 'Domestic', 'Foreign'].map(type => (
+              <button
+                key={type}
+                className={`px-3 py-1 text-sm rounded-full transition-all ${
+                  tripType === type 
+                    ? 'bg-purple-500 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                onClick={() => onTripTypeChange(type)}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+        
         {/* Season Filter */}
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">Season:</span>
           <div className="flex flex-wrap gap-2">
-            {filters.season.map(season => (
+            {['All', 'Spring', 'Summer', 'Autumn', 'Winter'].map(season => (
               <button
                 key={season}
                 className={`px-3 py-1 text-sm rounded-full transition-all ${
@@ -346,7 +432,7 @@ const FilterBar = ({ activeFilters, onFilterChange, resultsCount }) => {
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">Difficulty:</span>
           <div className="flex flex-wrap gap-2">
-            {filters.difficulty.map(difficulty => (
+            {['All', 'Easy', 'Moderate', 'Challenging'].map(difficulty => (
               <button
                 key={difficulty}
                 className={`px-3 py-1 text-sm rounded-full transition-all ${
@@ -367,19 +453,106 @@ const FilterBar = ({ activeFilters, onFilterChange, resultsCount }) => {
 };
 
 // Enhanced List View
-const ListView = ({ onSelect, favorites, onToggleFavorite }) => {
+const ListView = ({ onSelect, favorites, onToggleFavorite, domesticTrips, foreignTrips, loading, error }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [tripType, setTripType] = useState('All');
   const [activeFilters, setActiveFilters] = useState({
     season: 'All',
     difficulty: 'All',
     priceRange: 'All'
   });
-  
+
+  // Enhanced mock data with more destinations and details
+  const defaultDestinations = [
+    {
+      id: 1,
+      country: 'NORWAY',
+      flag: '🇳🇴',
+      title: 'The Nature Out of Power',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLEfBpyjUeaTlJE09x8zQHXO9nUqvPFNdvCw&s',
+      type: 'foreign',
+      details: {
+        location: 'Sogn og Fjordane',
+        altitude: '1,500m',
+        rating: 4.8,
+        reviews: 1200,
+        price: 349 * 83, // Converted to INR
+        description: 'Experience the raw, untamed beauty of Norway\'s western fjords. Kayak through glassy waters, hike majestic trails, and witness the Northern Lights in this pristine arctic landscape.',
+        amenities: ['Private Cabins', 'Guided Hikes', 'Sauna Access', 'Fjord Cruise', 'Northern Lights Tour', 'Wildlife Watching'],
+        hotel: 'Fjord View Retreat',
+        duration: '7 days',
+        distance: '25 km',
+        dates: 'May 10 - May 17',
+        people: 12,
+        difficulty: 'Moderate',
+        season: 'Spring',
+        highlights: ['Geirangerfjord', 'Trolltunga', 'Besseggen Ridge'],
+        included: ['Accommodation', 'All Meals', 'Expert Guides', 'Equipment Rental']
+      }
+    },
+    {
+      id: 2,
+      country: 'AUSTRIA',
+      flag: '🇦🇹',
+      title: 'Tyrolean Alps Discovery',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8O9BHfPU4i4pF8A0iaQTwNF8LLPuOcJDE9-IQ6pc9vaBR4K5NHbvhLyhS2sjjcYKMl2k&usqp=CAU',
+      type: 'foreign',
+      details: {
+        location: 'Tyrol Region',
+        altitude: '2,565m',
+        rating: 4.9,
+        reviews: 910,
+        price: 488 * 83,
+        description: 'Discover the magic of the Austrian Mountains. Perfect for summer hiking and winter skiing, the Alps offer breathtaking views and charming village stays with authentic local experiences.',
+        amenities: ['Mountain Lodge', 'Ski Pass Included', 'Thermal Spa', 'Local Cuisine Workshop', 'Cable Car Tickets', 'Wine Tasting'],
+        hotel: 'Hotel Royal',
+        duration: '5 days',
+        distance: '10 km',
+        dates: 'Jun 20 - Jun 25',
+        people: 18,
+        difficulty: 'Easy',
+        season: 'Summer',
+        highlights: ['Innsbruck', 'Kitzbühel', 'Zillertal Valley'],
+        included: ['Luxury Accommodation', 'Breakfast & Dinner', 'Ski Equipment', 'Spa Access']
+      }
+    }
+  ];
+
+  // Process backend trips data
+  const processedDomesticTrips = domesticTrips?.map(trip => ({
+    ...trip,
+    type: 'domestic',
+    details: {
+      ...trip.details,
+      price: trip.details?.price || Math.floor(Math.random() * 50000) + 10000
+    }
+  })) || [];
+
+  const processedForeignTrips = foreignTrips?.map(trip => ({
+    ...trip,
+    type: 'foreign',
+    details: {
+      ...trip.details,
+      price: trip.details?.price || Math.floor(Math.random() * 100000) + 50000
+    }
+  })) || [];
+
+  // Combine all destinations
+  const allDestinations = [
+    ...defaultDestinations,
+    ...processedDomesticTrips,
+    ...processedForeignTrips
+  ];
+
   // Filter destinations based on search and filters
-  const filteredDestinations = destinations.filter(destination => {
-    const matchesSearch = destination.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         destination.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         destination.details.location.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredDestinations = allDestinations.filter(destination => {
+    const matchesSearch = destination.title?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+                         destination.country?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+                         destination.details.location?.toLowerCase().includes(searchQuery?.toLowerCase());
+    
+    const matchesTripType = tripType === 'All' || 
+                          (tripType === 'Domestic' && destination.type === 'domestic') ||
+                          (tripType === 'Foreign' && destination.type === 'foreign');
     
     const matchesSeason = activeFilters.season === 'All' || 
                          destination.details.season === activeFilters.season;
@@ -387,12 +560,7 @@ const ListView = ({ onSelect, favorites, onToggleFavorite }) => {
     const matchesDifficulty = activeFilters.difficulty === 'All' || 
                             destination.details.difficulty === activeFilters.difficulty;
     
-    const matchesPrice = activeFilters.priceRange === 'All' || 
-                        (activeFilters.priceRange === '$0-250' && destination.details.price <= 250) ||
-                        (activeFilters.priceRange === '$251-400' && destination.details.price > 250 && destination.details.price <= 400) ||
-                        (activeFilters.priceRange === '$401+' && destination.details.price > 400);
-    
-    return matchesSearch && matchesSeason && matchesDifficulty && matchesPrice;
+    return matchesSearch && matchesTripType && matchesSeason && matchesDifficulty;
   });
   
   const handleFilterChange = (filterType, value) => {
@@ -401,6 +569,51 @@ const ListView = ({ onSelect, favorites, onToggleFavorite }) => {
       [filterType]: value
     }));
   };
+
+  const handleTripTypeChange = (type) => {
+    setTripType(type);
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-light">Loading trips...</h1>
+            <p className="text-gray-500 mt-1">Please wait while we fetch your adventures</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
+              <div className="h-48 bg-gray-200 rounded-xl mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-6 bg-gray-200 rounded mb-4"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h3 className="text-xl font-bold text-gray-700 mb-2">Unable to load trips</h3>
+          <p className="text-gray-500">{error}</p>
+          <button 
+            className="mt-4 px-6 py-2 bg-indigo-500 text-white rounded-full font-semibold"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <motion.div
@@ -423,6 +636,43 @@ const ListView = ({ onSelect, favorites, onToggleFavorite }) => {
           <icons.Sun className="w-5 h-5 mr-2" />
           <span className="text-sm">Weather: 19°C • Sunny</span>
         </motion.div>
+      </div>
+
+      {/* Trip Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-4 rounded-2xl shadow-lg border border-blue-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Domestic Trips</p>
+              <p className="text-2xl font-bold text-blue-600">{processedDomesticTrips.length}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <icons.MapPin className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-lg border border-green-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Foreign Trips</p>
+              <p className="text-2xl font-bold text-green-600">{processedForeignTrips.length}</p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <icons.ArrowRight className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-lg border border-purple-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Trips</p>
+              <p className="text-2xl font-bold text-purple-600">{allDestinations.length}</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <icons.Star className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Featured Destination Title */}
@@ -449,6 +699,8 @@ const ListView = ({ onSelect, favorites, onToggleFavorite }) => {
       <FilterBar 
         activeFilters={activeFilters} 
         onFilterChange={handleFilterChange}
+        onTripTypeChange={handleTripTypeChange}
+        tripType={tripType}
         resultsCount={filteredDestinations.length}
       />
 
@@ -602,14 +854,6 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
                 className={`w-6 h-6 ${favorites.includes(destination.id) ? 'fill-red-500 stroke-red-500' : ''}`} 
               />
             </motion.button>
-            
-            <motion.div 
-              className="flex items-center p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg text-teal-600 font-semibold"
-              whileHover={{ scale: 1.05 }}
-            >
-              <icons.Sun className="w-5 h-5 mr-2" />
-              <span className="text-sm">19°C • Sunny</span>
-            </motion.div>
           </div>
         </div>
 
@@ -641,7 +885,7 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
             <IconText icon={icons.Calendar} text={d.dates} subtext="Duration" />
             <IconText icon={icons.MapPin} text={d.distance} subtext="Distance" />
             <IconText icon={icons.Users} text={`${d.people} people`} subtext="Group Size" />
-            <IconText icon={icons.DollarSign} text={`$${d.price}`} subtext="Per person" />
+            <IconText icon={icons.IndianRupee} text={`₹${d.price.toLocaleString()}`} subtext="Per person" />
           </div>
         </motion.div>
       </div>
@@ -651,6 +895,9 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
         
         {/* Left Column: Description and Details */}
         <div className="lg:col-span-2 space-y-8">
+          {/* Weather Widget */}
+          <WeatherWidget location={d.location} country={destination.country} />
+          
           <section className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
             <h2 className="text-2xl font-bold text-indigo-800 mb-4">The Journey</h2>
             <p className="text-gray-700 leading-relaxed text-lg mb-6">
@@ -706,6 +953,13 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
 
         {/* Right Column: Booking Widget */}
         <div className="lg:col-span-1 space-y-6">
+          {/* Currency Converter */}
+          <CurrencyConverter 
+            basePrice={d.price} 
+            country={destination.country}
+            location={d.location}
+          />
+
           {/* Hotel Card */}
           <motion.div 
             className="bg-white p-6 rounded-2xl shadow-xl border border-indigo-100"
@@ -732,7 +986,7 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
             <div className="space-y-3 pt-4 border-t border-gray-100">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Price per person</span>
-                <span className="text-2xl font-extrabold text-teal-600">${d.price}</span>
+                <span className="text-2xl font-extrabold text-teal-600">₹{d.price.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>Taxes & fees</span>
@@ -761,6 +1015,10 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
               <div className="flex justify-between">
                 <span>Altitude</span>
                 <span className="font-semibold">{d.altitude}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Trip Type</span>
+                <span className="font-semibold">{destination.type === 'domestic' ? 'Domestic' : 'Foreign'}</span>
               </div>
             </div>
           </motion.div>
@@ -825,7 +1083,7 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-gray-600">Total</span>
-                    <span className="text-2xl font-bold text-teal-600">${d.price}</span>
+                    <span className="text-2xl font-bold text-teal-600">₹{d.price.toLocaleString()}</span>
                   </div>
                   
                   <button className="w-full py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors">
@@ -852,6 +1110,33 @@ const DetailView = ({ destination, onBack, favorites, onToggleFavorite }) => {
 const App = () => {
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [domesticTrips, setDomesticTrips] = useState([]);
+  const [foreignTrips, setForeignTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // 🔁 Function to fetch both trip preferences
+  const getTripPreferences = async () => {
+    try {
+      setLoading(true);
+      const [domesticRes, foreignRes] = await Promise.all([
+        BACKEND_API.getDomesticPreferences(),
+        BACKEND_API.getForeignPreferences(),
+      ]);
+      setDomesticTrips(domesticRes.data);
+      setForeignTrips(foreignRes.data);
+    } catch (err) {
+      console.error("Error fetching trip preferences:", err);
+      setError("Failed to fetch trip preferences. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🚀 Fetch when component loads
+  useEffect(() => {
+    getTripPreferences();
+  }, []);
 
   const handleSelect = (destination) => {
     setSelectedDestination(destination);
@@ -888,6 +1173,10 @@ const App = () => {
             onSelect={handleSelect}
             favorites={favorites}
             onToggleFavorite={handleToggleFavorite}
+            domesticTrips={domesticTrips}
+            foreignTrips={foreignTrips}
+            loading={loading}
+            error={error}
           />
         )}
       </AnimatePresence>

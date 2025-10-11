@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import Navbar from './Navbar';
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,8 +17,6 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import Navbar from './Navbar';
 
 // Sample destinations data
 const destinations = [
@@ -74,6 +75,9 @@ const destinations = [
 ];
 
 export default function TravelUI() {
+
+  const navigate = useNavigate();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favorites, setFavorites] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
@@ -206,7 +210,7 @@ export default function TravelUI() {
       <motion.div className="absolute inset-0 bg-black/40 z-10" />
 
       {/* Navbar */}
-      <div className="fixed top-1 left-1 right-1 md:top-1 md:left-60 md:right-60 z-40 bt-10 bg-white rounded-xl">
+      <div>
         <Navbar isMobile={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       </div>
 
@@ -277,6 +281,7 @@ export default function TravelUI() {
                     <p className="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">Ready to start your journey?</p>
                     <motion.button
                         className="bg-gradient-to-r from-cyan-500 to-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto transition-all text-sm sm:text-base"
+                        onClick={() => navigate('/final')}
                         whileHover={{
                             scale: 1.05,
                             boxShadow: "0 10px 30px rgba(6, 182, 212, 0.4)"

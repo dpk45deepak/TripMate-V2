@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 
@@ -16,7 +17,22 @@ import SearchResults from "./Pages/SearchResults";
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/SignUp";
 
+// Admin Pages
+import AuthPage from './Pages/PingAuthPage';
+import PingDashboard from './Pages/PingDashboard';
+
+// Utils
+import { pingBackend } from "./utils/ping";
+
+
+
 function App() {
+
+  // Ping scipt for Backend
+  useEffect(() => {
+    pingBackend();
+  }, []);
+
   return (
     <Routes>
       {/* Landing page */}
@@ -31,6 +47,10 @@ function App() {
       {/* Auth pages */}
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+
+      {/* Admin Routes */}
+      {/* <Route path="/ping" element={<AuthPage />} />
+      <Route path="/ping-dashboard" element={<PingDashboard />} /> */}
 
       {/* Catch-all (optional) */}
       <Route path="*" element={<h1 className="text-center mt-20">404 - Page Not Found</h1>} />
