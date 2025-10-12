@@ -217,8 +217,8 @@ export default function Navbar() {
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-sm font-semibold text-gray-900">
-                    {user.username
-                      ? user.username
+                    {user.name
+                      ? user.name
                       : user.email.includes(".")
                       ? user.email.split(".")[0]
                       : user.email.split("@")[0]}
@@ -237,8 +237,8 @@ export default function Navbar() {
                 <div className="absolute right-0 top-14 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-900">
-                      {user.username
-                        ? user.username
+                      {user.name
+                        ? user.name
                         : user.email.includes(".")
                         ? user.email.split(".")[0]
                         : user.email.split("@")[0]}
@@ -353,8 +353,8 @@ export default function Navbar() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">
-                    {user.username
-                      ? user.username
+                    {user.name
+                      ? user.name
                       : user.email.includes(".")
                       ? user.email.split(".")[0]
                       : user.email.split("@")[0]}

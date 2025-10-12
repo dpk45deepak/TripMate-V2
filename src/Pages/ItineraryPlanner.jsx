@@ -221,16 +221,16 @@ export default function TravelApp() {
                 <div>
                   <p className="font-bold">
                     {" "}
-                    {user.username
-                      ? user.username
+                    {user.name
+                      ? user.name
                       : user.email.includes(".")
                       ? user.email.split(".")[0]
                       : user.email.split("@")[0]}
                   </p>
                   <p className="text-xs opacity-90">
                     @
-                    {user.username
-                      ? user.username
+                    {user.name
+                      ? user.name
                       : user.email.includes(".")
                       ? user.email.split(".")[0]
                       : user.email.split("@")[0]}
@@ -253,9 +253,9 @@ export default function TravelApp() {
           <div className="flex justify-between items-center">
             <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               Where to today,
-              {user.nothing ? user.username : " "}
-              {user.username
-                ? user.username
+              {user.nothing ? user.name : " "}
+              {user.name
+                ? user.name
                 : user.email.includes(".")
                 ? user.email.split(".")[0]
                 : user.email.split("@")[0]}
@@ -268,8 +268,8 @@ export default function TravelApp() {
                     .toString()[0]
                     .toUpperCase()}`}
                   alt=
-                  {user.username
-                    ? user.username
+                  {user.name
+                    ? user.name
                     : user.email.includes(".")
                     ? user.email.split(".")[0]
                     : user.email.split("@")[0]}
@@ -308,8 +308,8 @@ export default function TravelApp() {
                     .toString()[0]
                     .toUpperCase()}`}
                   alt={
-                    user.username
-                      ? user.username
+                    user.name
+                      ? user.name
                       : user.email.includes(".")
                       ? user.email.split(".")[0]
                       : user.email.split("@")[0]

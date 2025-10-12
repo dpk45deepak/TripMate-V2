@@ -502,7 +502,7 @@ export default function App() {
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               toggleSidebar={toggleSidebar}
-              iconLetter={user.username ? user.username : user.email.includes('.') ? user.email.split('.')[0] : user.email.split('@')[0]}
+              iconLetter={user.name ? user.name : user.email.includes('.') ? user.email.split('.')[0] : user.email.split('@')[0]}
             />
 
             <div className="p-4 sm:p-6 lg:p-8 flex-grow">
@@ -510,7 +510,7 @@ export default function App() {
               <motion.div variants={itemVariants} className="mb-8 mt-4">
                 <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
                   Hello,
-                  {user.username ? user.username : user.email.includes('.') ? user.email.split('.')[0] : user.email.split('@')[0]}
+                  {user.name ? user.name : user.email.includes('.') ? user.email.split('.')[0] : user.email.split('@')[0]}
                 </h1>
                 <p className="text-gray-500 text-sm">Welcome back and explore the world</p>
               </motion.div>
