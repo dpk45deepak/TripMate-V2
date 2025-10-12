@@ -44,7 +44,8 @@ const Header = () => {
             {["Home", "Trips", "Deals", "About", "Contact"].map((item, index) => (
               <motion.a
                 key={index}
-                href={`/${item.toLowerCase()}`}
+                // href={`/${item.toLowerCase()}`}
+                href="/signin"
                 className="font-medium relative py-1 group bg-gradient-to-r from-teal-900 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
                 whileHover={{ y: -2 }}
               >
@@ -121,7 +122,8 @@ const Header = () => {
                 {["Home", "Trips", "Deals", "About", "Contact"].map((item, index) => (
                   <motion.a
                     key={index}
-                    href={`/${item.toLowerCase()}`}
+                    // href={`/${item.toLowerCase()}`}
+                    href="/signin"
                     className="text-lg font-semibold text-indigo-700 hover:text-blue-600"
                     whileHover={{ x: 5 }}
                     onClick={() => setMobileMenuOpen(false)}

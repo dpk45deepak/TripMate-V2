@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChatBubbleLeftIcon,
@@ -20,32 +20,86 @@ import {
   PlusCircleIcon as PlusCircleSolid,
 } from "@heroicons/react/24/solid";
 
+// Global Context
+import { AuthContext } from "../Context/AuthContext";
+
 export default function TravelApp() {
+  // Use Context
+  const { user } = useContext(AuthContext);
+
   const [activeTab, setActiveTab] = useState("Chat");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState(new Set());
   const [showNotification, setShowNotification] = useState(false);
 
   const sidebarItems = [
-    { icon: <ChatBubbleLeftIcon className="w-5 h-5" />, label: "Chat", solidIcon: <ChatBubbleSolid className="w-5 h-5" /> },
-    { icon: <BellIcon className="w-5 h-5" />, label: "Notification", solidIcon: <BellIcon className="w-5 h-5" /> },
-    { icon: <HeartIcon className="w-5 h-5" />, label: "Favourites", solidIcon: <HeartSolid className="w-5 h-5" /> },
-    { icon: <GlobeAltIcon className="w-5 h-5" />, label: "Explore", solidIcon: <GlobeSolid className="w-5 h-5" /> },
-    { icon: <PlusCircleIcon className="w-5 h-5" />, label: "Create a Trip", solidIcon: <PlusCircleSolid className="w-5 h-5" /> },
+    {
+      icon: <ChatBubbleLeftIcon className="w-5 h-5" />,
+      label: "Chat",
+      solidIcon: <ChatBubbleSolid className="w-5 h-5" />,
+    },
+    {
+      icon: <BellIcon className="w-5 h-5" />,
+      label: "Notification",
+      solidIcon: <BellIcon className="w-5 h-5" />,
+    },
+    {
+      icon: <HeartIcon className="w-5 h-5" />,
+      label: "Favourites",
+      solidIcon: <HeartSolid className="w-5 h-5" />,
+    },
+    {
+      icon: <GlobeAltIcon className="w-5 h-5" />,
+      label: "Explore",
+      solidIcon: <GlobeSolid className="w-5 h-5" />,
+    },
+    {
+      icon: <PlusCircleIcon className="w-5 h-5" />,
+      label: "Create a Trip",
+      solidIcon: <PlusCircleSolid className="w-5 h-5" />,
+    },
   ];
-  
+
   // A simplified version for the bottom mobile navigation
   const mobileNavItems = [
-    { label: "Chat", icon: <ChatBubbleLeftIcon className="w-6 h-6" />, solidIcon: <ChatBubbleSolid className="w-6 h-6" /> },
-    { label: "Explore", icon: <GlobeAltIcon className="w-6 h-6" />, solidIcon: <GlobeSolid className="w-6 h-6" /> },
-    { label: "Create a Trip", icon: <PlusCircleIcon className="w-6 h-6" />, solidIcon: <PlusCircleSolid className="w-6 h-6" /> },
-    { label: "Favourites", icon: <HeartIcon className="w-6 h-6" />, solidIcon: <HeartSolid className="w-6 h-6" /> },
+    {
+      label: "Chat",
+      icon: <ChatBubbleLeftIcon className="w-6 h-6" />,
+      solidIcon: <ChatBubbleSolid className="w-6 h-6" />,
+    },
+    {
+      label: "Explore",
+      icon: <GlobeAltIcon className="w-6 h-6" />,
+      solidIcon: <GlobeSolid className="w-6 h-6" />,
+    },
+    {
+      label: "Create a Trip",
+      icon: <PlusCircleIcon className="w-6 h-6" />,
+      solidIcon: <PlusCircleSolid className="w-6 h-6" />,
+    },
+    {
+      label: "Favourites",
+      icon: <HeartIcon className="w-6 h-6" />,
+      solidIcon: <HeartSolid className="w-6 h-6" />,
+    },
   ];
 
   const quickActions = [
-    { label: "Discover place", color: "bg-purple-100 text-purple-600", icon: "🔍" },
-    { label: "Flight booking", color: "bg-green-100 text-green-600", icon: "✈️" },
-    { label: "Best Restaurant", color: "bg-pink-100 text-pink-600", icon: "🍴" },
+    {
+      label: "Discover place",
+      color: "bg-purple-100 text-purple-600",
+      icon: "🔍",
+    },
+    {
+      label: "Flight booking",
+      color: "bg-green-100 text-green-600",
+      icon: "✈️",
+    },
+    {
+      label: "Best Restaurant",
+      color: "bg-pink-100 text-pink-600",
+      icon: "🍴",
+    },
     { label: "Best Hotel", color: "bg-yellow-100 text-yellow-600", icon: "🏨" },
   ];
 
@@ -92,7 +146,7 @@ export default function TravelApp() {
     <div className="relative flex flex-col lg:flex-row min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Mobile Header and Menu Button */}
       <div className="lg:hidden p-4 flex justify-between items-center bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
           TripMate.ai
         </h1>
         <button>
@@ -102,24 +156,22 @@ export default function TravelApp() {
 
       {/* Sidebar - Conditionally rendered for mobile */}
       <AnimatePresence>
-        {(window.innerWidth >= 1024) && (
+        {window.innerWidth >= 1024 && (
           <motion.aside
             initial={{ x: -300 }}
             animate={{ x: 0 }}
             exit={{ x: -300 }}
             transition={{ type: "tween", duration: 0.3 }}
-            className={` hidden md:block
-              w-64 p-6 border-r bg-white/80 backdrop-blur-lg shadow-lg flex flex-col gap-6
+            className={`hidden md:block
+              w-64 p-6 border-r bg-white/80 backdrop-blur-lg shadow-lg flex-col gap-6
               fixed lg:sticky top-0 h-screen z-40
             `}
           >
             {/* Close button for mobile */}
-            <button
-              className="absolute top-4 right-4 lg:hidden p-2 rounded-full hover:bg-gray-100 transition"
-            >
+            <button className="absolute top-4 right-4 lg:hidden p-2 rounded-full hover:bg-gray-100 transition">
               <XMarkIcon className="w-6 h-6 text-gray-600" />
             </button>
-            
+
             <motion.h1
               whileHover={{ scale: 1.05 }}
               className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
@@ -160,13 +212,29 @@ export default function TravelApp() {
             <div className="mt-auto md:mt-50 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white">
               <div className="flex items-center gap-3">
                 <img
-                  src="https://pbs.twimg.com/profile_images/1590968738358079488/IY9Gx6Ok_400x400.jpg"
-                  alt="Elon Musk"
-                  className="w-12 h-12 rounded-full border-2 border-white"
+                  src={`https://placehold.co/40x40/008080/ffffff?text=${user.email
+                    .toString()[0]
+                    .toUpperCase()}`}
+                  alt="Jemmy Max"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
                 />
                 <div>
-                  <p className="font-bold">Elon Musk</p>
-                  <p className="text-xs opacity-90">@elon_musk</p>
+                  <p className="font-bold">
+                    {" "}
+                    {user.username
+                      ? user.username
+                      : user.email.includes(".")
+                      ? user.email.split(".")[0]
+                      : user.email.split("@")[0]}
+                  </p>
+                  <p className="text-xs opacity-90">
+                    @
+                    {user.username
+                      ? user.username
+                      : user.email.includes(".")
+                      ? user.email.split(".")[0]
+                      : user.email.split("@")[0]}
+                  </p>
                   <div className="flex items-center gap-1 mt-1">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     <span className="text-xs">Online</span>
@@ -184,11 +252,29 @@ export default function TravelApp() {
         <div className="lg:col-span-2 bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col gap-6 h-screen">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              Where to today, Elon?
+              Where to today,
+              {user.nothing ? user.username : " "}
+              {user.username
+                ? user.username
+                : user.email.includes(".")
+                ? user.email.split(".")[0]
+                : user.email.split("@")[0]}
+              ?
             </h2>
             <div className="flex gap-2">
               <button className="p-2 rounded-full hover:bg-gray-100 transition">
-                <UserCircleIcon className="w-6 h-6 text-gray-600" />
+                <img
+                  src={`https://placehold.co/40x40/008080/ffffff?text=${user.email
+                    .toString()[0]
+                    .toUpperCase()}`}
+                  alt=
+                  {user.username
+                    ? user.username
+                    : user.email.includes(".")
+                    ? user.email.split(".")[0]
+                    : user.email.split("@")[0]}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
+                />
               </button>
             </div>
           </div>
@@ -200,13 +286,14 @@ export default function TravelApp() {
               className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl text-gray-700 border border-blue-100"
             >
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                  L
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+                  T
                 </div>
                 <span className="font-semibold">TripMate AI</span>
               </div>
-              Hey Elon! Ready for your next adventure? 🌍 I'm here to help you plan the perfect trip.
-              Ask me anything about destinations, flights, or accommodations!
+              Hey Elon! Ready for your next adventure? 🌍 I'm here to help you
+              plan the perfect trip. Ask me anything about destinations,
+              flights, or accommodations!
             </motion.div>
 
             <motion.div
@@ -217,13 +304,22 @@ export default function TravelApp() {
             >
               <div className="flex items-center gap-3 mb-2">
                 <img
-                  src="https://pbs.twimg.com/profile_images/1590968738358079488/IY9Gx6Ok_400x400.jpg"
-                  alt="Elon Musk"
-                  className="w-6 h-6 rounded-full"
+                  src={`https://placehold.co/40x40/008080/ffffff?text=${user.email
+                    .toString()[0]
+                    .toUpperCase()}`}
+                  alt={
+                    user.username
+                      ? user.username
+                      : user.email.includes(".")
+                      ? user.email.split(".")[0]
+                      : user.email.split("@")[0]
+                  }
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
                 />
                 <span className="font-semibold">You</span>
               </div>
-              What's the best island in Hawaii for a family vacation? Include a comparison of all the islands.
+              What's the best island in Hawaii for a family vacation? Include a
+              comparison of all the islands.
             </motion.div>
           </div>
 
@@ -274,8 +370,12 @@ export default function TravelApp() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
               <div>
-                <h3 className="text-white text-xl font-bold mb-1">Travel Differently</h3>
-                <p className="text-white/80 text-sm">Explore unique experiences</p>
+                <h3 className="text-white text-xl font-bold mb-1">
+                  Travel Differently
+                </h3>
+                <p className="text-white/80 text-sm">
+                  Explore unique experiences
+                </p>
               </div>
             </div>
           </motion.div>
@@ -283,7 +383,9 @@ export default function TravelApp() {
           {/* Recommended Destinations */}
           <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-800">Recommended Destinations</h3>
+              <h3 className="text-lg font-bold text-gray-800">
+                Recommended Destinations
+              </h3>
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                 {filteredCards.length} results
               </span>
@@ -323,10 +425,16 @@ export default function TravelApp() {
                         </div>
                       </div>
                       <div className="p-4">
-                        <h4 className="font-semibold text-gray-800 mb-1">{card.title}</h4>
-                        <p className="text-xs text-gray-600 mb-2">{card.description}</p>
+                        <h4 className="font-semibold text-gray-800 mb-1">
+                          {card.title}
+                        </h4>
+                        <p className="text-xs text-gray-600 mb-2">
+                          {card.description}
+                        </p>
                         <div className="flex justify-between items-center">
-                          <span className="font-bold text-blue-600">{card.price}</span>
+                          <span className="font-bold text-blue-600">
+                            {card.price}
+                          </span>
                           <button className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition">
                             Explore
                           </button>
@@ -335,7 +443,9 @@ export default function TravelApp() {
                     </motion.div>
                   ))
                 ) : (
-                  <p className="text-center text-gray-500">No destinations found.</p>
+                  <p className="text-center text-gray-500">
+                    No destinations found.
+                  </p>
                 )}
               </div>
             </AnimatePresence>
@@ -351,7 +461,11 @@ export default function TravelApp() {
             onClick={() => setActiveTab(item.label)}
             className="flex flex-col items-center justify-center p-2 text-xs transition-all duration-300"
           >
-            <span className={activeTab === item.label ? "text-blue-500" : "text-gray-400"}>
+            <span
+              className={
+                activeTab === item.label ? "text-blue-500" : "text-gray-400"
+              }
+            >
               {activeTab === item.label ? item.solidIcon : item.icon}
             </span>
             <span

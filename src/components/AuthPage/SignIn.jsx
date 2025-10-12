@@ -1,15 +1,25 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, UserPlus, AlertCircle, CheckCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+
+// Authentication
+import BACKEND_API from '../../Services/Backend';
+import { AuthContext } from "../../Context/AuthContext";
 
 export default function AuthenticationForm() {
+
+  // Global Context
+  const { login } = useContext(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [authStatus, setAuthStatus] = useState(null);
   const [credentials, setCredentials] = useState({
     email: "",
     password: ""
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -17,76 +27,55 @@ export default function AuthenticationForm() {
       ...prevState,
       [name]: value
     }));
-    
-    if (authStatus) {
-      setAuthStatus(null);
-    }
   };
 
+  // ✅ Handle form submit
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    
+    setErrorMsg("");
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (credentials.email && credentials.password.length >= 6) {
-        setAuthStatus('success');
-        console.log("Authentication successful:", credentials);
-      } else {
-        throw new Error("Invalid credentials");
-      }
+      const { data } = await BACKEND_API.Auth.SignIn(credentials);
+      // console log success
+      console.log("✅ Login/Signin success:", data);
+      // Set Global Context an navigate user
+      login(data);
     } catch (error) {
-      setAuthStatus('error');
-      console.error("Authentication failed:", error);
+      console.error("❌ Login/Signin failed:", error.response?.data || error.message);
+      setErrorMsg(error.response?.data?.message || "Invalid credentials. Try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider) => {
-    console.log(`Attempting ${provider} login`);
-    // Implement social login logic here
+    setIsLoading(true);
+    // Social login logic would be implemented here
+    console.log(`Social login attempt with ${provider}`);
+    // Simulate async operation
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
   };
 
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (user) navigate("/home"); // already signed in
+  }, [user]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-gray-50 to-teal-100 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-gray-100 p-6">
       <div
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
+        className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 border border-gray-100"
       >
         <div className="text-center mb-8">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 bg-teal-50 rounded-full mb-4"
-          >
-            <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
-              <Lock className="h-5 w-5 text-white" />
-            </div>
-          </div>
-          <h2 
-            className="text-3xl font-bold text-teal-800 mb-2"
-          >
-            SignUp
+          <h2 className="text-3xl font-bold text-teal-800 mb-2">
+            SignIn
           </h2>
           <p className="text-gray-600 text-sm">Enter your credentials to access the system</p>
         </div>
-
-        {authStatus === 'error' && (
-          <div
-            className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center"
-          >
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-            <span className="text-red-700 text-sm">Invalid credentials. Please try again.</span>
-          </div>
-        )}
-        
-        {authStatus === 'success' && (
-          <div
-            className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center"
-          >
-            <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-            <span className="text-green-700 text-sm">Authentication successful! Redirecting...</span>
-          </div>
-        )}
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-2">
@@ -111,11 +100,8 @@ export default function AuthenticationForm() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="block text-sm font-medium text-teal-700">Password</label>
-              <Link 
-                to="/password-recovery" 
-                className="text-sm text-teal-600 hover:text-teal-800 transition-colors flex items-center"
-              >
-                <span>Recovery Options</span>
+              <Link to="/password-recovery" className="text-sm text-teal-600 hover:text-teal-800 transition-colors">
+                Recovery Options
               </Link>
             </div>
             <div className="relative">
@@ -137,7 +123,6 @@ export default function AuthenticationForm() {
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                disabled={isLoading}
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5 text-teal-500" />
@@ -151,31 +136,22 @@ export default function AuthenticationForm() {
           <div>
             <button
               type="submit"
+              className={`w-full py-3.5 rounded-lg bg-gradient-to-r from-teal-600 to-teal-500 text-white font-medium shadow-md hover:from-teal-700 hover:to-teal-600 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={isLoading}
-              className="w-full py-3.5 rounded-lg bg-gradient-to-r from-teal-600 to-teal-500 text-white font-medium shadow-md hover:from-teal-700 hover:to-teal-600 disabled:from-teal-400 disabled:to-teal-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
             >
-              {isLoading ? (
-                <>
-                  <div
-                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2 animate-spin"
-                  />
-                  Authenticating...
-                </>
-              ) : (
-                "Authenticate"
-              )}
+              {isLoading ? 'Authenticating...' : 'Authenticate'}
             </button>
           </div>
         </form>
 
         <div className="my-6 flex items-center">
           <div className="flex-grow border-t border-gray-200"></div>
-          <span className="mx-4 text-gray-500 text-sm">Or continue with</span>
+          <span className="mx-4 text-gray-500 text-sm">Alternative Methods</span>
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
 
         <div className="text-center flex justify-center align-center mb-6">
-          <button 
+          <button
             onClick={() => handleSocialLogin('google')}
             className="py-2.5 px-4 rounded-lg bg-white text-gray-700 flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-colors duration-200"
             disabled={isLoading}
@@ -190,26 +166,10 @@ export default function AuthenticationForm() {
           </button>
         </div>
 
-        <div 
-          className="text-center"
-        >
-          <Link 
-            to="/account-creation" 
-            className="inline-flex items-center text-teal-600 font-medium hover:text-teal-800 transition-colors text-sm"
-          >
-            <UserPlus className="h-4 w-4 mr-1" />
-            <span>Request System Access</span>
-          </Link>
-        </div>
-
-        <p className="text-gray-500 text-center mt-6 text-xs">
-          By authenticating, you agree to our{" "}
-          <Link to="/terms" className="text-teal-600 hover:text-teal-800 underline">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link to="/privacy" className="text-teal-600 hover:text-teal-800 underline">
-            Privacy Policy
+        <p className="text-gray-600 text-center mt-8 text-sm">
+          Need system access?{" "}
+          <Link to="/signup" className="text-teal-600 font-medium hover:text-teal-800 transition-colors">
+            Request Account
           </Link>
         </p>
       </div>

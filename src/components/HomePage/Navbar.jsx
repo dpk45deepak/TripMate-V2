@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { 
-  Menu, 
-  X, 
-  Search, 
-  Bell, 
-  User, 
-  Settings, 
-  LogOut, 
+import React, { useState, useEffect, useContext } from "react";
+import {
+  Menu,
+  X,
+  Search,
+  Bell,
+  User,
+  Settings,
+  LogOut,
   Globe,
   MapPin,
   Calendar,
@@ -14,10 +14,16 @@ import {
   Sparkles,
   ChevronDown,
   Moon,
-  Sun
+  Sun,
 } from "lucide-react";
 
+// Global Context
+import { AuthContext } from "../../Context/AuthContext";
+
 export default function Navbar() {
+  // Use Context
+  const { user } = useContext(AuthContext);
+
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
@@ -30,7 +36,7 @@ export default function Navbar() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -48,26 +54,27 @@ export default function Navbar() {
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const header = document.querySelector('header');
+      const header = document.querySelector("header");
       if (isOpen && header && !header.contains(event.target)) {
         setIsOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleDropdownClickOutside = (event) => {
-      if (showDropdown && !event.target.closest('.profile-dropdown')) {
+      if (showDropdown && !event.target.closest(".profile-dropdown")) {
         setShowDropdown(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleDropdownClickOutside);
-    return () => document.removeEventListener('mousedown', handleDropdownClickOutside);
+
+    document.addEventListener("mousedown", handleDropdownClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleDropdownClickOutside);
   }, [showDropdown]);
 
   const navItems = [
@@ -92,16 +99,15 @@ export default function Navbar() {
   };
 
   return (
-    <header 
+    <header
       className={`fixed top-0 left-0 right-0 z-90 transition-all duration-500 md:px-16 ${
-        isScrolled 
-          ? "bg-white/95 backdrop-blur-sm border-gray-100 py-2" 
+        isScrolled
+          ? "bg-white/95 backdrop-blur-sm border-gray-100 py-2"
           : "bg-transparent backdrop-blur-sm py-2 lg:bg-white/95 lg:backdrop-blur-none lg:border-none"
       }`}
     >
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          
           {/* Logo Section */}
           <div className="flex items-center space-x-3">
             <div className="relative">
@@ -135,9 +141,13 @@ export default function Navbar() {
                       : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                    activeLink === item.name.toLowerCase() ? "text-blue-500" : "text-teal-500"
-                  }`} />
+                  <Icon
+                    className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                      activeLink === item.name.toLowerCase()
+                        ? "text-blue-500"
+                        : "text-teal-500"
+                    }`}
+                  />
                   <span>{item.name}</span>
                   {item.badge && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-xs rounded-full flex items-center justify-center animate-bounce">
@@ -154,7 +164,6 @@ export default function Navbar() {
 
           {/* Right Section - Search, Notifications, Profile */}
           <div className="hidden lg:flex items-center space-x-3">
-            
             {/* Search Bar */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -171,12 +180,16 @@ export default function Navbar() {
             <button
               onClick={() => {
                 alert("Dark Mode Toggle Clicked");
-                setDarkMode(!darkMode)
-                toggleTheme(!darkMode)
+                setDarkMode(!darkMode);
+                toggleTheme(!darkMode);
               }}
               className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all hidden duration-300"
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {darkMode ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </button>
 
             {/* Notifications */}
@@ -194,44 +207,64 @@ export default function Navbar() {
                 className="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
               >
                 <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
-                  <User className="w-5 h-5 text-white" />
+                  <img
+                    src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.email
+                      .toString()[0]
+                      .toUpperCase()}`}
+                    alt="Jemmy Max"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
+                  />
                 </div>
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-semibold text-gray-900">John Doe</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {user.username
+                      ? user.username
+                      : user.email.includes(".")
+                      ? user.email.split(".")[0]
+                      : user.email.split("@")[0]}
+                  </span>
                   <span className="text-xs text-gray-500">Premium Member</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
-                  showDropdown ? "rotate-180" : ""
-                }`} />
+                <ChevronDown
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+                    showDropdown ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {/* Dropdown Menu */}
               {showDropdown && (
                 <div className="absolute right-0 top-14 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
                   <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-900">John Doe</p>
-                    <p className="text-xs text-gray-500">john@example.com</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {user.username
+                        ? user.username
+                        : user.email.includes(".")
+                        ? user.email.split(".")[0]
+                        : user.email.split("@")[0]}
+                    </p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
-                  
+
                   <div className="py-2">
-                    <a 
-                      href="/profile" 
+                    <a
+                      href="/profile"
                       className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => setShowDropdown(false)}
                     >
                       <User className="w-4 h-4" />
                       <span>My Profile</span>
                     </a>
-                    <a 
-                      href="/settings" 
+                    <a
+                      href="/settings"
                       className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => setShowDropdown(false)}
                     >
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
                     </a>
-                    <a 
-                      href="/favorites" 
+                    <a
+                      href="/favorites"
                       className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => setShowDropdown(false)}
                     >
@@ -239,9 +272,9 @@ export default function Navbar() {
                       <span>Favorites</span>
                     </a>
                   </div>
-                  
+
                   <div className="border-t border-gray-100 pt-2">
-                    <button 
+                    <button
                       onClick={handleLogout}
                       className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full transition-colors"
                     >
@@ -263,17 +296,22 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? "max-h-[80vh] opacity-100 py-4" : "max-h-0 opacity-0 py-0"
-        }`}>
+        <div
+          className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
+            isOpen ? "max-h-[80vh] opacity-100 py-4" : "max-h-0 opacity-0 py-0"
+          }`}
+        >
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 space-y-3">
-            
             {/* Mobile Navigation Items */}
             <div className="space-y-1">
               {navItems.map((item) => {
@@ -289,9 +327,13 @@ export default function Navbar() {
                         : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
                     }`}
                   >
-                    <Icon className={`w-5 h-5 ${
-                      activeLink === item.name.toLowerCase() ? "text-blue-500" : "text-gray-400"
-                    }`} />
+                    <Icon
+                      className={`w-5 h-5 ${
+                        activeLink === item.name.toLowerCase()
+                          ? "text-blue-500"
+                          : "text-gray-400"
+                      }`}
+                    />
                     <span className="font-medium text-sm">{item.name}</span>
                     {item.badge && (
                       <span className="ml-auto w-5 h-5 bg-green-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
@@ -310,17 +352,23 @@ export default function Navbar() {
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">John Doe</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {user.username
+                      ? user.username
+                      : user.email.includes(".")
+                      ? user.email.split(".")[0]
+                      : user.email.split("@")[0]}
+                  </p>
                   <p className="text-xs text-gray-500">Premium Member</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-2">
                 <button className="flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium">
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
                 </button>
-                <button 
+                <button
                   onClick={handleLogout}
                   className="flex items-center justify-center space-x-2 px-3 py-2 text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors text-sm font-medium"
                 >

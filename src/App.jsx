@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import "./App.css";
+import Video404 from "./components/Video404";
 
 // Main Pages
 import LandingPage from "./Pages/LandingPage";
-import HomePage from './Pages/Home';
-import Profile from './Pages/Profile'
+import HomePage from './Pages/HomePage';
+import Profile from './Pages/Profile';
 import Explore from "./Pages/Explore";
 import NewPage from './Pages/FinalPage';
 
@@ -14,47 +15,97 @@ import ItineraryPlanner from "./Pages/ItineraryPlanner";
 import SearchResults from "./Pages/SearchResults";
 
 // Authentication
-import SignIn from "./components/Auth/SignIn";
-import SignUp from "./components/Auth/SignUp";
+import SignIn from "./components/AuthPage/SignIn";
+import SignUp from "./components/AuthPage/SignUp";
 
-// Admin Pages
+// Admin Pages (optional)
 import AuthPage from './Pages/PingAuthPage';
 import PingDashboard from './Pages/PingDashboard';
 
 // Utils
 import { pingBackend } from "./utils/ping";
 
-
+// Auth Context
+import { AuthProvider } from "./Context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 
-  // Ping scipt for Backend
   useEffect(() => {
     pingBackend();
   }, []);
 
   return (
-    <Routes>
-      {/* Landing page */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/explore" element={<Explore />} />
-      <Route path="/itinerary" element={<ItineraryPlanner />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/final" element={<NewPage />} />
-      <Route path="/search" element={<SearchResults />} />
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
 
-      {/* Auth pages */}
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
+          {/* Protected Routes */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/explore"
+            element={
+              <ProtectedRoute>
+                <Explore />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/itinerary"
+            element={
+              <ProtectedRoute>
+                <ItineraryPlanner />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/final"
+            element={
+              <ProtectedRoute>
+                <NewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <ProtectedRoute>
+                <SearchResults />
+              </ProtectedRoute>
+            }
+          />
 
-      {/* Admin Routes */}
-      {/* <Route path="/ping" element={<AuthPage />} />
-      <Route path="/ping-dashboard" element={<PingDashboard />} /> */}
+          {/* Optional Admin Routes */}
+          {/* <Route path="/ping" element={<AuthPage />} />
+          <Route path="/ping-dashboard" element={<PingDashboard />} /> */}
 
-      {/* Catch-all (optional) */}
-      <Route path="*" element={<h1 className="text-center mt-20">404 - Page Not Found</h1>} />
-    </Routes>
+          {/* 404 */}
+          <Route
+            path="*"
+            element={<Video404 />}
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

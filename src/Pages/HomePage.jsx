@@ -3,17 +3,17 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
 // CSS
-import '../components/Home/Home.css';
+import '../components/HomePage/Home.css';
 
 // Pages
-import Hero from "../components/Home/Hero";
-import SearchBox from "../components/Home/SearchBox";
-import Highlights from "../components/Home/Highlights";
-import WorldMap from '../components/Home/WorldMap';
-import Services from '../components/Home/Services';
-import Destination from "../components/Home/Destination";
+import Hero from "../components/HomePage/Hero";
+import SearchBox from "../components/HomePage/SearchBox";
+import Highlights from "../components/HomePage/Highlights";
+import WorldMap from '../components/HomePage/WorldMap';
+import Services from '../components/HomePage/Services';
+import Destination from "../components/HomePage/Destination";
 import Pricing from '../components/Pricing';
-import Footer from "../components/Home/Footer";
+import Footer from "../components/HomePage/Footer";
 
 // Custom Hook for InView Detection (Reused from Highlights component concept)
 function useAnimatedInView(threshold = 0.3) {

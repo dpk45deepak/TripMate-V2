@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -21,6 +21,9 @@ import {
   User,
   Plus
 } from 'lucide-react';
+
+// Global Context
+import { AuthContext } from "../Context/AuthContext";
 
 // --- Static Data ---
 
@@ -84,9 +87,9 @@ const sidebarVariants = {
 /**
  * Renders the Header/Navbar for the Main Content area.
  */
-const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar }) => (
-  <motion.div 
-    variants={itemVariants} 
+const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar, iconLetter }) => (
+  <motion.div
+    variants={itemVariants}
     className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white sticky top-0 border-b border-gray-100 shadow-sm lg:shadow-none"
   >
     {/* Left Section: Menu Button and Title */}
@@ -99,12 +102,12 @@ const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar }) => (
       >
         <Menu className="w-5 h-5" />
       </button>
-      
+
       {/* Mobile Title - Only visible on small screens */}
       <h1 className="text-2xl md:hidden font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">
         Dashboard
       </h1>
-      
+
       {/* Desktop Logo/Title - Hidden on mobile */}
       <div className="hidden lg:flex items-center space-x-2 ml-2">
         <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
@@ -161,14 +164,14 @@ const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar }) => (
       <div className="flex items-center space-x-2 cursor-pointer p-1.5 rounded-xl hover:bg-gray-50 transition-all active:scale-95">
         {/* Avatar with status indicator */}
         <div className="relative">
-          <img 
-            src="https://placehold.co/40x40/4CAF50/ffffff?text=JM" 
-            alt="Jemmy Max" 
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm" 
+          <img
+            src={`https://placehold.co/40x40/008080/ffffff?text=${iconLetter[0].toUpperCase()}`}
+            alt="Jemmy Max"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
           />
           <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
         </div>
-        
+
         {/* User Info - Hidden on very small screens */}
         <div className="hidden xs:block min-w-0 flex-1">
           <p className="font-semibold text-gray-800 text-sm truncate max-w-[80px] sm:max-w-[100px]">
@@ -176,7 +179,7 @@ const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar }) => (
           </p>
           <p className="text-xs text-gray-500 truncate">Traveler</p>
         </div>
-        
+
         {/* Dropdown Chevron - Hidden on mobile */}
         <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
       </div>
@@ -314,6 +317,10 @@ const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
 
 // --- Main App Component ---
 export default function App() {
+
+  // Use Context
+  const { user } = useContext(AuthContext);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
@@ -459,7 +466,7 @@ export default function App() {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <nav className="space-y-2">
                     {navItems.map(item => (
                       <NavLink
@@ -495,13 +502,15 @@ export default function App() {
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               toggleSidebar={toggleSidebar}
+              iconLetter={user.username ? user.username : user.email.includes('.') ? user.email.split('.')[0] : user.email.split('@')[0]}
             />
 
             <div className="p-4 sm:p-6 lg:p-8 flex-grow">
               {/* Welcome Message */}
               <motion.div variants={itemVariants} className="mb-8 mt-4">
                 <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
-                  Hello, Deepak
+                  Hello,
+                  {user.username ? user.username : user.email.includes('.') ? user.email.split('.')[0] : user.email.split('@')[0]}
                 </h1>
                 <p className="text-gray-500 text-sm">Welcome back and explore the world</p>
               </motion.div>
