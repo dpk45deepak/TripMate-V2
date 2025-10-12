@@ -1,4 +1,4 @@
-// ✅ Centralised Backend API's file
+// ✅ Centralized Backend API's file
 import axios from "axios";
 
 // 🔗 Base backend URL — change this to your Render backend URL

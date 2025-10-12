@@ -1,12 +1,94 @@
-# React + Vite
+# 🌍 TripMate Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**TripMate** is a modern, responsive, and interactive travel web application that helps users **discover destinations**, **plan trips**, and **explore travel experiences worldwide**. It features dynamic destination cards, travel statistics, curated recommendations, and smooth animations to enhance the user experience. ✈️🗺️
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📑 Table of Contents
 
-## Expanding the ESLint configuration
+- [🌍 TripMate Web App](#-tripmate-web-app)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🎬 Demo](#-demo)
+  - [✨ Features](#-features)
+  - [💻 Tech Stack](#-tech-stack)
+  - [⚙️ Installation](#️-installation)
+  - [📂 Folder Structure](#-folder-structure)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🎬 Demo
+
+> A live demo or screenshots can be added here once deployed.  
+
+---
+
+## ✨ Features
+
+- **📱 Responsive Design:** Works seamlessly across desktop, tablet, and mobile devices.  
+- **🗺️ Destination Discovery:** Explore popular destinations with detailed information and images.  
+- **📊 Travel Stats:** Visual statistics for destinations, tourists, and hotels.  
+- **🎨 Animated UI:** Smooth animations and hover effects for an engaging experience.  
+- **🌟 Curated Recommendations:** Highlights “Best of the Week” destinations.  
+- **🛡️ Feature Highlights:** Showcases app features such as safety, expert guides, global coverage, and 24/7 support.  
+
+---
+
+## 💻 Tech Stack
+
+- **Frontend:** React.js, Tailwind CSS, Framer Motion  
+- **Icons & Illustrations:** Lucide-React  
+- **Animations:** Framer Motion, Intersection Observer API  
+- **Responsive Design:** Tailwind CSS Grid & Flexbox  
+
+---
+
+## ⚙️ Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/tripmate.git
+cd tripmate
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Run the application**
+```bash
+npm start
+```
+4. **Open your browser and go to **
+```bash
+  http://localhost:5173
+```
+
+---
+
+## 📂 Folder Structure
+
+```bash
+src/
+├── components/
+│   ├── AuthPage/
+│   ├── Destination/
+│   ├── Explore/
+│   ├── Footer/
+│   ├── Header/
+│   ├── Home/
+│   ├── Itinerary/
+│   ├── LandingPage/
+│   ├── Navbar/
+│   ├── Profile/
+│   ├── SearchResults/
+│   └── Video404/
+├── Context/
+├── Pages/
+├── Services/
+├── utils/
+└── App.jsx
+```
+
+---
+

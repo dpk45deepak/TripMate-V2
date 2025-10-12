@@ -7,7 +7,7 @@ const BACKEND_URL = "https://tripsbcknd.onrender.com";
 export const pingBackend = async () => {
   try {
     const response = await axios.get(`${BACKEND_URL}/api`, {
-      timeout: 5000,
+      timeout: 10000,
     });
     console.log("✅ Backend awake:", response.data);
   } catch (error) {

@@ -319,7 +319,7 @@ const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
 export default function App() {
 
   // Use Context
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -418,6 +418,14 @@ export default function App() {
     </motion.div>
   );
 
+  // Handle Logout by user
+    const handleLogout = () => {
+    // Add your logout logic here
+    console.log("Logging out...");
+    logout();
+    setShowDropdown(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 ">
       {/* Mobile Sidebar Overlay (outside the main content box) */}
@@ -488,7 +496,11 @@ export default function App() {
                     icon={LogOut}
                     linkKey="logout"
                     currentActive={activeNav}
-                    onClick={() => console.log('Logged out')}
+                    onClick={() => {
+                      console.log('Logged out');
+                      handleLogout();
+                    }
+                  }
                   />
                 </motion.div>
               </motion.div>

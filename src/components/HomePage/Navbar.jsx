@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { motion } from "framer-motion";
 import {
   Menu,
   X,
@@ -19,10 +20,11 @@ import {
 
 // Global Context
 import { AuthContext } from "../../Context/AuthContext";
+import Nav_Search from './Nav_Search';
 
 export default function Navbar() {
   // Use Context
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -95,6 +97,7 @@ export default function Navbar() {
   const handleLogout = () => {
     // Add your logout logic here
     console.log("Logging out...");
+    logout();
     setShowDropdown(false);
   };
 
@@ -165,16 +168,27 @@ export default function Navbar() {
           {/* Right Section - Search, Notifications, Profile */}
           <div className="hidden lg:flex items-center space-x-3">
             {/* Search Bar */}
-            <div className="relative group">
+            <motion.div
+              initial={{ opacity: 0, y: -15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="relative group flex justify-center sm:justify-start w-full sm:w-auto"
+            >
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300" />
               </div>
               <input
                 type="text"
                 placeholder="Search destinations..."
-                className="pl-10 pr-4 py-2.5 w-64 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:bg-white hover:border-gray-300"
+                className="pl-10 pr-4 py-2.5 
+                    w-full sm:w-64 
+                    bg-gray-50 border border-gray-200 rounded-xl
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                    transition-[width,background-color,box-shadow] duration-500 ease-in-out
+                    hover:bg-white hover:border-gray-300 group-hover:shadow-md
+                    sm:focus:w-80"
               />
-            </div>
+            </motion.div>
 
             {/* Dark Mode Toggle */}
             <button
@@ -289,9 +303,11 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center space-x-2">
-            <button className="p-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300">
-              <Search className="w-5 h-5" />
-            </button>
+            <div className="p-2 hover:text-gray-100 hover:bg-white rounded-xl transition-all duration-300">
+              {/* <Search className="w-5 h-5" /> */}
+              <Nav_Search />
+              
+            </div>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
