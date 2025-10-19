@@ -16,7 +16,7 @@ const citiesData = {
                 name: "Isla Mujeres",
                 tagline: "Paradise Found: The Island of Women",
                 description: "Snorkeling in tropical waters, climbing a pyramid, and exploring the breathtaking cliffside views at Punta Sur are just a few samples of what Isla Mujeres has to offer. Experience the tranquil, turquoise Caribbean waters.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiEJyvqU9vUaSQhrOGibPL11a0yZBWes-9pygw1LgEtekO00guKBSUa0alY8LpFD6Btc&usqp=CAU",
+                image: "https://www.hotelmiareefislamujeres.com/files/all_inclusive/hotel_mia_reef_aero.webp",
                 rating: 5,
                 features: [
                     { icon: Sun, label: 'Beach Life' },
@@ -329,8 +329,8 @@ const CitySelector = ({ currentCity, onCityChange }) => {
     ];
 
     return (
-        <div className="hidden flex justify-center mb-6">
-            <div className="bg-white/10 backdrop-blur-md rounded-full p-2 flex space-x-2">
+        <div className="flex justify-center mb-6">
+            {/* <div className="bg-white/10 backdrop-blur-md rounded-full p-2 flex space-x-2">
                 {cities.map((city) => (
                     <button
                         key={city.id}
@@ -343,7 +343,7 @@ const CitySelector = ({ currentCity, onCityChange }) => {
                         {city.name}
                     </button>
                 ))}
-            </div>
+            </div> */}
         </div>
     );
 };

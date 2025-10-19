@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -24,6 +25,7 @@ import {
 
 // Global Context
 import { AuthContext } from "../Context/AuthContext";
+import FilterPanel from "../components/FilterPanel";
 
 // --- Static Data ---
 
@@ -320,6 +322,7 @@ export default function App() {
 
   // Use Context
   const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -419,11 +422,34 @@ export default function App() {
   );
 
   // Handle Logout by user
-    const handleLogout = () => {
+  const handleLogout = () => {
     // Add your logout logic here
     console.log("Logging out...");
     logout();
     setShowDropdown(false);
+  };
+
+  const [open, setOpen] = useState(false);
+
+  const handleItemClick = (key) => {
+    if (key === "favorite") {
+      setOpen(true); // open FilterPanel when Favorite clicked
+    }
+    else if (key === "setting") {
+      navigate("/settings");
+    }
+    else if (key === "ticket") {
+      alert("Ticket functionality will be available soon");
+    }
+    else if (key === "transaction") {
+      alert("Transaction functionality will be available soon");
+    }
+    else if (key === "message") {
+      alert("Message functionality will be available soon");
+    }
+    else {
+      handleNavLinkClick(key); // normal navigation for others
+    }
   };
 
   return (
@@ -476,16 +502,40 @@ export default function App() {
                   </div>
 
                   <nav className="space-y-2">
-                    {navItems.map(item => (
-                      <NavLink
-                        key={item.key}
-                        name={item.name}
-                        icon={item.icon}
-                        linkKey={item.key}
-                        currentActive={activeNav}
-                        onClick={handleNavLinkClick}
+                    <div className="relative">
+                      <nav className="space-y-2">
+                        {navItems.map((item) => (
+                          <button
+                            key={item.key}
+                            onClick={() => handleItemClick(item.key)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full text-left transition-all duration-200 
+              ${activeNav === item.key
+                                ? "bg-emerald-600 text-white shadow"
+                                : "text-gray-600 hover:bg-gray-100"
+                              }`}
+                          >
+                            <item.icon className="w-5 h-5" />
+                            <span>{item.name}</span>
+                          </button>
+                        ))}
+                      </nav>
+
+                      {/* Trip Filter Panel — visible only when Favorite clicked */}
+                      <FilterPanel
+                        isOpen={open}
+                        onClose={() => setOpen(false)}
+                        onApply={(filters) => {
+                          console.log("Applied filters:", filters);
+                          // You can call your trip recommendation API here
+                          fetch("/api/recommend", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(filters),
+                          });
+                        }}
                       />
-                    ))}
+                    </div>
+
                   </nav>
                   <DiscountBanner />
                 </div>
@@ -500,7 +550,7 @@ export default function App() {
                       console.log('Logged out');
                       handleLogout();
                     }
-                  }
+                    }
                   />
                 </motion.div>
               </motion.div>

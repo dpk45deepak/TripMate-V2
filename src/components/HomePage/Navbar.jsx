@@ -21,17 +21,20 @@ import {
 // Global Context
 import { AuthContext } from "../../Context/AuthContext";
 import Nav_Search from './Nav_Search';
+import FilterPanel from "../FilterPanel";
 
 export default function Navbar() {
   // Use Context
   const { user, logout } = useContext(AuthContext);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [favBarIsOpen, setFavBarIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
   const [showDropdown, setShowDropdown] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -103,11 +106,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-90 transition-all duration-500 md:px-16 ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-90 transition-all duration-500 md:px-16 ${isScrolled
           ? "bg-white/95 backdrop-blur-sm border-gray-100 py-2"
           : "bg-transparent backdrop-blur-sm py-2 lg:bg-white/95 lg:backdrop-blur-none lg:border-none"
-      }`}
+        }`}
     >
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
@@ -138,18 +140,16 @@ export default function Navbar() {
                   key={item.name}
                   href={item.href}
                   onClick={() => handleNavClick(item.name)}
-                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold transition-all duration-300 group ${
-                    activeLink === item.name.toLowerCase()
+                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold transition-all duration-300 group ${activeLink === item.name.toLowerCase()
                       ? "text-blue-600 bg-blue-50 shadow-sm"
                       : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <Icon
-                    className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                      activeLink === item.name.toLowerCase()
+                    className={`w-4 h-4 transition-transform group-hover:scale-110 ${activeLink === item.name.toLowerCase()
                         ? "text-blue-500"
                         : "text-teal-500"
-                    }`}
+                      }`}
                   />
                   <span>{item.name}</span>
                   {item.badge && (
@@ -234,15 +234,14 @@ export default function Navbar() {
                     {user.name
                       ? user.name
                       : user.email.includes(".")
-                      ? user.email.split(".")[0]
-                      : user.email.split("@")[0]}
+                        ? user.email.split(".")[0]
+                        : user.email.split("@")[0]}
                   </span>
                   <span className="text-xs text-gray-500">Premium Member</span>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
-                    showDropdown ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${showDropdown ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -254,8 +253,8 @@ export default function Navbar() {
                       {user.name
                         ? user.name
                         : user.email.includes(".")
-                        ? user.email.split(".")[0]
-                        : user.email.split("@")[0]}
+                          ? user.email.split(".")[0]
+                          : user.email.split("@")[0]}
                     </p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
@@ -278,9 +277,13 @@ export default function Navbar() {
                       <span>Settings</span>
                     </a>
                     <a
-                      href="/favorites"
+                      // href="/favorites"
                       className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowDropdown(false)}
+                      onClick={() => {
+                        setShowDropdown(false)
+                        setFavBarIsOpen(true)
+                      }
+                      }
                     >
                       <Heart className="w-4 h-4" />
                       <span>Favorites</span>
@@ -306,7 +309,6 @@ export default function Navbar() {
             <div className="p-2 hover:text-gray-100 hover:bg-white rounded-xl transition-all duration-300">
               {/* <Search className="w-5 h-5" /> */}
               <Nav_Search />
-              
             </div>
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -323,9 +325,8 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-            isOpen ? "max-h-[80vh] opacity-100 py-4" : "max-h-0 opacity-0 py-0"
-          }`}
+          className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-[80vh] opacity-100 py-4" : "max-h-0 opacity-0 py-0"
+            }`}
         >
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 space-y-3">
             {/* Mobile Navigation Items */}
@@ -337,18 +338,16 @@ export default function Navbar() {
                     key={item.name}
                     href={item.href}
                     onClick={() => handleNavClick(item.name)}
-                    className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 ${
-                      activeLink === item.name.toLowerCase()
+                    className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 ${activeLink === item.name.toLowerCase()
                         ? "bg-blue-50 text-blue-600 border border-blue-200"
                         : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
-                    }`}
+                      }`}
                   >
                     <Icon
-                      className={`w-5 h-5 ${
-                        activeLink === item.name.toLowerCase()
+                      className={`w-5 h-5 ${activeLink === item.name.toLowerCase()
                           ? "text-blue-500"
                           : "text-gray-400"
-                      }`}
+                        }`}
                     />
                     <span className="font-medium text-sm">{item.name}</span>
                     {item.badge && (
@@ -372,8 +371,8 @@ export default function Navbar() {
                     {user.name
                       ? user.name
                       : user.email.includes(".")
-                      ? user.email.split(".")[0]
-                      : user.email.split("@")[0]}
+                        ? user.email.split(".")[0]
+                        : user.email.split("@")[0]}
                   </p>
                   <p className="text-xs text-gray-500">Premium Member</p>
                 </div>
@@ -404,6 +403,17 @@ export default function Navbar() {
           onClick={() => setIsOpen(false)}
         />
       )} */}
+
+      {/* Favorites Bar */}
+      <FilterPanel
+        isOpen={favBarIsOpen}
+        onClose={() => setFavBarIsOpen(false)}
+        onApply={(filters) => {
+          // send to backend or update local recommendations
+          console.log("Applied filters:", filters);
+          fetch("/api/recommend", { method: "POST", body: JSON.stringify(filters) })
+        }}
+      />
     </header>
   );
 }

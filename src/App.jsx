@@ -7,6 +7,7 @@ import Video404 from "./components/Video404";
 import LandingPage from "./Pages/LandingPage";
 import HomePage from './Pages/HomePage';
 import Profile from './Pages/Profile';
+import ProfileSettings from './Pages/ProfileSettings';
 import Explore from "./Pages/Explore";
 import NewPage from './Pages/FinalPage';
 
@@ -66,6 +67,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <ProfileSettings />
               </ProtectedRoute>
             }
           />
