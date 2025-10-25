@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
   X,
@@ -19,8 +19,9 @@ import {
 } from "lucide-react";
 
 // Global Context
-import { AuthContext } from "../../Context/AuthContext";
+import AuthContext from "../../Context/AuthContext";
 import Nav_Search from './Nav_Search';
+import NotificationDropdown from './NotificationDropdown';
 import FilterPanel from "../FilterPanel";
 
 export default function Navbar() {
@@ -28,13 +29,12 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [favBarIsOpen, setFavBarIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
   const [showDropdown, setShowDropdown] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
+  const [filterPanels, setFilterPanels] = useState([]);
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -87,7 +87,6 @@ export default function Navbar() {
     { name: "Explore", href: "/explore", icon: Globe },
     { name: "Itinerary", href: "/itinerary", icon: Calendar },
     { name: "Profile", href: "/profile", icon: User },
-    // { name: "Ping", href: "/ping", icon: MapPin, badge: " " }
   ];
 
   const handleNavClick = (itemName) => {
@@ -98,18 +97,36 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    // Add your logout logic here
     console.log("Logging out...");
     logout();
     setShowDropdown(false);
   };
 
+  // Function to open FilterPanel
+  const openFilterPanel = () => {
+    const newPanelId = Date.now().toString();
+    setFilterPanels(prev => [...prev, newPanelId]);
+    setShowDropdown(false); // Close dropdown when opening filter panel
+  };
+
+  // Function to close specific FilterPanel
+  const closeFilterPanel = (panelId) => {
+    setFilterPanels(prev => prev.filter(id => id !== panelId));
+  };
+
+  // Toggle theme function (placeholder)
+  const toggleTheme = (isDark) => {
+    console.log("Theme toggled to:", isDark ? "dark" : "light");
+    // Implement your theme logic here
+  };
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-90 transition-all duration-500 md:px-16 ${isScrolled
+      className={`fixed top-0 left-0 right-0 z-90 transition-all duration-500 md:px-16 ${
+        isScrolled
           ? "bg-white/95 backdrop-blur-sm border-gray-100 py-2"
           : "bg-transparent backdrop-blur-sm py-2 lg:bg-white/95 lg:backdrop-blur-none lg:border-none"
-        }`}
+      }`}
     >
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
@@ -140,16 +157,18 @@ export default function Navbar() {
                   key={item.name}
                   href={item.href}
                   onClick={() => handleNavClick(item.name)}
-                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold transition-all duration-300 group ${activeLink === item.name.toLowerCase()
+                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold transition-all duration-300 group ${
+                    activeLink === item.name.toLowerCase()
                       ? "text-blue-600 bg-blue-50 shadow-sm"
                       : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                    }`}
+                  }`}
                 >
                   <Icon
-                    className={`w-4 h-4 transition-transform group-hover:scale-110 ${activeLink === item.name.toLowerCase()
+                    className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                      activeLink === item.name.toLowerCase()
                         ? "text-blue-500"
                         : "text-teal-500"
-                      }`}
+                    }`}
                   />
                   <span>{item.name}</span>
                   {item.badge && (
@@ -207,12 +226,7 @@ export default function Navbar() {
             </button>
 
             {/* Notifications */}
-            <button className="relative p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 group">
-              <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
-                3
-              </span>
-            </button>
+            <NotificationDropdown />
 
             {/* Profile Dropdown */}
             <div className="relative profile-dropdown">
@@ -225,7 +239,7 @@ export default function Navbar() {
                     src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.email
                       .toString()[0]
                       .toUpperCase()}`}
-                    alt="Jemmy Max"
+                    alt="Profile"
                     className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
                   />
                 </div>
@@ -240,8 +254,9 @@ export default function Navbar() {
                   <span className="text-xs text-gray-500">Premium Member</span>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${showDropdown ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+                    showDropdown ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -276,18 +291,13 @@ export default function Navbar() {
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
                     </a>
-                    <a
-                      // href="/favorites"
-                      className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => {
-                        setShowDropdown(false)
-                        setFavBarIsOpen(true)
-                      }
-                      }
+                    <button
+                      className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
+                      onClick={openFilterPanel}
                     >
                       <Heart className="w-4 h-4" />
                       <span>Favorites</span>
-                    </a>
+                    </button>
                   </div>
 
                   <div className="border-t border-gray-100 pt-2">
@@ -307,7 +317,6 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center space-x-2">
             <div className="p-2 hover:text-gray-100 hover:bg-white rounded-xl transition-all duration-300">
-              {/* <Search className="w-5 h-5" /> */}
               <Nav_Search />
             </div>
             <button
@@ -325,8 +334,9 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-[80vh] opacity-100 py-4" : "max-h-0 opacity-0 py-0"
-            }`}
+          className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
+            isOpen ? "max-h-[80vh] opacity-100 py-4" : "max-h-0 opacity-0 py-0"
+          }`}
         >
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 space-y-3">
             {/* Mobile Navigation Items */}
@@ -338,16 +348,18 @@ export default function Navbar() {
                     key={item.name}
                     href={item.href}
                     onClick={() => handleNavClick(item.name)}
-                    className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 ${activeLink === item.name.toLowerCase()
+                    className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 ${
+                      activeLink === item.name.toLowerCase()
                         ? "bg-blue-50 text-blue-600 border border-blue-200"
                         : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
-                      }`}
+                    }`}
                   >
                     <Icon
-                      className={`w-5 h-5 ${activeLink === item.name.toLowerCase()
+                      className={`w-5 h-5 ${
+                        activeLink === item.name.toLowerCase()
                           ? "text-blue-500"
                           : "text-gray-400"
-                        }`}
+                      }`}
                     />
                     <span className="font-medium text-sm">{item.name}</span>
                     {item.badge && (
@@ -364,7 +376,13 @@ export default function Navbar() {
             <div className="pt-3 border-t border-gray-200 space-y-3">
               <div className="flex items-center space-x-3 px-3 py-2">
                 <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+                  <img
+                    src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.email
+                      .toString()[0]
+                      .toUpperCase()}`}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover border-2 border-white"
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">
@@ -384,8 +402,15 @@ export default function Navbar() {
                   <span>Settings</span>
                 </button>
                 <button
+                  onClick={openFilterPanel}
+                  className="flex items-center justify-center space-x-2 px-3 py-2 text-pink-600 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors text-sm font-medium"
+                >
+                  <Heart className="w-4 h-4" />
+                  <span>Favorites</span>
+                </button>
+                <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center space-x-2 px-3 py-2 text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors text-sm font-medium"
+                  className="flex items-center justify-center space-x-2 px-3 py-2 text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors text-sm font-medium col-span-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>
@@ -396,24 +421,16 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Backdrop for mobile menu */}
-      {/* {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )} */}
-
-      {/* Favorites Bar */}
-      <FilterPanel
-        isOpen={favBarIsOpen}
-        onClose={() => setFavBarIsOpen(false)}
-        onApply={(filters) => {
-          // send to backend or update local recommendations
-          console.log("Applied filters:", filters);
-          fetch("/api/recommend", { method: "POST", body: JSON.stringify(filters) })
-        }}
-      />
+      {/* Multiple FilterPanels */}
+      <AnimatePresence>
+        {filterPanels.map((panelId) => (
+          <FilterPanel
+            key={panelId}
+            isOpenProp={true}
+            onClose={() => closeFilterPanel(panelId)}
+          />
+        ))}
+      </AnimatePresence>
     </header>
   );
 }

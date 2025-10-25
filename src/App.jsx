@@ -20,8 +20,7 @@ import SignIn from "./components/AuthPage/SignIn";
 import SignUp from "./components/AuthPage/SignUp";
 
 // Admin Pages (optional)
-import AuthPage from './Pages/PingAuthPage';
-import PingDashboard from './Pages/PingDashboard';
+import Admin from './Pages/Admin';
 
 // Utils
 import { pingBackend } from "./utils/ping";
@@ -104,8 +103,7 @@ function App() {
           />
 
           {/* Optional Admin Routes */}
-          {/* <Route path="/ping" element={<AuthPage />} />
-          <Route path="/ping-dashboard" element={<PingDashboard />} /> */}
+          <Route path="/admin" element={<Admin />} />
 
           {/* 404 */}
           <Route

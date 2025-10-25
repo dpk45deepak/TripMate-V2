@@ -1,10 +1,15 @@
 import { motion } from "framer-motion";
 import icons from "../FinalPage/Icons.jsx";
 
-
-
-// Enhanced Quick Stats Component
-const QuickStats = ({ domesticCount, foreignCount, totalCount }) => {
+// Enhanced Quick Stats Component with Pagination
+const QuickStats = ({ 
+  domesticCount, 
+  foreignCount, 
+  totalCount, 
+  currentPage = 1, 
+  totalPages = 1,
+  itemsPerPage = 10
+}) => {
   return (
     <motion.div
       className="grid grid-cols-3 gap-4 mb-6"
@@ -39,8 +44,11 @@ const QuickStats = ({ domesticCount, foreignCount, totalCount }) => {
       <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-2xl text-white shadow-lg">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-purple-100 text-sm">Total</p>
+            <p className="text-purple-100 text-sm">Total Destinations</p>
             <p className="text-2xl font-bold">{totalCount}</p>
+            <p className="text-xs text-purple-100 mt-1">
+              Page {currentPage} of {totalPages}
+            </p>
           </div>
           <div className="w-10 h-10 bg-purple-400/30 rounded-full flex items-center justify-center">
             <icons.Star className="w-5 h-5" />

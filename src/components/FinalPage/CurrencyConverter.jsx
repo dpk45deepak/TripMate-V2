@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-// Enhanced Currency Converter Component
-const CurrencyConverter = ({
-    basePrice,
-    country,
-    location,
-    compact = false,
-}) => {
-    // Currency conversion rates (simplified, in a real app, fetch from an API)
+const CurrencyConverter = ({ basePrice: initialBasePrice, country, compact = false }) => {
     const currencyRates = {
         US: { code: "USD", rate: 0.012, symbol: "$" },
         UK: { code: "GBP", rate: 0.0095, symbol: "£" },
@@ -18,180 +11,131 @@ const CurrencyConverter = ({
         default: { code: "USD", rate: 0.012, symbol: "$" },
     };
 
-    // Get currency info based on country
     const getCurrencyInfo = (countryCode) => {
         if (!countryCode) return currencyRates["default"];
-
-        // Try to match country code (first 2 letters)
         const countryKey = countryCode.substring(0, 2).toUpperCase();
         return currencyRates[countryKey] || currencyRates["default"];
     };
 
+    const [basePrice, setBasePrice] = useState(initialBasePrice || "");
     const [targetCurrency, setTargetCurrency] = useState("USD");
-    const [convertedPrice, setConvertedPrice] = useState(null);
+    const [convertedPrice, setConvertedPrice] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Real-time conversion on input
     useEffect(() => {
-        const convertCurrency = async () => {
-            if (!basePrice || !country) return;
+        if (!basePrice || isNaN(basePrice) || basePrice <= 0) {
+            setConvertedPrice("");
+            return;
+        }
 
+        const convert = async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                // In a real app, you would fetch the latest rates from an API
-                // For now, we'll use the static rates defined above
                 const currencyInfo = getCurrencyInfo(country);
                 setTargetCurrency(currencyInfo.code);
 
-                // Simulate API delay
-                await new Promise((resolve) => setTimeout(resolve, 500));
+                await new Promise((resolve) => setTimeout(resolve, 300)); // simulate delay
 
                 const converted = basePrice * currencyInfo.rate;
                 setConvertedPrice(converted.toFixed(2));
             } catch (err) {
-                console.error("Error converting currency:", err);
+                console.error(err);
                 setError("Failed to convert currency");
             } finally {
                 setLoading(false);
             }
         };
 
-        convertCurrency();
+        convert();
     }, [basePrice, country]);
 
-    // Helper function to get currency symbol
-    const getCurrencySymbol = (currencyCode) => {
-        const currency = Object.values(currencyRates).find(
-            (c) => c.code === currencyCode
-        );
-        return currency ? currency.symbol : "$";
+    const getCurrencySymbol = (code) => {
+        const c = Object.values(currencyRates).find((cur) => cur.code === code);
+        return c ? c.symbol : "$";
     };
 
+    // Compact view (minimal card)
     if (compact) {
         return (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-3 rounded-xl border border-green-200">
+            <div className="bg-gradient-to-r from-teal-50 to-indigo-100 p-4 rounded-2xl border border-indigo-200 shadow-sm hover:shadow-md transition-all duration-300">
                 <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Price</span>
+                    <span className="text-sm font-semibold text-indigo-700">Converted Price</span>
                     {loading ? (
-                        <div className="h-4 w-20 bg-green-200 rounded animate-pulse"></div>
+                        <div className="h-4 w-20 bg-indigo-200 rounded animate-pulse"></div>
                     ) : convertedPrice ? (
                         <div className="text-right">
-                            <div className="font-bold text-green-700">
+                            <div className="font-bold text-indigo-800 text-lg">
                                 {getCurrencySymbol(targetCurrency)}
                                 {convertedPrice}
                             </div>
-                            <div className="text-xs text-gray-500">
-                                ₹{basePrice?.toLocaleString()}
-                            </div>
+                            <div className="text-xs text-gray-500">₹{basePrice}</div>
                         </div>
                     ) : (
-                        <div className="text-sm text-gray-500">
-                            ₹{basePrice?.toLocaleString()}
-                        </div>
+                        <div className="text-sm text-gray-500">₹{basePrice || 0}</div>
                     )}
                 </div>
             </div>
         );
     }
 
-    // Full Currency Converter
+    // Full Converter
     return (
-        <div className="bg-white rounded-2xl shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Currency Converter
+        <div className="bg-gradient-to-br from-white via-indigo-50 to-teal-50 rounded-3xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-indigo-100">
+            <h3 className="text-2xl font-extrabold text-indigo-800 mb-5 flex items-center gap-2">
+                💱 Currency Converter
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
+                {/* Base Amount */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                         Amount in INR
                     </label>
-                    <div className="relative rounded-md shadow-sm">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-500 sm:text-sm">₹</span>
-                        </div>
+                    <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                            ₹
+                        </span>
                         <input
                             type="number"
-                            value={basePrice || ""}
-                            readOnly
-                            className="focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                            value={basePrice}
+                            onChange={(e) => setBasePrice(e.target.value)}
+                            placeholder="Enter amount in INR"
+                            className="w-full border border-gray-300 rounded-xl p-2 pl-7 pr-12 text-gray-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
                         />
                     </div>
                 </div>
 
-                <div className="flex items-center justify-center">
-                    <button
-                        className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
-                        onClick={() => { }}
-                        disabled={loading}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M15.707 4.293a1 1 0 010 1.414L9.414 12l6.293 6.293a1 1 0 01-1.414 1.414l-7-7a1 1 0 010-1.414l7-7a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                    </button>
-
-                    <div className="mx-2 text-sm text-gray-500">
-                        {targetCurrency} ({getCurrencySymbol(targetCurrency)})
-                    </div>
-
-                    <button
-                        className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600"
-                        onClick={() => { }}
-                        disabled={loading}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                    </button>
-                </div>
-
+                {/* Converted Amount */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Converted Amount
+                        Converted Amount ({targetCurrency})
                     </label>
-                    <div className="relative rounded-md shadow-sm">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-500 sm:text-sm">
-                                {getCurrencySymbol(targetCurrency)}
-                            </span>
-                        </div>
+                    <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                            {getCurrencySymbol(targetCurrency)}
+                        </span>
                         <input
                             type="text"
                             value={loading ? "Converting..." : convertedPrice || "--"}
                             readOnly
-                            className="bg-gray-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                            className="w-full border border-gray-300 rounded-xl p-2 pl-7 pr-12 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-sm"
                         />
                     </div>
                 </div>
             </div>
 
             {error && (
-                <div className="mt-4 text-red-600 text-sm bg-red-50 p-2 rounded">
+                <div className="mt-4 text-red-600 text-sm bg-red-50 p-2 rounded-md">
                     {error}
                 </div>
             )}
 
-            <div className="mt-4 text-xs text-gray-500">
+            {/* Footer info */}
+            <div className="mt-5 text-xs text-gray-500 border-t border-indigo-100 pt-3">
                 <p>
                     1 INR ={" "}
                     {convertedPrice

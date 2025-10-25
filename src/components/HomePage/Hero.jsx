@@ -78,13 +78,18 @@ export default function TravelUI() {
 
   const navigate = useNavigate();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Initialize with a random index
+  const [currentIndex, setCurrentIndex] = useState(
+    Math.floor(Math.random() * destinations.length)
+  );
   const [favorites, setFavorites] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [selectedDestination, setSelectedDestination] = useState(null);
-  const [currentBackground, setCurrentBackground] = useState(destinations[0].background);
+  const [currentBackground, setCurrentBackground] = useState(
+    () => destinations[Math.floor(Math.random() * destinations.length)].background
+  );
   const [nextBackground, setNextBackground] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [bookingData, setBookingData] = useState({ dates: "", travelers: 1, name: "", email: "" });
@@ -122,9 +127,19 @@ export default function TravelUI() {
   };
 
   useEffect(() => {
-    resetAutoPlay();
+    const randomIndex = Math.floor(Math.random() * destinations.length);
+    setCurrentIndex(randomIndex);
+    setCurrentBackground(destinations[randomIndex].background);
+
+    if (isAutoPlaying) {
+      autoPlayRef.current = setInterval(() => {
+        const nextIndex = currentIndex === filteredDestinations.length - 1 ? 0 : currentIndex + 1;
+        setCurrentIndex(nextIndex);
+        changeBackground(filteredDestinations[nextIndex].background);
+      }, 5000);
+    }
     return () => clearInterval(autoPlayRef.current);
-  }, [isAutoPlaying, currentIndex, filteredDestinations.length]);
+  }, [isAutoPlaying]);
 
   const nextSlide = () => {
     const nextIndex = currentIndex === filteredDestinations.length - 1 ? 0 : currentIndex + 1;

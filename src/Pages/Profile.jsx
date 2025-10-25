@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 // Global Context
-import { AuthContext } from "../Context/AuthContext";
+import AuthContext from "../Context/AuthContext";
 import FilterPanel from "../components/FilterPanel";
 
 // --- Static Data ---
@@ -43,9 +43,6 @@ const featureCards = [
   { id: 2, title: 'Night Camping', location: 'Lightning lake', rating: 4.8, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT632_6m6XxAXxR_jPzJXeXv9lhdaam5Q7C7Q&s', color: 'bg-indigo-700' },
   { id: 3, title: 'Mount Climbing', location: 'Green Valley', rating: 5.0, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkDvj7r8rwNewrf4Olj8PpX6NzKsETsJTI4Q&s', color: 'bg-emerald-500' },
 ];
-
-// best choice if not image: 'https://placehold.co/400x250/4CAF50/ffffff?text=Climbing'
-
 
 const destinations = [
   { id: 10, title: 'Green wood forest', location: 'Tilangauna', rating: 4.5, price: '999', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLx7klwRMyT2UiLVrJSwxR_ZSbjZ1p3bU7DA&s' },
@@ -86,9 +83,6 @@ const sidebarVariants = {
 
 // --- Helper Components ---
 
-/**
- * Renders the Header/Navbar for the Main Content area.
- */
 const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar, iconLetter }) => (
   <motion.div
     variants={itemVariants}
@@ -189,10 +183,6 @@ const DashboardHeader = ({ searchTerm, setSearchTerm, toggleSidebar, iconLetter 
   </motion.div>
 );
 
-
-/**
- * Renders the Navigation Link for the sidebar.
- */
 const NavLink = ({ name, icon: Icon, linkKey, currentActive, onClick }) => {
   const active = linkKey === currentActive;
   return (
@@ -209,8 +199,6 @@ const NavLink = ({ name, icon: Icon, linkKey, currentActive, onClick }) => {
   );
 };
 
-
-// --- Modal Component ---
 const DetailModal = ({ item, onClose }) => {
   if (!item) return null;
 
@@ -227,7 +215,7 @@ const DetailModal = ({ item, onClose }) => {
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 50, opacity: 0, scale: 0.8 }}
         className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl relative my-8"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+        onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition z-10" aria-label="Close Modal">
           <X className="w-5 h-5 text-gray-700" />
@@ -258,9 +246,7 @@ const DetailModal = ({ item, onClose }) => {
   );
 };
 
-// --- Calendar Component ---
 const CalendarDisplay = () => {
-  // ... (CalendarDisplay logic remains the same)
   const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   const dates = [
     null, null, null, 1, 2, 3, 4,
@@ -296,8 +282,6 @@ const CalendarDisplay = () => {
   );
 };
 
-
-// --- Schedule Item Component ---
 const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
   <motion.div variants={itemVariants} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer mb-2">
     <div className="flex items-center">
@@ -316,11 +300,7 @@ const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
   </motion.div>
 );
 
-
-// --- Main App Component ---
 export default function App() {
-
-  // Use Context
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -328,21 +308,19 @@ export default function App() {
   const [activeNav, setActiveNav] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
+  const [filterPanels, setFilterPanels] = useState([]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  // Close sidebar on navigation item click (important for mobile UX)
   const handleNavLinkClick = (key) => {
     setActiveNav(key);
-    if (window.innerWidth < 1024) { // 1024px is Tailwind's 'lg' breakpoint
+    if (window.innerWidth < 1024) {
       setIsSidebarOpen(false);
     }
   };
 
-  // Close modal when an item is booked/closed
   const closeModal = () => setSelectedItem(null);
 
-  // Search filtering logic (combined for both sections)
   const filteredDestinations = destinations.filter(dest =>
     dest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dest.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -353,11 +331,21 @@ export default function App() {
     item.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Feature Card (Green Safari, Night Camping, etc.)
+  // NEW: Function to open FilterPanel
+  const openFilterPanel = () => {
+    const newPanelId = Date.now().toString();
+    setFilterPanels(prev => [...prev, newPanelId]);
+  };
+
+  // NEW: Function to close specific FilterPanel
+  const closeFilterPanel = (panelId) => {
+    setFilterPanels(prev => prev.filter(id => id !== panelId));
+  };
+
   const FeatureCard = ({ id, title, location, rating, image, color, onClick }) => (
     <motion.div
       variants={itemVariants}
-      onClick={() => onClick({ id, title, location, rating, image, color })} // Pass full data to set as selectedItem
+      onClick={() => onClick({ id, title, location, rating, image, color })}
       whileHover={{ scale: 1.02 }}
       className={`relative h-64 rounded-xl shadow-lg overflow-hidden cursor-pointer flex flex-col justify-end p-4 transition-all duration-300 ease-in-out hover:shadow-2xl`}
     >
@@ -380,7 +368,6 @@ export default function App() {
     </motion.div>
   );
 
-  // Discount Banner in Sidebar
   const DiscountBanner = () => (
     <motion.div variants={itemVariants} className="mt-8 p-4 bg-emerald-100 rounded-xl overflow-hidden relative">
       <div className="absolute inset-0 bg-emerald-200 opacity-20 transform -skew-y-3"></div>
@@ -398,7 +385,6 @@ export default function App() {
     </motion.div>
   );
 
-  // Destination Item (Small list)
   const DestinationItem = ({ title, location, rating, price, image }) => (
     <motion.div variants={itemVariants} className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer mb-2">
       <div className="flex items-center space-x-3">
@@ -421,19 +407,15 @@ export default function App() {
     </motion.div>
   );
 
-  // Handle Logout by user
   const handleLogout = () => {
-    // Add your logout logic here
     console.log("Logging out...");
     logout();
-    setShowDropdown(false);
   };
-
-  const [open, setOpen] = useState(false);
 
   const handleItemClick = (key) => {
     if (key === "favorite") {
-      setOpen(true); // open FilterPanel when Favorite clicked
+      console.log("Favorite clicked - opening FilterPanel");
+      openFilterPanel(); // Open new FilterPanel instance
     }
     else if (key === "setting") {
       navigate("/settings");
@@ -448,13 +430,13 @@ export default function App() {
       alert("Message functionality will be available soon");
     }
     else {
-      handleNavLinkClick(key); // normal navigation for others
+      handleNavLinkClick(key);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 ">
-      {/* Mobile Sidebar Overlay (outside the main content box) */}
+    <div className="min-h-screen bg-gray-100">
+      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
@@ -475,9 +457,9 @@ export default function App() {
       >
         <div className="lg:grid lg:grid-cols-[250px_1fr_300px] h-full min-h-screen">
 
-          {/* --- 1. Sidebar (Desktop/Mobile) --- */}
+          {/* Sidebar */}
           <AnimatePresence>
-            {(isSidebarOpen || window.innerWidth >= 1024) && ( // isSidebarOpen logic is handled by wrapper
+            {(isSidebarOpen || window.innerWidth >= 1024) && (
               <motion.div
                 key="sidebar"
                 variants={sidebarVariants}
@@ -502,40 +484,20 @@ export default function App() {
                   </div>
 
                   <nav className="space-y-2">
-                    <div className="relative">
-                      <nav className="space-y-2">
-                        {navItems.map((item) => (
-                          <button
-                            key={item.key}
-                            onClick={() => handleItemClick(item.key)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full text-left transition-all duration-200 
-              ${activeNav === item.key
-                                ? "bg-emerald-600 text-white shadow"
-                                : "text-gray-600 hover:bg-gray-100"
-                              }`}
-                          >
-                            <item.icon className="w-5 h-5" />
-                            <span>{item.name}</span>
-                          </button>
-                        ))}
-                      </nav>
-
-                      {/* Trip Filter Panel — visible only when Favorite clicked */}
-                      <FilterPanel
-                        isOpen={open}
-                        onClose={() => setOpen(false)}
-                        onApply={(filters) => {
-                          console.log("Applied filters:", filters);
-                          // You can call your trip recommendation API here
-                          fetch("/api/recommend", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(filters),
-                          });
-                        }}
-                      />
-                    </div>
-
+                    {navItems.map((item) => (
+                      <button
+                        key={item.key}
+                        onClick={() => handleItemClick(item.key)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full text-left transition-all duration-200 
+                          ${activeNav === item.key
+                            ? "bg-emerald-600 text-white shadow"
+                            : "text-gray-600 hover:bg-gray-100"
+                          }`}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.name}</span>
+                      </button>
+                    ))}
                   </nav>
                   <DiscountBanner />
                 </div>
@@ -549,17 +511,15 @@ export default function App() {
                     onClick={() => {
                       console.log('Logged out');
                       handleLogout();
-                    }
-                    }
+                    }}
                   />
                 </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* --- 2. Main Dashboard Content (Middle) --- */}
+          {/* Main Dashboard Content */}
           <div className="col-span-1 flex flex-col overflow-y-auto">
-            {/* Header/Search Area */}
             <DashboardHeader
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -568,7 +528,6 @@ export default function App() {
             />
 
             <div className="p-4 sm:p-6 lg:p-8 flex-grow">
-              {/* Welcome Message */}
               <motion.div variants={itemVariants} className="mb-8 mt-4">
                 <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
                   Hello,
@@ -577,18 +536,16 @@ export default function App() {
                 <p className="text-gray-500 text-sm">Welcome back and explore the world</p>
               </motion.div>
 
-              {/* Feature Cards Grid */}
               <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
                 {featureCards.map((card) => (
                   <FeatureCard
                     key={card.id}
                     {...card}
-                    onClick={setSelectedItem} // Open Modal on click
+                    onClick={setSelectedItem}
                   />
                 ))}
               </motion.div>
 
-              {/* Best Destination & Filters */}
               <motion.div variants={itemVariants} className="flex justify-between items-center mb-4 mt-6">
                 <div className="flex flex-col">
                   <h3 className="text-xl font-bold text-gray-800">Best Destination</h3>
@@ -602,7 +559,6 @@ export default function App() {
                 </div>
               </motion.div>
 
-              {/* Destination List Grid */}
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 variants={containerVariants}
@@ -620,7 +576,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* --- 3. Right Panel (Calendar and Schedule) --- */}
+          {/* Right Panel */}
           <div className="col-span-1 p-4 lg:p-6 xl:p-8 border-t lg:border-t-0 lg:border-l border-gray-100 overflow-y-auto">
             <motion.div variants={itemVariants} className="mt-4 lg:mt-0">
               <p className="text-sm text-gray-400 text-right">...</p>
@@ -647,7 +603,6 @@ export default function App() {
               )}
             </motion.div>
 
-            {/* Let's Explore Banner */}
             <motion.div variants={itemVariants} className="mt-8 bg-gray-900 rounded-xl shadow-lg p-6 text-white text-center relative overflow-hidden">
               <img src="https://placehold.co/100x100/4CAF50/ffffff?text=Traveler" alt="Traveler" className="absolute top-0 right-0 h-full w-1/3 object-cover opacity-30" loading="lazy" />
               <div className="relative z-10">
@@ -666,11 +621,22 @@ export default function App() {
         </div>
       </motion.div>
 
-      {/* Detail Modal component */}
+      {/* Detail Modal */}
       <AnimatePresence>
         {selectedItem && (
           <DetailModal item={selectedItem} onClose={closeModal} />
         )}
+      </AnimatePresence>
+
+      {/* Multiple FilterPanels */}
+      <AnimatePresence>
+        {filterPanels.map((panelId) => (
+          <FilterPanel
+            key={panelId}
+            isOpenProp={true}
+            onClose={() => closeFilterPanel(panelId)}
+          />
+        ))}
       </AnimatePresence>
     </div>
   );

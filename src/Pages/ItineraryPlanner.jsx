@@ -21,7 +21,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 // Global Context
-import { AuthContext } from "../Context/AuthContext";
+import AuthContext from "../Context/AuthContext";
 
 export default function TravelApp() {
   // Use Context

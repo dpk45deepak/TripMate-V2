@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
-import { AuthContext } from "../Context/AuthContext";
+import AuthContext from "../Context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";

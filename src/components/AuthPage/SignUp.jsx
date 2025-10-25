@@ -5,7 +5,7 @@ import { Eye, EyeOff, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Sparkles }
 
 // Authentication
 import BACKEND_API from '../../Services/Backend';
-import { AuthContext } from "../../Context/AuthContext";
+import AuthContext from "../../Context/AuthContext";
 
 export default function AuthenticationForm() {
 
@@ -56,8 +56,19 @@ export default function AuthenticationForm() {
   };
 
   const handleSocialLogin = (provider) => {
-    console.log(`Attempting ${provider} login`);
-    // Implement social login logic here
+    setIsLoading(true);
+    try {
+    // implement social login logic here
+
+
+
+
+
+    } catch (error) {
+      console.error('OAuth error:', error);
+      setErrorMsg('Failed to initiate Google sign up');
+      setIsLoading(false);
+    }
   };
 
   const { user } = useContext(AuthContext);

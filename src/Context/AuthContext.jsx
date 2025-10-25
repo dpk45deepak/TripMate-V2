@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
@@ -37,9 +37,17 @@ export const AuthProvider = ({ children }) => {
         navigate("/signin");
     };
 
+    const updateUser = (user) => {
+        setUser(user);
+        localStorage.setItem("user", JSON.stringify(user));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, token, login, logout, loading, updateUser }}>
             {children}
         </AuthContext.Provider>
     );
 };
+
+
+export default AuthContext;

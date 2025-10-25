@@ -22,6 +22,10 @@ const ListView = ({
     foreignTrips,
     loading,
     error,
+    currentPage,
+    totalPages,
+    onPageChange,
+    itemsPerPage
 }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [tripType, setTripType] = useState("All");
@@ -33,62 +37,104 @@ const ListView = ({
         priceRange: "All",
     });
 
-    // Convert backend data to frontend format
-    const processedDomesticTrips = convertBackendToFrontend(
-        domesticTrips,
-        "domestic"
-    );
-    const processedForeignTrips = convertBackendToFrontend(
-        foreignTrips,
-        "foreign"
-    );
+    // Safely process and validate trips data
+    const processTrips = (trips, type) => {
+        if (!trips || !Array.isArray(trips)) {
+            console.error(`Invalid ${type} trips data:`, trips);
+            return [];
+        }
+        
+        try {
+            const processedTrips = convertBackendToFrontend(trips, type);
+            if (!Array.isArray(processedTrips)) {
+                console.error(`Unexpected format after processing ${type} trips:`, processedTrips);
+                return [];
+            }
+            return processedTrips;
+        } catch (error) {
+            console.error(`Error processing ${type} trips:`, error);
+            return [];
+        }
+    };
 
-    // Combine all destinations
-    const allDestinations = [...processedDomesticTrips, ...processedForeignTrips];
+    // Process trips with error handling
+    const processedDomesticTrips = processTrips(domesticTrips, "domestic");
+    const processedForeignTrips = processTrips(foreignTrips, "foreign");
 
-    // Filter destinations based on search and filters
+    // Combine all destinations with validation
+    const allDestinations = [
+        ...(Array.isArray(processedDomesticTrips) ? processedDomesticTrips : []),
+        ...(Array.isArray(processedForeignTrips) ? processedForeignTrips : [])
+    ].filter(Boolean);  // Remove any null/undefined entries
+
+    // Safe access to destination properties
+    const getDestinationProperty = (destination, path, defaultValue = '') => {
+        try {
+            return path.split('.').reduce((obj, key) => 
+                (obj && obj[key] !== undefined) ? obj[key] : defaultValue, destination);
+        } catch (error) {
+            return defaultValue;
+        }
+    };
+    
+    // Filter destinations based on search and filters with safe property access
     const filteredDestinations = allDestinations.filter((destination) => {
-        const matchesSearch =
-            destination.title?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
-            destination.country?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
-            destination.details.location
-                ?.toLowerCase()
-                .includes(searchQuery?.toLowerCase());
+        if (!destination || typeof destination !== 'object') return false;
+        
+        const title = String(getDestinationProperty(destination, 'title', '')).toLowerCase();
+        const country = String(getDestinationProperty(destination, 'country', '')).toLowerCase();
+        const location = String(getDestinationProperty(destination, 'details.location', '')).toLowerCase();
+        const searchTerm = String(searchQuery || '').toLowerCase();
+        
+        const matchesSearch = 
+            title.includes(searchTerm) ||
+            country.includes(searchTerm) ||
+            location.includes(searchTerm);
 
+        const destType = String(getDestinationProperty(destination, 'type', '')).toLowerCase();
         const matchesTripType =
             tripType === "All" ||
-            (tripType === "Domestic" && destination.type === "domestic") ||
-            (tripType === "Foreign" && destination.type === "foreign");
+            (tripType === "Domestic" && destType === "domestic") ||
+            (tripType === "Foreign" && destType === "foreign");
 
+        const season = getDestinationProperty(destination, 'details.season', '');
         const matchesSeason =
             activeFilters.season === "All" ||
-            destination.details.season === activeFilters.season;
+            season === activeFilters.season;
 
+        const difficulty = getDestinationProperty(destination, 'details.difficulty', '');
         const matchesDifficulty =
             activeFilters.difficulty === "All" ||
-            destination.details.difficulty === activeFilters.difficulty;
+            difficulty === activeFilters.difficulty;
 
+        const price = Number(getDestinationProperty(destination, 'details.price', 0));
         const matchesPrice =
             activeFilters.priceRange === "All" ||
-            (activeFilters.priceRange === "0-10000" &&
-                destination.details.price <= 10000) ||
-            (activeFilters.priceRange === "10000-25000" &&
-                destination.details.price > 10000 &&
-                destination.details.price <= 25000) ||
-            (activeFilters.priceRange === "25000-50000" &&
-                destination.details.price > 25000 &&
-                destination.details.price <= 50000) ||
-            (activeFilters.priceRange === "50000+" &&
-                destination.details.price > 50000);
+            (activeFilters.priceRange === "0-10000" && price <= 10000) ||
+            (activeFilters.priceRange === "10000-25000" && price > 10000 && price <= 25000) ||
+            (activeFilters.priceRange === "25000-50000" && price > 25000 && price <= 50000) ||
+            (activeFilters.priceRange === "50000+" && price > 50000);
 
-        return (
-            matchesSearch &&
-            matchesTripType &&
-            matchesSeason &&
-            matchesDifficulty &&
-            matchesPrice
-        );
+        return matchesSearch && matchesTripType && matchesSeason && matchesDifficulty && matchesPrice;
     });
+
+    // Shuffle function to randomize array
+    const shuffleArray = (array) => {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    };
+
+    // Shuffle the filtered destinations
+    const shuffledDestinations = shuffleArray(filteredDestinations);
+
+    // Calculate pagination
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedDestinations = shuffledDestinations.slice(startIndex, endIndex);
 
     // Get featured destinations (first 3)
     const featuredDestinations = allDestinations.slice(0, 3);
@@ -230,7 +276,7 @@ const ListView = ({
             />
 
             {/* Destinations Grid/List */}
-            {filteredDestinations.length > 0 ? (
+            {paginatedDestinations.length > 0 ? (
                 <motion.div
                     className={
                         viewMode === "grid"
@@ -239,7 +285,7 @@ const ListView = ({
                     }
                     layout
                 >
-                    {filteredDestinations.map((destination, index) => (
+                    {paginatedDestinations.map((destination, index) => (
                         <DestinationCard
                             key={destination.id}
                             destination={destination}
@@ -281,12 +327,68 @@ const ListView = ({
                 </motion.div>
             )}
 
-            {/* Load More Button */}
-            {filteredDestinations.length > 0 && (
-                <div className="text-center pt-8">
-                    <button className="px-8 py-3 bg-white text-indigo-600 border border-indigo-200 rounded-xl font-semibold hover:bg-indigo-50 transition-colors">
-                        Load More Destinations
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center mt-8 space-x-2">
+                    <button
+                        onClick={() => onPageChange(1)}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        &laquo;
                     </button>
+                    <button
+                        onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        &lsaquo;
+                    </button>
+                    
+                    {/* Page numbers */}
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                            pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                        } else {
+                            pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => onPageChange(pageNum)}
+                                className={`px-4 py-2 rounded-md border ${currentPage === pageNum 
+                                    ? 'bg-indigo-600 text-white border-indigo-600' 
+                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                            >
+                                {pageNum}
+                            </button>
+                        );
+                    })}
+                    
+                    <button
+                        onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        &rsaquo;
+                    </button>
+                    <button
+                        onClick={() => onPageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        &raquo;
+                    </button>
+                    
+                    <span className="ml-4 text-sm text-gray-600">
+                        Page {currentPage} of {totalPages}
+                    </span>
                 </div>
             )}
         </motion.div>

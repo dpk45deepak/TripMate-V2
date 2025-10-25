@@ -89,7 +89,7 @@ const EnhancedHeroSection = () => {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
           style={{
-            backgroundImage: "url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThVa5MBQote_pJwVmFyL80cpOUNB_W9TUS7g&s')", // High quality, generic travel image
+            backgroundImage: "url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2FuzbQRZbjHCtbpEDhl6k_p0HNrkfHj-A-Q&s')", // High quality, generic travel image
           }}
         >
           {/* Stronger overlay for contrast */}
@@ -147,14 +147,14 @@ const EnhancedHeroSection = () => {
             experience the world like never before with our expertly curated trips.
           </motion.p>
 
-          {/* Search Bar - Enhanced appearance with glassmorphism */}
+          {/* Search Bar*/}
           <motion.div 
-            className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-10 border border-white/20 shadow-2xl"
+            className="bg-white/70 backdrop-blur-md rounded-2xl p-6 mb-10 border border-white/20 shadow-2xl"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.5 }}
           >
-            <div className="flex flex-col md:flex-row bg-white rounded-xl p-3 shadow-xl">
+            <div className="flex flex-col md:flex-row bg-gray-200 rounded-xl p-3 shadow-xl">
               <div className="flex-1 flex items-center p-2">
                 <MapPin className="text-teal-600 mr-3" size={24} />
                 <input 
@@ -173,7 +173,7 @@ const EnhancedHeroSection = () => {
               </div>
               <div className="flex-1 flex items-center p-2 border-t md:border-t-0 md:border-l border-gray-200">
                 <Users className="text-teal-600 mr-3" size={24} />
-                <select className="w-full p-2 outline-none bg-white text-gray-800 appearance-none">
+                <select className="w-full p-2 outline-none text-gray-800 appearance-none">
                   <option className="text-gray-500">Travelers</option>
                   <option>1 Traveler</option>
                   <option>2 Travelers</option>

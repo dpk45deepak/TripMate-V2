@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, LogIn } from "lucide-react";
+import { Menu, X, Search, LogIn, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Header = () => {
@@ -25,19 +25,27 @@ const Header = () => {
         <div
           className={`w-full max-w-6xl flex justify-between items-center rounded-2xl transition-all duration-300 mt-2 shadow-xl ${
             scrollY > 80
-              ? "backdrop-blur-md shadow-lg py-2 bg-white"
+              ? "backdrop-blur-md shadow-lg py-2 bg-gray-100"
               : "backdrop-blur-sm py-2 bg-white"
           } px-6`}
         >
           {/* Logo */}
-          <motion.a
-            href="/"
-            className="text-2xl font-bold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            TripMate
-          </motion.a>
+                      <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl lg:text-2xl font-black bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+                TripMate
+              </span>
+              <span className="text-xs text-gray-500 font-medium -mt-1 hidden sm:block">
+                Travel Smart
+              </span>
+            </div>
+          </div>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex space-x-8">

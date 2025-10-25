@@ -4,6 +4,7 @@ import icons from "../FinalPage/Icons.jsx";
 import WeatherWidget from '../FinalPage/WeatherWidget.jsx'
 import CurrencyConverter from "../FinalPage/CurrencyConverter.jsx";
 import DestinationCard from '../FinalPage/DestinationCard.jsx';
+import AnimatedTravelBackground from "../../components/AnimatedTravelBackground.jsx";
 
 // Enhanced Detail View Component
 const DetailView = ({
@@ -24,10 +25,10 @@ const DetailView = ({
 
     // Enhanced images array with more variety
     const images = [
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStjdmE4KbyzYU8FCWH-vlKi19CA8te9uGERg&s",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfDBfiqPZuCrPhBhQ1IFUMge0Atj-lkaOiLA&s",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv0c1QjBUt__3Cyj8EYFVg2PhEVAoKMhHJjg&s",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2FuzbQRZbjHCtbpEDhl6k_p0HNrkfHj-A-Q&s"
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStjdmE4KbyzYU8FCWH-vlKi19CA8te9uGERg&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfDBfiqPZuCrPhBhQ1IFUMge0Atj-lkaOiLA&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv0c1QjBUt__3Cyj8EYFVg2PhEVAoKMhHJjg&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2FuzbQRZbjHCtbpEDhl6k_p0HNrkfHj-A-Q&s"
     ];
 
 
@@ -104,8 +105,8 @@ const DetailView = ({
                         <button
                             key={tab}
                             className={`flex-1 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === tab
-                                    ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
-                                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                                ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                                 }`}
                             onClick={() => setActiveTab(tab)}
                         >
@@ -238,8 +239,8 @@ const DetailView = ({
                                 <button
                                     key={index}
                                     className={`aspect-square rounded-lg overflow-hidden ${currentImage === index
-                                            ? "ring-2 ring-indigo-500 ring-offset-2"
-                                            : ""
+                                        ? "ring-2 ring-indigo-500 ring-offset-2"
+                                        : ""
                                         }`}
                                     onClick={() => setCurrentImage(index)}
                                 >
@@ -324,7 +325,7 @@ const DetailView = ({
             layoutId={`card-${destination.id}`}
         >
             {/* Compact Mobile Header */}
-            <div className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4">
+            <div className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4 rounded-xl mb-2">
                 <div className="flex items-center justify-between">
                     <button
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -341,8 +342,8 @@ const DetailView = ({
                     >
                         <icons.Heart
                             className={`w-6 h-6 ${favorites.includes(destination.id)
-                                    ? "fill-red-500 stroke-red-500 text-red-500"
-                                    : "text-gray-600"
+                                ? "fill-red-500 stroke-red-500 text-red-500"
+                                : "text-gray-600"
                                 }`}
                         />
                     </button>
@@ -353,9 +354,9 @@ const DetailView = ({
             <div className="relative h-[50vh] md:h-[70vh] overflow-hidden">
                 <motion.img
                     key={currentImage}
-                    src={images[currentImage]}
+                    src={destination?.image || images[currentImage]}
                     alt={destination.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-xl"
                     initial={{ opacity: 0, scale: 1.1 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.7 }}
@@ -384,8 +385,8 @@ const DetailView = ({
                         >
                             <icons.Heart
                                 className={`w-6 h-6 ${favorites.includes(destination.id)
-                                        ? "fill-red-500 stroke-red-500"
-                                        : ""
+                                    ? "fill-red-500 stroke-red-500"
+                                    : ""
                                     }`}
                             />
                         </motion.button>
@@ -405,8 +406,8 @@ const DetailView = ({
                         <button
                             key={index}
                             className={`w-3 h-3 rounded-full transition-all ${currentImage === index
-                                    ? "bg-white scale-125"
-                                    : "bg-white/50 hover:bg-white/70"
+                                ? "bg-white scale-125"
+                                : "bg-white/50 hover:bg-white/70"
                                 }`}
                             onClick={() => setCurrentImage(index)}
                         />
@@ -419,8 +420,8 @@ const DetailView = ({
                         <button
                             key={index}
                             className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${currentImage === index
-                                    ? "border-white scale-110"
-                                    : "border-white/30 hover:border-white/50"
+                                ? "border-white scale-110"
+                                : "border-white/30 hover:border-white/50"
                                 }`}
                             onClick={() => setCurrentImage(index)}
                         >
@@ -480,12 +481,13 @@ const DetailView = ({
 
             {/* Main Content Area */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <AnimatedTravelBackground />
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Main Content */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Quick Facts Grid */}
                         <motion.div
-                            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-ful max-w-6xl mx-auto px-4"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
@@ -515,6 +517,7 @@ const DetailView = ({
                                 color="teal"
                             />
                         </motion.div>
+
 
                         {/* Weather Widget */}
                         <WeatherWidget
@@ -660,7 +663,7 @@ const DetailView = ({
 
                             {/* CTA Button */}
                             <motion.button
-                                className="w-full py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center transition-all hover:shadow-xl hover:shadow-teal-300/60"
+                                className="w-full py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center transition-all hover:shadow-xl hover:shadow-teal-300/60 mt-2"
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setShowBookingModal(true)}
@@ -761,5 +764,5 @@ const DetailView = ({
         </motion.div>
     );
 };
- 
+
 export default DetailView;

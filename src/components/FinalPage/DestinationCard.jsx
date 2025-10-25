@@ -11,8 +11,26 @@ const DestinationCard = ({
     isFavorite,
     onToggleFavorite,
 }) => {
-    const { flag, country, title, image, details } = destination;
+    const {
+        flag = '🏳️',
+        country = 'Unknown',
+        title = 'Untitled Destination',
+        image = 'https://via.placeholder.com/300x200?text=No+Image',
+        details = {}
+    } = destination || {};
+
     const [imageLoaded, setImageLoaded] = useState(false);
+    const safeDetails = {
+        duration: 'N/A',
+        people: 0,
+        rating: 0,
+        price: 0,
+        distance: 'N/A',
+        dates: 'N/A',
+        difficulty: 'Medium',
+        amenities: [],
+        ...details
+    };
 
     const handleImageLoad = () => {
         setImageLoaded(true);
@@ -39,7 +57,7 @@ const DestinationCard = ({
                             onLoad={handleImageLoad}
                         />
                         <div className="absolute top-2 left-2">
-                            <div className="bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
+                            <div className="bg-teal-500 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
                                 {flag} {country}
                             </div>
                         </div>
@@ -70,25 +88,25 @@ const DestinationCard = ({
                             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
                                 <div className="flex items-center">
                                     <icons.Calendar className="w-3 h-3 mr-1 text-teal-500" />
-                                    {details.duration}
+                                    {safeDetails.duration}
                                 </div>
                                 <div className="flex items-center">
                                     <icons.Users className="w-3 h-3 mr-1 text-blue-500" />
-                                    {details.people} people
+                                    {safeDetails.people} {safeDetails.people === 1 ? 'person' : 'people'}
                                 </div>
                                 <div className="flex items-center">
                                     <icons.Star className="w-3 h-3 mr-1 text-yellow-500 fill-yellow-500" />
-                                    {details.rating}
+                                    {safeDetails.safety_rating.toFixed(1)}
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex justify-between items-center">
                             <div className="text-lg font-bold text-teal-600">
-                                ₹{details.price?.toLocaleString()}
+                                ₹{safeDetails.price?.toLocaleString() || '0'}
                             </div>
                             <div className="text-xs text-gray-500">
-                                {details.dates.split(" - ")[0]}
+                                {safeDetails.dates?.split(" - ")[0] || 'N/A'}
                             </div>
                         </div>
                     </div>
@@ -127,11 +145,11 @@ const DestinationCard = ({
 
                 {/* Top badges */}
                 <div className="absolute top-3 left-3 flex space-x-2">
-                    <div className="bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
+                    <div className="bg-teal-500 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
                         {flag} {country}
                     </div>
                     <div className="bg-teal-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                        {details.difficulty}
+                        {safeDetails.difficulty || 'Medium'}
                     </div>
                 </div>
 
@@ -160,7 +178,7 @@ const DestinationCard = ({
                         <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
                             <icons.Star className="w-3 h-3 text-yellow-400 fill-yellow-400 mr-1" />
                             <span className="text-white text-sm font-bold">
-                                {details.rating}
+                                {safeDetails.safety_rating.toFixed(1)}
                             </span>
                         </div>
                     </div>
@@ -168,10 +186,10 @@ const DestinationCard = ({
                     <div className="flex justify-between items-center text-white/90 text-sm">
                         <div className="flex items-center">
                             <icons.MapPin className="w-3 h-3 mr-1" />
-                            {details.distance}
+                            {safeDetails.location || 'N/A'}
                         </div>
                         <div className="font-bold text-white">
-                            ₹{details.price?.toLocaleString()}
+                            ₹{safeDetails.price?.toLocaleString() || '0'}/day
                         </div>
                     </div>
                 </div>
@@ -181,17 +199,17 @@ const DestinationCard = ({
                 <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                     <div className="flex items-center">
                         <icons.Calendar className="w-4 h-4 mr-1 text-teal-500" />
-                        <span>{details.dates}</span>
+                        <span>{safeDetails.dates || 'N/A'}</span>
                     </div>
                     <div className="flex items-center">
                         <icons.Users className="w-4 h-4 mr-1 text-blue-500" />
-                        <span>{details.people}</span>
+                        <span>{safeDetails.people || '0'}</span>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div className="flex space-x-1">
-                        {details.amenities?.slice(0, 3).map((amenity, index) => (
+                        {(safeDetails.amenities || []).slice(0, 3).map((amenity, index) => (
                             <span
                                 key={index}
                                 className="bg-gray-100 text-gray-600 px-2 py-1 rounded-lg text-xs"

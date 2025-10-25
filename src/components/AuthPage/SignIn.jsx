@@ -6,7 +6,7 @@ import { Plane } from "lucide-react";
 
 // Authentication
 import BACKEND_API from '../../Services/Backend';
-import { AuthContext } from "../../Context/AuthContext";
+import AuthContext from "../../Context/AuthContext";
 
 export default function AuthenticationForm() {
 
@@ -53,12 +53,14 @@ export default function AuthenticationForm() {
 
   const handleSocialLogin = (provider) => {
     setIsLoading(true);
-    // Social login logic would be implemented here
-    console.log(`Social login attempt with ${provider}`);
-    // Simulate async operation
-    setTimeout(() => {
+    try {
+      // Implement Social Login
+
+    } catch (error) {
+      console.error('OAuth error:', error);
+      setErrorMsg('Failed to initiate Google sign in');
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const { user } = useContext(AuthContext);
@@ -154,7 +156,9 @@ return (
 
         {/* Google Login */}
         <button
-          onClick={() => handleSocialLogin("Google")}
+          onClick={() =>{
+          handleSocialLogin("Google")
+          }}
           disabled={isLoading}
           className="w-full flex items-center justify-center gap-3 py-3 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 transition-all duration-300 shadow-sm"
         >
