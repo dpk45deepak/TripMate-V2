@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 
 const Testimonials = ({ testimonials }) => {
   return (
-    <section id="testimonials" className="py-20 bg-gray-50">
+    <section id="testimonials" className="py-20 bg-gray-50 rounded-2xl">
       <div className="max-w-7xl mx-auto px-4">
         <motion.div
           className="text-center mb-16"

@@ -1,7 +1,7 @@
 // src/utils/ping.js
 import axios from "axios";
 
-const BACKEND_URL = "https://tripsbcknd.onrender.com/api";
+const BACKEND_URL = "https://tripsbcknd.onrender.com";
 // const BACKEND_URL = "http://localhost:8082";
 
 // Function to ping backend when frontend loads
