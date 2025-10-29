@@ -1,5 +1,10 @@
 import { useEffect } from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+
+// Import the CSS directly from the package
+import "react-toastify/dist/ReactToastify.css";
+
 import "./App.css";
 import Video404 from "./components/Video404";
 
@@ -37,6 +42,18 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <AuthProvider>
         <Routes>
           {/* Public Routes */}

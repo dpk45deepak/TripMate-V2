@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// FIX: Added Landmark and replaced MountainSnow (which you used) with appropriate icons for clarity.
-import { Map, Zap, Ship, MessageCircle, Twitter, Instagram, Facebook, BookOpen, Star, StarHalf, Sun, Waves, Anchor, Bird, Menu, X, Mountain, Castle, Wine, Landmark, Waves as Ocean, PawPrint, Bus, Heart } from 'lucide-react';
+import { MessageCircle, Twitter, Instagram, Facebook, BookOpen, Menu, X, Star, StarHalf, Sun, Waves, Anchor, Ship, Bird, Zap, Landmark, Heart, Castle, Wine, Mountain, PawPrint, Bus, MapPin } from 'lucide-react';
+import DestinationCarousel from '../Components/DestinationCarousel';
+import CitySelector from '../Components/CitySelector';
 
 // --- MOCK DATA FOR ALL CITIES ---
 const citiesData = {
@@ -254,114 +255,16 @@ const MobileNav = ({ isOpen, onClose }) => {
     );
 };
 
-// Component for the sliding island content
-const IslandCard = React.memo(({ island, isVisible }) => {
-    const cardVariants = {
-        initial: { y: "100%", opacity: 0 },
-        in: { y: "0%", opacity: 1 },
-        out: { y: "-100%", opacity: 0 },
-    };
-
-    if (!isVisible) return null;
-
-    return (
-        <motion.div
-            key={island.id}
-            variants={cardVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={{ duration: 0.7, ease: "easeInOut" }}
-            className="absolute top-0 left-0 w-full h-full p-4 sm:p-6 lg:p-8 flex flex-col justify-between"
-        >
-            {/* Image Section */}
-            <div className="h-1/2 sm:h-2/3 relative mb-4 rounded-xl shadow-2xl overflow-hidden">
-                <img
-                    src={island.image}
-                    alt={island.name}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1000x800/007bff/ffffff?text=Image+Unavailable"; }}
-                />
-            </div>
-
-            {/* Content Section */}
-            <div className="bg-white/10 backdrop-blur-md p-4 sm:p-6 rounded-xl text-white shadow-xl flex flex-col lg:flex-row justify-between flex-grow">
-                <div className="lg:w-1/2 mb-4 lg:mb-0">
-                    <h3 className="text-2xl sm:text-3xl font-bold mb-1 text-teal-400">{island.name}</h3>
-                    <p className="text-sm italic mb-3 sm:mb-4 text-gray-200">{island.tagline}</p>
-                    <p className="text-xs sm:text-sm leading-relaxed text-gray-200">{island.description}</p>
-                </div>
-
-                <div className="lg:w-1/2 lg:pl-6 xl:pl-8">
-                    <h4 className="text-lg font-semibold mb-2">Explore Features</h4>
-                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3">
-                        {island.features.map((feature, index) => (
-                            <div key={index} className="flex items-center space-x-2 text-sm">
-                                <feature.icon className="w-4 h-4 text-teal-300 flex-shrink-0" />
-                                <span className="text-gray-200 text-xs sm:text-sm">{feature.label}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-4 sm:mt-6 flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
-                        <div className="flex items-center">
-                            <span className="text-sm text-gray-300 mr-2">Rating:</span>
-                            <RatingStars rating={island.rating} />
-                        </div>
-                        <button className="flex items-center justify-center text-sm font-semibold px-4 py-2 bg-teal-500 hover:bg-teal-600 transition duration-300 rounded-full shadow-lg shadow-teal-500/50 w-full xs:w-auto">
-                            Book Now <span className="ml-2">&rsaquo;</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </motion.div>
-    );
-});
-IslandCard.displayName = 'IslandCard';
-
-// City Selector Component
-const CitySelector = ({ currentCity, onCityChange }) => {
-    const cities = [
-        { id: 'mexico', name: 'Mexico' },
-        { id: 'paris', name: 'Paris' },
-        { id: 'queensland', name: 'Queensland' },
-        { id: 'capetown', name: 'Cape Town' }
-    ];
-
-    return (
-        <div className="flex justify-center mb-6">
-            {/* <div className="bg-white/10 backdrop-blur-md rounded-full p-2 flex space-x-2">
-                {cities.map((city) => (
-                    <button
-                        key={city.id}
-                        onClick={() => onCityChange(city.id)}
-                        className={`px-4 py-2 rounded-full transition-all duration-300 ${currentCity === city.id
-                                ? 'bg-teal-500 text-white shadow-lg'
-                                : 'text-white hover:bg-white/20'
-                            }`}
-                    >
-                        {city.name}
-                    </button>
-                ))}
-            </div> */}
-        </div>
-    );
-};
-
 // Main Explore Component
 const Explore = () => {
-    const [activeCity, setActiveCity] = useState('mexico');
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeCity, setActiveCity] = useState('paris');
     const [isIntroAnimating, setIsIntroAnimating] = useState(true);
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
     const currentCityData = citiesData[activeCity];
-    const activeIsland = currentCityData.islandsData[activeIndex];
 
-    // Reset active index when city changes
+    // Restart the intro animation when the city changes
     useEffect(() => {
-        setActiveIndex(0);
-        // Restart the intro animation when the city changes
         setIsIntroAnimating(true);
         const timer = setTimeout(() => {
             setIsIntroAnimating(false);
@@ -369,17 +272,6 @@ const Explore = () => {
 
         return () => clearTimeout(timer);
     }, [activeCity]);
-
-    // Logic for Auto-Rotation
-    useEffect(() => {
-        if (isIntroAnimating || isMobileNavOpen) return;
-
-        const interval = setInterval(() => {
-            setActiveIndex((prevIndex) => (prevIndex + 1) % currentCityData.islandsData.length);
-        }, 8000);
-
-        return () => clearInterval(interval);
-    }, [isIntroAnimating, isMobileNavOpen, currentCityData.islandsData.length]);
 
     // Handle Initial Intro Animation Finish (runs only on mount)
     useEffect(() => {
@@ -423,7 +315,7 @@ const Explore = () => {
                 </div>
 
                 {/* City Selector */}
-                <div className="absolute hidden top-4 left-1/2 transform -translate-x-1/2 z-30">
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
                     <CitySelector currentCity={activeCity} onCityChange={setActiveCity} />
                 </div>
 
@@ -516,7 +408,7 @@ const Explore = () => {
                             </motion.p>
 
                             <motion.button
-                                className="mt-6 sm:mt-8 flex items-center justify-center lg:justify-start text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 bg-teal-500 hover:bg-teal-600 transition duration-300 rounded-full shadow-xl shadow-teal-500/50 w-full lg:w-auto"
+                                className="mt-6 sm:mt-8 flex items-center justify-center lg:justify-start text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 bg-teal-500 hover:bg-teal-600 transition duration-300 rounded-full shadow-lg shadow-teal-500/50 w-full lg:w-auto"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={!isIntroAnimating ? { opacity: 1, y: 0 } : {}}
                                 transition={{ delay: 2, duration: 0.6 }}
@@ -543,22 +435,18 @@ const Explore = () => {
                     {/* Right Column - Sliding Content */}
                     <div className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pl-4 xl:pl-8 z-20 flex-1 min-h-0">
                         <div className="relative w-full h-full min-h-[400px] sm:min-h-[500px] lg:min-h-0">
-                            <AnimatePresence mode="wait">
-                                <IslandCard key={activeIsland.id} island={activeIsland} isVisible={!isIntroAnimating} />
-                            </AnimatePresence>
-
-                            {/* Navigation Dots */}
-                            <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col space-y-2 sm:space-y-3 p-2 bg-white/10 backdrop-blur-sm rounded-full shadow-lg">
-                                {currentCityData.islandsData.map((_, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setActiveIndex(index)}
-                                        className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index === activeIndex ? 'bg-teal-400 w-3 h-3 sm:w-5 sm:h-5' : 'bg-gray-400 opacity-50 hover:opacity-100'
-                                            }`}
-                                        aria-label={`Go to ${currentCityData.islandsData[index].name}`}
-                                    />
-                                ))}
-                            </div>
+                            <DestinationCarousel 
+                              destinations={currentCityData.islandsData.map(island => ({
+                                ...island,
+                                title: island.name,
+                                location: island.location || currentCityData.name,
+                                rating: island.rating || 0,
+                                price: island.average_cost_per_day || 0,
+                                image: island.image || currentCityData.backgroundImage,
+                                description: island.description || island.tagline || '',
+                                features: island.features || []
+                              }))} 
+                            />
                         </div>
                     </div>
                 </motion.div>

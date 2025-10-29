@@ -8,12 +8,17 @@ import BACKEND_API from "../Services/Backend";
 import AuthContext from "../Context/AuthContext";
 
 // CONSTANTS
-const DEST_TYPES = ["Beaches","Mountains","Cities","Forests","Deserts","Islands","Lakes","Rivers"];
+const DEST_TYPES = ["Beaches","Mountains","Cities","Nature's Beauty","Adventure","Islands","Historical","Wildlife"];
 const CLIMATES = ["Tropical","Cold","Temperate","Arid","Mediterranean","Monsoon"];
 const ACTIVITIES = ["Adventure","Relaxation","Sightseeing","Cultural","Wildlife","Hiking","Water Sports"];
 const DURATIONS = ["Weekend","3-5 days","1 week","2 weeks","1 month"];
-const MAX_BUDGET = 100000;
-const GAP = 100;
+const BUDGET_OPTIONS = [
+  { value: "Under 50K", label: "Budget Friendly", range: { min: 0, max: 50000 } },
+  { value: "50K - 100K", label: "Comfort", range: { min: 50000, max: 100000 } },
+  { value: "100K - 250K", label: "Premium", range: { min: 100000, max: 250000 } },
+  { value: "250K - 500K", label: "Luxury", range: { min: 250000, max: 500000 } },
+  { value: "Above 500K", label: "Ultra Luxury", range: { min: 500000, max: 1000000 } }
+];
 
 // UTILITIES
 const debounce = (fn, delay = 150) => {
@@ -36,11 +41,8 @@ export default function FilterPanel({
     climates: [],
     activities: [],
     duration: "",
-    budget: { min: 100, max: 20000 },
+    budget: BUDGET_OPTIONS[1].value, // Default to "50K - 100K"
   });
-
-  const [minInput, setMinInput] = useState(100);
-  const [maxInput, setMaxInput] = useState(20000);
 
   const { user, updateUser } = useContext(AuthContext);
   const [isSaving, setIsSaving] = useState(false);
@@ -48,50 +50,57 @@ export default function FilterPanel({
   // Initialize filters with user's preferences
   useEffect(() => {
     if (user) {
-      const userBudget = user.budget || 20000;
+      // Find the matching budget option based on user's budget
+      const userBudget = user.budget || 50000; // Default to 50K if no budget set
+      const matchingBudget = BUDGET_OPTIONS.find(
+        opt => userBudget >= opt.range.min && userBudget <= opt.range.max
+      ) || BUDGET_OPTIONS[1]; // Default to "50K - 100K" if no match found
+
       setFilters({
         destinationTypes: user.destinationType || [],
         climates: user.climatePreference || [],
         activities: user.activities || [],
         duration: user.duration || "",
-        budget: { 
-          min: 100, 
-          max: Math.min(userBudget, MAX_BUDGET) 
-        },
+        budget: matchingBudget.value,
       });
-      setMinInput(100);
-      setMaxInput(Math.min(userBudget, MAX_BUDGET));
     }
   }, [user]);
+ 
 
   // Save user preferences
   const savePreferences = async () => {
     if (!user) return;
-    
+
     setIsSaving(true);
     try {
+      const selectedBudget = BUDGET_OPTIONS.find(opt => opt.value === filters.budget);
+      
       const updatedPreferences = {
-        userId: user._id,
+        userId: user?.id || user._id,
         destinationType: filters.destinationTypes,
         climatePreference: filters.climates,
         activities: filters.activities,
         duration: filters.duration,
-        budget: filters.budget.max
+        budget: selectedBudget ? selectedBudget.range.max : 100000 // Default to 100K if no match
       };
 
-      await BACKEND_API.Users.SetFavouriteCategories(updatedPreferences);
+      const response = await BACKEND_API.Users.SetFavouriteCategories(updatedPreferences);
 
-      // Update user context with new preferences
-      updateUser({
-        ...user,
-        ...updatedPreferences
-      });
+      if (response?.data?.success) {
+        // Update user context with new preferences
+        updateUser({
+          ...user,
+          ...updatedPreferences
+        });
 
-      toast.success("Preferences saved successfully!");
-      if (onClose) onClose(); // Use onClose instead of internal state
+        toast.success("Preferences saved successfully!");
+        if (onClose) onClose();
+      } else {
+        throw new Error(response?.data?.message || "Failed to save preferences");
+      }
     } catch (error) {
       console.error("Error saving preferences:", error);
-      toast.error("Failed to save preferences. Please try again.");
+      toast.error(error.message || "Failed to save preferences. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -126,30 +135,12 @@ export default function FilterPanel({
     }));
   };
 
-  const handleMinChange = useCallback(
-    (val) => {
-      const num = Number(val);
-      if (isNaN(num)) return;
-      const newMin = Math.min(Math.max(0, num), maxInput - GAP);
-      setMinInput(newMin);
-      setFilters((prev) => ({ ...prev, budget: { ...prev.budget, min: newMin } }));
-    },
-    [maxInput]
-  );
-
-  const handleMaxChange = useCallback(
-    (val) => {
-      const num = Number(val);
-      if (isNaN(num)) return;
-      const newMax = Math.min(Math.max(minInput + GAP, num), MAX_BUDGET);
-      setMaxInput(newMax);
-      setFilters((prev) => ({ ...prev, budget: { ...prev.budget, max: newMax } }));
-    },
-    [minInput]
-  );
-
-  const debouncedMin = useMemo(() => debounce(handleMinChange, 200), [handleMinChange]);
-  const debouncedMax = useMemo(() => debounce(handleMaxChange, 200), [handleMaxChange]);
+  const handleBudgetSelect = (budgetValue) => {
+    setFilters(prev => ({
+      ...prev,
+      budget: budgetValue
+    }));
+  };
 
   const clearAll = () => {
     setFilters({
@@ -157,10 +148,8 @@ export default function FilterPanel({
       climates: [],
       activities: [],
       duration: "",
-      budget: { min: 100, max: 20000 },
+      budget: BUDGET_OPTIONS[1].value, // Reset to default "50K - 100K"
     });
-    setMinInput(100);
-    setMaxInput(20000);
   };
 
   const handleSave = async (e) => {
@@ -171,29 +160,52 @@ export default function FilterPanel({
         throw new Error('Please select at least one destination type');
       }
 
+      const selectedBudget = BUDGET_OPTIONS.find(opt => opt.value === filters.budget) || BUDGET_OPTIONS[1];
+
       const payload = {
         userId: user?._id || user?.id,
         favouriteDestinationTypes: filters.destinationTypes,
         favouriteActivities: filters.activities,
         favouriteClimates: filters.climates,
         favouriteDurations: filters.duration,
-        favouriteBudget: filters.budget.max,
+        favouriteBudget: selectedBudget.range.max,
       };
 
       console.log("Sending payload to backend:", payload);
 
       const res = await BACKEND_API.Users.SetFavouriteCategories(payload);
 
-      if (!res?.data?.success) {
-        throw new Error(res?.data?.message || "Failed to save preferences");
+      // Check if response indicates success
+      if (res?.data?.success) {
+        // Update user context with new preferences
+        updateUser({
+          ...user,
+          ...payload
+        });
+
+        toast.success("Preferences saved successfully!");
+        if (onClose) onClose();
+      } else {
+        // Only throw an error if there's an actual error message
+        const errorMessage = res?.data?.message || "Failed to save preferences";
+        if (errorMessage !== "Favourite preferences updated successfully") {
+          throw new Error(errorMessage);
+        } else {
+          // If the message is actually a success message, handle it as success
+          updateUser({
+            ...user,
+            ...payload
+          });
+          toast.success("Preferences saved successfully!");
+          if (onClose) onClose();
+        }
       }
-
-      toast.success("Preferences saved successfully!");
-      if (onClose) onClose();
-
     } catch (err) {
       console.error('Error saving preferences:', err);
-      toast.error(err.message || "Failed to save preferences");
+      // Don't show the error toast if it's actually a success message
+      if (err.message !== "Favourite preferences updated successfully") {
+        toast.error(err.message || "Failed to save preferences");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -268,7 +280,26 @@ export default function FilterPanel({
 
             <main className="mt-6 space-y-6">
               {renderFilterSections()}
-              <BudgetSection minInput={minInput} maxInput={maxInput} onMinChange={handleMinChange} onMaxChange={handleMaxChange} debouncedMin={debouncedMin} debouncedMax={debouncedMax} />
+              <div className="space-y-4">
+                <h3 className="text-base font-medium text-gray-700">Budget Range</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {BUDGET_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleBudgetSelect(option.value)}
+                      className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        filters.budget === option.value
+                          ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-md'
+                          : 'bg-white text-gray-700 border border-gray-300 hover:border-teal-300 hover:bg-teal-50'
+                      }`}
+                    >
+                      <div className="font-semibold">{option.label}</div>
+                      <div className="text-xs opacity-80">{option.value}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </main>
 
             <footer className="border-t mt-6 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -307,125 +338,72 @@ export default function FilterPanel({
   );
 }
 
-// -------------------- SUB COMPONENTS --------------------
-const FilterSection = ({ title, items, selected, toggle, color, multiSelect = false }) => {
-  const getColorClasses = (isActive) => {
-    if (!isActive)
-      return "bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+// ...
 
-    switch (color) {
-      case "emerald":
-        return "bg-emerald-600 text-white border-transparent shadow-md focus:ring-emerald-500";
-      case "blue":
-        return "bg-blue-600 text-white border-transparent shadow-md focus:ring-blue-500";
-      case "purple":
-        return "bg-purple-600 text-white border-transparent shadow-md focus:ring-purple-500";
-      case "sky":
-        return "bg-blue-400 text-white border-transparent shadow-md focus:ring-blue-500";
-      default:
-        return "bg-gray-600 text-white border-transparent shadow-md focus:ring-gray-500";
+const handleSave = async (e) => {
+  e?.preventDefault();
+  setIsSubmitting(true);
+  try {
+    if (!filters?.destinationTypes?.length) {
+      throw new Error('Please select at least one destination type');
     }
-  };
 
-  const isSelected = (item) => {
-    if (Array.isArray(selected)) {
-      return selected.some(selectedItem => 
-        selectedItem.toLowerCase() === item.toLowerCase()
-      );
+    const selectedBudget = BUDGET_OPTIONS.find(opt => opt.value === filters.budget) || BUDGET_OPTIONS[1];
+
+    const payload = {
+      userId: user?._id || user?.id,
+      favouriteDestinationTypes: filters.destinationTypes,
+      favouriteActivities: filters.activities,
+      favouriteClimates: filters.climates,
+      favouriteDurations: filters.duration,
+      favouriteBudget: selectedBudget.range.max,
+    };
+
+    console.log("Sending payload to backend:", payload);
+
+    const res = await BACKEND_API.Users.SetFavouriteCategories(payload);
+
+    if (!res?.data?.success) {
+      throw new Error(res?.data?.message || "Failed to save preferences");
     }
-    return selected?.toLowerCase() === item.toLowerCase();
-  };
 
-  return (
-    <section className="mb-6">
-      <h4 className="text-base font-semibold text-slate-700 mb-3">{title}</h4>
-      <div className="flex flex-wrap gap-3">
-        {items.map((item) => {
-          const selected = isSelected(item);
-          return (
-            <button
-              key={item}
-              onClick={() => toggle(item)}
-              className={`px-4 py-2 rounded-full text-sm border transition-all focus:ring-2 focus:ring-offset-2 ${
-                selected 
-                  ? getColorClasses(true)
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-              aria-pressed={selected}
-            >
-              {item}
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
+    // Update user context with new preferences
+    updateUser({
+      ...user,
+      ...payload
+    });
+
+    toast.success("Preferences saved successfully!");
+    if (onClose) onClose();
+
+  } catch (err) {
+    console.error('Error saving preferences:', err);
+    toast.error(err.message || "Failed to save preferences");
+  } finally {
+    setIsSubmitting(false);
+  }
 };
 
-const BudgetSection = ({
-  minInput,
-  maxInput,
-  onMinChange,
-  onMaxChange,
-  debouncedMin,
-  debouncedMax,
-}) => (
-  <section>
-    <h4 className="text-base font-semibold text-slate-700 mb-3">
-      Budget (per person)
-    </h4>
-
-    <div className="flex justify-between text-sm text-slate-500 mb-2">
-      <span>Min: ₹{minInput?.toLocaleString()}</span>
-      <span>Max: ₹{maxInput?.toLocaleString()}</span>
-    </div>
-
-    <div className="relative">
-      <div className="h-1 bg-slate-200 rounded-full relative">
-        <div
-          className="absolute h-1 bg-emerald-500 rounded-full"
-          style={{
-            left: `${(minInput / MAX_BUDGET) * 100}%`,
-            right: `${100 - (maxInput / MAX_BUDGET) * 100}%`,
-          }}
-        />
+const FilterSection = ({ title, items, selected, toggle, color, multiSelect }) => {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-base font-medium text-gray-700">{title}</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        {items.map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => toggle(item)}
+            className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+              selected.includes(item)
+                ? `bg-gradient-to-r from-${color}-500 to-${color}-600 text-white shadow-md`
+                : `bg-white text-gray-700 border border-gray-300 hover:border-${color}-300 hover:bg-${color}-50`
+            }`}
+          >
+            <div className="font-semibold">{item}</div>
+          </button>
+        ))}
       </div>
-
-      <input
-        type="range"
-        min={0}
-        max={MAX_BUDGET - GAP}
-        value={minInput}
-        onChange={(e) => onMinChange(e.target.value)}
-        className="absolute w-full appearance-none h-3 bg-transparent cursor-pointer top-0"
-      />
-      <input
-        type="range"
-        min={GAP}
-        max={MAX_BUDGET}
-        value={maxInput}
-        onChange={(e) => onMaxChange(e.target.value)}
-        className="absolute w-full appearance-none h-3 bg-transparent top-0"
-      />
     </div>
-
-    <div className="flex gap-3 mt-4">
-      <BudgetInput label="Min" value={minInput} onChange={debouncedMin} />
-      <BudgetInput label="Max" value={maxInput} onChange={debouncedMax} />
-    </div>
-  </section>
-);
-
-const BudgetInput = ({ label, value, onChange }) => (
-  <div className="w-1/2 relative">
-    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
-    <input
-      type="number"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-      step={100}
-      aria-label={label}
-    />
-  </div>
-);
+  );
+};

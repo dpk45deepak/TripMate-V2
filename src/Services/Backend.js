@@ -113,19 +113,30 @@ export const BACKEND_API = {
   Users: {
     // Get user profile
     GetProfile: () => api.get("/users/profile"),
+    UpdateProfile: (userId, data) => api.post(`/users/${userId}/update-profile`, data),
+    // refresh token
     RefreshToken: () => api.post("/users/refresh-token", {
       refreshToken: localStorage.getItem("refreshToken")
     }),
-
     // Set user preferences
     SetFavouriteCategories: (data) => api.put(`/users/${data.userId}/favourite-categories`, data)
 
   },
+
+
   // Preferences (for backward compatibility)
   Preferences: {
     // This will be handled by the Users API
     GetUserPreferences: () => api.get("/users/profile"),
   },
+
+
+  Recommend: {
+    GetRecommendation: (userId) => api.get(`/recommendations/${userId}`),
+    GetRecommendationWithType: (userId, type, value) => api.get(`/recommendations/${userId}/${type}/${value}`),
+    GetRecommendationWithFilter: (userId, filter, value) => api.get(`/recommendations/${userId}/${filter}/${value}`),
+    GetRecommendationWithBestTimeToVisit: (userId, month) => api.get(`/recommendations/${userId}/${month}`),
+  }
 };
 
 

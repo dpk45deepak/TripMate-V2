@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AuthContext from "../Context/AuthContext";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+
+// tostify
+ import "react-toastify/dist/ReactToastify.css";
+
+// Backend API and logic
+import BACKEND_API from "../Services/Backend";
+import AuthContext from "../Context/AuthContext";
+
 import {
     Camera,
     User,
@@ -15,14 +20,25 @@ import {
     Calendar,
     Shield,
     Bell,
-    Palette,
     Save,
     ArrowLeft,
     Sparkles,
     CheckCircle,
     X,
     Plus,
-    Trash2
+    Trash2,
+    Waves,
+    Mountain,
+    Building2,
+    Compass,
+    Landmark,
+    Palette,
+    Utensils,
+    PawPrint,
+    HeartPulse,
+    ShoppingBag,
+    Moon,
+    Car,
 } from "lucide-react";
 
 const container = {
@@ -60,19 +76,19 @@ const cardVariants = {
     }
 };
 
-const DESTINATION_CATEGORIES = [
-    { name: "Beach", icon: "🏖️", color: "from-amber-400 to-orange-500" },
-    { name: "Mountain", icon: "⛰️", color: "from-emerald-500 to-teal-600" },
-    { name: "City", icon: "🏙️", color: "from-blue-500 to-indigo-600" },
-    { name: "Adventure", icon: "🧗", color: "from-red-500 to-pink-600" },
-    { name: "Historical", icon: "🏛️", color: "from-amber-600 to-orange-700" },
-    { name: "Cultural", icon: "🎭", color: "from-purple-500 to-pink-600" },
-    { name: "Food & Drink", icon: "🍜", color: "from-rose-500 to-red-600" },
-    { name: "Wildlife", icon: "🐘", color: "from-green-500 to-emerald-600" },
-    { name: "Wellness", icon: "🧘", color: "from-teal-500 to-cyan-600" },
-    { name: "Shopping", icon: "🛍️", color: "from-fuchsia-500 to-purple-600" },
-    { name: "Nightlife", icon: "🌃", color: "from-violet-500 to-purple-700" },
-    { name: "Road Trip", icon: "🚗", color: "from-sky-500 to-blue-600" },
+export const DESTINATION_CATEGORIES = [
+    { name: "Beach", icon: Waves, color: "from-amber-400 to-orange-500" },
+    { name: "Mountain", icon: Mountain, color: "from-emerald-500 to-teal-600" },
+    { name: "City", icon: Building2, color: "from-blue-500 to-indigo-600" },
+    { name: "Adventure", icon: Compass, color: "from-red-500 to-pink-600" },
+    { name: "Historical", icon: Landmark, color: "from-amber-600 to-orange-700" },
+    { name: "Cultural", icon: Palette, color: "from-purple-500 to-pink-600" },
+    { name: "Food & Drink", icon: Utensils, color: "from-rose-500 to-red-600" },
+    { name: "Wildlife", icon: PawPrint, color: "from-green-500 to-emerald-600" },
+    { name: "Wellness", icon: HeartPulse, color: "from-teal-500 to-cyan-600" },
+    { name: "Shopping", icon: ShoppingBag, color: "from-fuchsia-500 to-purple-600" },
+    { name: "Nightlife", icon: Moon, color: "from-violet-500 to-purple-700" },
+    { name: "Road Trip", icon: Car, color: "from-sky-500 to-blue-600" },
 ];
 
 const BUDGET_OPTIONS = [
@@ -83,10 +99,9 @@ const BUDGET_OPTIONS = [
     { value: "Above 500K", label: "Ultra Luxury", color: "from-rose-500 to-pink-600" },
 ];
 
-const API_URL = "http://localhost:3001/api";
-
 export default function ProfileSettings() {
-    const { user: currentUser, token } = useContext(AuthContext);
+
+    const { user: currentUser, updateUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState("profile");
@@ -108,11 +123,19 @@ export default function ProfileSettings() {
     const [previewImage, setPreviewImage] = useState(" ");
     const [errors, setErrors] = useState({});
     const [imageUploading, setImageUploading] = useState(false);
+    const [completion, setCompletion] = useState(0);
 
     useEffect(() => {
         if (currentUser) {
+            // Format the date to YYYY-MM-DD if it exists
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toISOString().split('T')[0];
+            };
+
             setFormData({
-                displayName: currentUser.displayName || "",
+                displayName: currentUser.displayName || currentUser.username || "",
                 email: currentUser.email || "",
                 bio: currentUser.bio || "",
                 favoriteDestinations: currentUser.favoriteDestinations || [],
@@ -121,7 +144,7 @@ export default function ProfileSettings() {
                 profileImage: null,
                 website: currentUser.website || "",
                 phone: currentUser.phone || "",
-                dateOfBirth: currentUser.dateOfBirth || "",
+                dateOfBirth: formatDate(currentUser.dateOfBirth) || "",
                 notifications: currentUser.notifications !== false,
                 newsletter: currentUser.newsletter !== false,
                 theme: currentUser.theme || "light"
@@ -129,7 +152,7 @@ export default function ProfileSettings() {
 
             setPreviewImage(
                 currentUser.profileImage
-                    ? `${API_URL}/${currentUser.profileImage}`
+                    ? `${currentUser.profileImage}`
                     : currentUser.photoURL ||
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9jZ2FzVxFkw-yBn7FM0dOJRzLD26gS5Ro1w&s"
             );
@@ -179,6 +202,62 @@ export default function ProfileSettings() {
         });
     };
 
+
+
+    const suggestNextStep = (formData) => {
+        if (!formData.displayName) return "your name";
+        if (!formData.profileImage || previewImage.includes('encrypted-tbn0.gstatic.com')) return "a profile picture";
+        if (!formData.bio) return "a bio";
+        if (!formData.location) return "your location";
+        if (!formData.dateOfBirth) return "your date of birth";
+        if (!formData.phone) return "your phone number";
+        if (!formData.favoriteDestinations || formData.favoriteDestinations.length < 3) {
+            return "at least 3 favorite destinations";
+        }
+        if (!formData.budget) return "your travel budget";
+        return "more details";
+    };
+
+    // Calculate profile completion percentage
+    const calculateProfileCompletion = (formData) => {
+        const fields = [
+            { key: 'displayName', weight: 15 },
+            { key: 'email', weight: 10 },
+            { key: 'bio', weight: 10 },
+            { key: 'location', weight: 10 },
+            { key: 'budget', weight: 10 },
+            { key: 'phone', weight: 10 },
+            { key: 'dateOfBirth', weight: 10 },
+            { key: 'profileImage', weight: 15 },
+            { key: 'favoriteDestinations', minLength: 3, weight: 10 },
+        ];
+
+        let completion = 0;
+
+        fields.forEach(field => {
+            const value = formData[field.key];
+
+            if (field.key === 'favoriteDestinations') {
+                if (value && value.length >= (field.minLength || 1)) {
+                    completion += field.weight;
+                }
+            } else if (field.key === 'profileImage') {
+                if (previewImage && !previewImage.includes('encrypted-tbn0.gstatic.com')) {
+                    completion += field.weight;
+                }
+            } else if (value && value.toString().trim() !== '') {
+                completion += field.weight;
+            }
+        });
+
+        return Math.min(completion, 100);
+    };
+
+    // Update completion when form data or preview image changes
+    useEffect(() => {
+        setCompletion(calculateProfileCompletion(formData));
+    }, [formData, previewImage]);
+
     const validateForm = () => {
         const newErrors = {};
         if (!formData.displayName.trim()) newErrors.displayName = "Display name is required";
@@ -196,45 +275,63 @@ export default function ProfileSettings() {
 
         try {
             setSaving(true);
-            const data = new FormData();
-            data.append("displayName", formData.displayName);
-            data.append("email", formData.email);
-            data.append("bio", formData.bio);
-            data.append("location", formData.location);
-            data.append("budget", formData.budget);
-            data.append("website", formData.website);
-            data.append("phone", formData.phone);
-            data.append("dateOfBirth", formData.dateOfBirth);
-            data.append("notifications", formData.notifications);
-            data.append("newsletter", formData.newsletter);
-            data.append("theme", formData.theme);
-            data.append("favoriteDestinations", JSON.stringify(formData.favoriteDestinations));
-            if (formData.profileImage) data.append("profileImage", formData.profileImage);
 
-            const res = await axios.put(`${API_URL}/users/update-profile`, data, {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true,
-            });
+            // Prepare the profile data
+            const profileData = {
+                username: formData.displayName,
+                email: formData.email,
+                bio: formData.bio,
+                // favoriteDestinations: formData.favoriteDestinations,
+                location: formData.location,
+                budget: formData.budget,
+                website: formData.website,
+                phone: formData.phone,
+                dateOfBirth: formData.dateOfBirth,
+                notificationsEnabled: formData.notifications,
+                newsletterEnabled: formData.newsletter,
+                themePreference: formData.theme
+            };
 
-            if (res.data.success) {
-                toast.success(
-                    <div className="flex items-center space-x-2">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <span>Profile updated successfully!</span>
-                    </div>
-                );
+            // Handle profile image upload if a new one was selected
+            if (formData.profileImage && typeof formData.profileImage !== 'string') {
+                const imageFormData = new FormData();
+                imageFormData.append('profileImage', formData.profileImage);
+
+                // Upload the image first
+                const imageResponse = await BACKEND_API.Users.UpdateProfileImage(imageFormData);
+                if (imageResponse.data.profileImage) {
+                    profileData.profileImage = imageResponse.data.profileImage;
+                }
             }
-        } catch (err) {
-            toast.error(
-                <div className="flex items-center space-x-2">
-                    <X className="w-5 h-5 text-red-500" />
-                    <span>Failed to update profile. Please try again.</span>
-                </div>
-            );
+
+            // Update the profile data
+            const response = await BACKEND_API.Users.UpdateProfile(currentUser?.id || currentUser?._id, profileData);
+
+            // Update the user context with new data
+            if (response.data) {
+                // This assumes your AuthContext has a way to update the user
+                // You might need to adjust this based on your AuthContext implementation
+                updateUser(response.data.user);
+                console.log("Response after updating user: ", response.data);
+                toast.success("Profile updated successfully!");
+            }
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            const errorMessage = error.response?.data?.message || "Failed to update profile. Please try again.";
+            toast.error(errorMessage);
+
+            // Handle token expiration or unauthorized
+            if (error.response?.status === 401) {
+                // The interceptor in Backend.js should handle token refresh
+                // If we get here, refresh might have failed
+                toast.error("Your session has expired. Please log in again.");
+                // Redirect to login or handle as per your auth flow
+            }
         } finally {
             setSaving(false);
         }
     };
+
 
     const tabs = [
         { id: "profile", label: "Profile", icon: User },
@@ -242,6 +339,7 @@ export default function ProfileSettings() {
         { id: "notifications", label: "Notifications", icon: Bell },
         { id: "appearance", label: "Appearance", icon: Palette },
     ];
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
@@ -313,8 +411,8 @@ export default function ProfileSettings() {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${activeTab === tab.id
-                                                ? "bg-gradient-to-r from-teal-50 to-indigo-50 text-teal-700 border border-teal-200/50 shadow-sm"
-                                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                            ? "bg-gradient-to-r from-teal-50 to-indigo-50 text-teal-700 border border-teal-200/50 shadow-sm"
+                                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                             }`}
                                     >
                                         <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-teal-600' : 'text-gray-400'}`} />
@@ -328,11 +426,21 @@ export default function ProfileSettings() {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-gray-500">Profile Completion</span>
-                                        <span className="text-sm font-medium text-teal-600">85%</span>
+                                        <span className="text-sm font-medium text-teal-600">{completion}%</span>
                                     </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div className="bg-gradient-to-r from-teal-500 to-indigo-600 h-2 rounded-full w-4/5"></div>
+                                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                        <motion.div
+                                            className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-indigo-600"
+                                            initial={{ width: '0%' }}
+                                            animate={{ width: `${completion}%` }}
+                                            transition={{ duration: 0.5, ease: "easeOut" }}
+                                        />
                                     </div>
+                                    {completion < 100 && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Complete more fields to reach 100%. Add {suggestNextStep(formData)} to increase your score.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -544,8 +652,8 @@ export default function ProfileSettings() {
                                                                 whileTap={{ scale: 0.98 }}
                                                                 onClick={() => setFormData(prev => ({ ...prev, budget: option.value }))}
                                                                 className={`p-3 rounded-xl border-2 transition-all duration-200 text-left ${formData.budget === option.value
-                                                                        ? `border-transparent bg-gradient-to-r ${option.color} text-white shadow-lg`
-                                                                        : "border-gray-200 bg-white hover:border-teal-200 hover:bg-teal-50"
+                                                                    ? `border-transparent bg-gradient-to-r ${option.color} text-white shadow-lg`
+                                                                    : "border-gray-200 bg-white hover:border-teal-200 hover:bg-teal-50"
                                                                     }`}
                                                             >
                                                                 <div className="text-sm font-medium">{option.value}</div>
@@ -577,12 +685,14 @@ export default function ProfileSettings() {
                                                         whileHover={{ scale: 1.05 }}
                                                         whileTap={{ scale: 0.95 }}
                                                         onClick={() => toggleDestinationCategory(category.name)}
-                                                        className={`p-3 rounded-xl border-2 transition-all duration-200 ${formData.favoriteDestinations.includes(category.name)
-                                                                ? `border-transparent bg-gradient-to-r ${category.color} text-white shadow-lg`
-                                                                : "border-gray-200 bg-white hover:border-gray-300"
+                                                        className={`p-3 rounded-xl border-2 transition-all text-blue-400 duration-200 ${formData.favoriteDestinations.includes(category.name)
+                                                            ? `border-transparent bg-gradient-to-r ${category.color} text-white shadow-lg`
+                                                            : "border-gray-200 bg-white hover:border-gray-300"
                                                             }`}
                                                     >
-                                                        <div className="text-2xl mb-1">{category.icon}</div>
+                                                        <div className="text-2xl mb-1 flex items-center justify-center">
+                                                            {React.createElement(category.icon, { className: "w-6 h-6" })}
+                                                        </div>
                                                         <div className="text-xs font-medium">{category.name}</div>
                                                     </motion.button>
                                                 ))}
@@ -675,8 +785,8 @@ export default function ProfileSettings() {
                                                         whileTap={{ scale: 0.98 }}
                                                         onClick={() => setFormData(prev => ({ ...prev, theme: theme.id }))}
                                                         className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.theme === theme.id
-                                                                ? "border-teal-500 bg-teal-50 shadow-sm"
-                                                                : "border-gray-200 bg-white hover:border-gray-300"
+                                                            ? "border-teal-500 bg-teal-50 shadow-sm"
+                                                            : "border-gray-200 bg-white hover:border-gray-300"
                                                             }`}
                                                     >
                                                         <div className="font-medium text-gray-900">{theme.name}</div>

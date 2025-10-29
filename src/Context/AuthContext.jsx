@@ -38,9 +38,21 @@ export const AuthProvider = ({ children }) => {
     };
 
     const updateUser = (user) => {
-        setUser(user);
-        localStorage.setItem("user", JSON.stringify(user));
+        // Normalize the ID field
+        const normalizedUser = {
+            ...user,
+            id: user.id || user._id || user.userId, // pick whichever exists
+        };
+
+        // Remove unwanted keys
+        delete normalizedUser._id;
+        delete normalizedUser.userId;
+
+        // Save to state and localStorage
+        setUser(normalizedUser);
+        localStorage.setItem("user", JSON.stringify(normalizedUser));
     };
+
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout, loading, updateUser }}>

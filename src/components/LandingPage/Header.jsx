@@ -59,7 +59,7 @@ const Header = () => {
   }, [showDropdown]);
 
   const navItems = [
-    { name: "Home", href: "/", icon: Sparkles },
+    { name: "Home", href: "/home", icon: Sparkles },
     { name: "Explore", href: "/explore", icon: null },
     { name: "Trips", href: "/trips", icon: null },
     { name: "About", href: "/about", icon: null },
