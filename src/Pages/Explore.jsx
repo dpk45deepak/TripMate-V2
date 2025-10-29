@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Twitter, Instagram, Facebook, BookOpen, Menu, X, Star, StarHalf, Sun, Waves, Anchor, Ship, Bird, Zap, Landmark, Heart, Castle, Wine, Mountain, PawPrint, Bus, MapPin } from 'lucide-react';
-import DestinationCarousel from '../Components/DestinationCarousel';
-import CitySelector from '../Components/CitySelector';
+import DestinationCarousel from '../components/DestinationCarousel';
+import CitySelector from '../components/CitySelector';
 
 // --- MOCK DATA FOR ALL CITIES ---
 const citiesData = {
