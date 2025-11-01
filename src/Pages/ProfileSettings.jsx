@@ -776,7 +776,7 @@ export default function ProfileSettings() {
                                                 {[
                                                     { id: "light", name: "Light", desc: "Clean and bright" },
                                                     { id: "dark", name: "Dark", desc: "Easy on the eyes" },
-                                                    { id: "auto", name: "Auto", desc: "Follow system" }
+                                                    { id: "system", name: "System", desc: "Follow system" }
                                                 ].map((theme) => (
                                                     <motion.button
                                                         key={theme.id}

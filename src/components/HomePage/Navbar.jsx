@@ -23,6 +23,7 @@ import AuthContext from "../../Context/AuthContext";
 import Nav_Search from './Nav_Search';
 import NotificationDropdown from './NotificationDropdown';
 import FilterPanel from "../FilterPanel";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   // Use Context
@@ -35,6 +36,8 @@ export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [filterPanels, setFilterPanels] = useState([]);
+
+  const navigate = useNavigate();
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -112,6 +115,11 @@ export default function Navbar() {
   // Function to close specific FilterPanel
   const closeFilterPanel = (panelId) => {
     setFilterPanels(prev => prev.filter(id => id !== panelId));
+  };
+
+  const openSettingPage = () => {
+    console.log("Opening settings page...");
+    navigate("/settings");
   };
 
   // Toggle theme function (placeholder)
@@ -397,7 +405,9 @@ export default function Navbar() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <button className="flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium">
+                <button className="flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium"
+                onClick={openSettingPage}
+                >
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
                 </button>

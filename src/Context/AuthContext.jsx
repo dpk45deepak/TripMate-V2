@@ -6,34 +6,27 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
     // Load from localStorage
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
-        if (storedUser && storedToken) {
+        if (storedUser) {
             setUser(JSON.parse(storedUser));
-            setToken(storedToken);
         }
         setLoading(false);
     }, []);
 
     const login = (data) => {
-        const { user, accessToken } = data;
+        const { user } = data;
         setUser(user);
-        setToken(accessToken);
         localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", accessToken);
         navigate("/home");
     };
 
     const logout = () => {
         setUser(null);
-        setToken(null);
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
         navigate("/signin");
     };
 
@@ -53,9 +46,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(normalizedUser));
     };
 
-
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, loading, updateUser }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

@@ -28,7 +28,7 @@ const Video404 = () => {
           Uh oh, looks like this connection is a bit... primitive.
         </p>
         <a
-          href="/"
+          href="/home"
           className="mt-8 inline-block px-6 py-3 bg-gradient-to-r from-blue-400 via-teal-600 to-indigo-500 text-gray-200 rounded-full font-semibold hover:bg-gray-200 transition-colors"
         >
           Go back home

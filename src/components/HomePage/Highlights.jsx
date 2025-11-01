@@ -248,7 +248,7 @@ export default function Highlights() {
                   </div>
 
                   {/* Content */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-sky-500 to-sky-400">
                     <h3 className="font-bold text-lg text-white mb-1">
                       {destination.name}
                     </h3>

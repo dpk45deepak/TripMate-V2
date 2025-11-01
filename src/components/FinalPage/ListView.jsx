@@ -333,7 +333,7 @@ const ListView = ({
                     <button
                         onClick={() => onPageChange(1)}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hidden md:block"
                     >
                         &laquo;
                     </button>
@@ -346,7 +346,7 @@ const ListView = ({
                     </button>
                     
                     {/* Page numbers */}
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    {Array.from({ length: Math.min(4, totalPages) }, (_, i) => {
                         let pageNum;
                         if (totalPages <= 5) {
                             pageNum = i + 1;
@@ -381,12 +381,12 @@ const ListView = ({
                     <button
                         onClick={() => onPageChange(totalPages)}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hidden md:block"
                     >
                         &raquo;
                     </button>
-                    
-                    <span className="ml-4 text-sm text-gray-600">
+
+                    <span className="ml-4 text-sm text-gray-600 hidden md:block">
                         Page {currentPage} of {totalPages}
                     </span>
                 </div>

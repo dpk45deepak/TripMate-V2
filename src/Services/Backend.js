@@ -1,88 +1,37 @@
-// ✅ Centralized Backend API's file
+// Centralized Backend API file (Cookie-based Auth)
 import axios from "axios";
 
-// 🔗 Base backend URL — change this to your Render backend URL
-const BASE_URL = "https://tripsbcknd.onrender.com/api";
-// const BASE_URL = "http://localhost:8082/api";
+// Base backend URL — change when deploying
+// const BASE_URL = "https://tripsbcknd.onrender.com/api";
+const BASE_URL = "http://localhost:8082/api";
 
-// 🧠 Create a reusable axios instance
+// Create a reusable axios instance
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 8000, // prevent long waits if server sleeps
+  timeout: 10000,
+  withCredentials: true, // 🔥 Important: send cookies with every request
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// 🧩 Request interceptor to attach token
+
+// Request Interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// 🧩 Response interceptor to handle token refresh
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-          // No refresh token, redirect to login
-          window.location.href = '/login';
-          return Promise.reject(error);
-        }
-
-        // Try to refresh the token
-        const response = await axios.post(`${BASE_URL}/users/refresh-token`, {
-          refreshToken: refreshToken
-        });
-
-        const { token: newToken, refreshToken: newRefreshToken } = response.data;
-
-        // Update tokens
-        localStorage.setItem('token', newToken);
-        if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken);
-        }
-
-        // Update the authorization header
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-        // Retry the original request
-        return api(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, clear tokens and redirect to login
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-// ✅ Define all backend requests here (centralized)
 
 export const BACKEND_API = {
+
   // Authentication
   Auth: {
-    SignUp: (data) => api.post("/users/register", data),
-    SignIn: (data) => api.post("/users/login", data),
-    VerifyToken: () => api.get("/users/verify"),
+    SignUp: (data) => api.post("/auth/register", data),
+    SignIn: (data) => api.post("/auth/login", data),
+    VerifyToken: () => api.get("/auth/verify-email"),
   },
 
   // Destinations
