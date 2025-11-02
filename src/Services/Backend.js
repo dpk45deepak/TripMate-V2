@@ -2,8 +2,8 @@
 import axios from "axios";
 
 // Base backend URL — change when deploying
-// const BASE_URL = "https://tripsbcknd.onrender.com/api";
-const BASE_URL = "http://localhost:8082/api";
+const BASE_URL = "https://tripsbcknd.onrender.com/api";
+// const BASE_URL = "http://localhost:8082/api";
 
 // Create a reusable axios instance
 const api = axios.create({
