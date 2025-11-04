@@ -11,7 +11,7 @@ import AuthContext from "../../Context/AuthContext";
 export default function AuthenticationForm() {
 
   // Global Context
-  const { login } = useContext(AuthContext);
+  const { login, updateUser } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -38,11 +38,12 @@ export default function AuthenticationForm() {
     setErrorMsg("");
 
     try {
-      const { data } = await BACKEND_API.Auth.SignIn(credentials);
+      await BACKEND_API.Auth.SignIn(credentials);
       // console log success
-      console.log("✅ Login/Signin success:", data);
+      console.log("SignIn Successful!! ✅");
       // Set Global Context an navigate user
-      login(data);
+      const userResponse = await BACKEND_API.Users.GetProfile();
+      updateUser(userResponse.data);
     } catch (error) {
       console.error("❌ Login/Signin failed:", error.response?.data || error.message);
       setErrorMsg(error.response?.data?.message || "Invalid credentials. Try again.");
@@ -51,11 +52,17 @@ export default function AuthenticationForm() {
     }
   };
 
-  const handleSocialLogin = (provider) => {
+  const handleSocialLogin = async (provider) => {
     setIsLoading(true);
     try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+      console.log("Backend URL: ", BACKEND_URL);
       // Implement Social Login
-
+      window.location.href = `${BACKEND_URL}/auth/google`;
+      const userResponse = await BACKEND_API.Users.GetProfile();
+      console.log("✅ Social Login success:", user);
+      // Set Global Context an navigate user
+      updateUser(userResponse.data);
     } catch (error) {
       console.error('OAuth error:', error);
       setErrorMsg('Failed to initiate Google sign in');

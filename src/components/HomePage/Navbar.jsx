@@ -244,8 +244,8 @@ export default function Navbar() {
               >
                 <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
                   <img
-                    src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.email
-                      .toString()[0]
+                    src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.username
+                      ?.toString()[0]
                       .toUpperCase()}`}
                     alt="Profile"
                     className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-sm"
@@ -253,11 +253,11 @@ export default function Navbar() {
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-sm font-semibold text-gray-900">
-                    {user.name
-                      ? user.name
-                      : user.email.includes(".")
-                        ? user.email.split(".")[0]
-                        : user.email.split("@")[0]}
+                    {user.username
+                      ? user?.username
+                      : user.email?.includes(".")
+                        ? user.email?.split(".")[0]
+                        : user.email?.split("@")[0]}
                   </span>
                   <span className="text-xs text-gray-500">Premium Member</span>
                 </div>
@@ -273,11 +273,11 @@ export default function Navbar() {
                 <div className="absolute right-0 top-14 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-900">
-                      {user.name
-                        ? user.name
-                        : user.email.includes(".")
-                          ? user.email.split(".")[0]
-                          : user.email.split("@")[0]}
+                      {user.username
+                        ? user.username
+                        : user.email?.includes(".")
+                          ? user.email?.split(".")[0]
+                          : user.email?.split("@")[0]}
                     </p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
@@ -385,20 +385,20 @@ export default function Navbar() {
               <div className="flex items-center space-x-3 px-3 py-2">
                 <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
                   <img
-                    src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.email
-                      .toString()[0]
-                      .toUpperCase()}`}
+                    src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.username
+                      ?.toString()[0]
+                      ?.toUpperCase()}`}
                     alt="Profile"
                     className="w-8 h-8 rounded-full object-cover border-2 border-white"
                   />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">
-                    {user.name
-                      ? user.name
-                      : user.email.includes(".")
-                        ? user.email.split(".")[0]
-                        : user.email.split("@")[0]}
+                    {user.username
+                      ? user.username
+                      : user.email?.includes(".")
+                        ? user.email?.split(".")[0]
+                        : user.email?.split("@")[0]}
                   </p>
                   <p className="text-xs text-gray-500">Premium Member</p>
                 </div>

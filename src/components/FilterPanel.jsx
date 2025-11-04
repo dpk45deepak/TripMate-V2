@@ -152,64 +152,70 @@ export default function FilterPanel({
     });
   };
 
-  const handleSave = async (e) => {
-    e?.preventDefault();
-    setIsSubmitting(true);
-    try {
-      if (!filters?.destinationTypes?.length) {
-        throw new Error('Please select at least one destination type');
-      }
+const handleSave = async (e) => {
+  e?.preventDefault?.();
+  if (isSubmitting) return; // Prevent double submission
 
-      const selectedBudget = BUDGET_OPTIONS.find(opt => opt.value === filters.budget) || BUDGET_OPTIONS[1];
+  setIsSubmitting(true);
 
-      const payload = {
-        userId: user?._id || user?.id,
-        favouriteDestinationTypes: filters.destinationTypes,
-        favouriteActivities: filters.activities,
-        favouriteClimates: filters.climates,
-        favouriteDurations: filters.duration,
-        favouriteBudget: selectedBudget.range.max,
-      };
-
-      console.log("Sending payload to backend:", payload);
-
-      const res = await BACKEND_API.Users.SetFavouriteCategories(payload);
-
-      // Check if response indicates success
-      if (res?.data?.success) {
-        // Update user context with new preferences
-        updateUser({
-          ...user,
-          ...payload
-        });
-
-        toast.success("Preferences saved successfully!");
-        if (onClose) onClose();
-      } else {
-        // Only throw an error if there's an actual error message
-        const errorMessage = res?.data?.message || "Failed to save preferences";
-        if (errorMessage !== "Favourite preferences updated successfully") {
-          throw new Error(errorMessage);
-        } else {
-          // If the message is actually a success message, handle it as success
-          updateUser({
-            ...user,
-            ...payload
-          });
-          toast.success("Preferences saved successfully!");
-          if (onClose) onClose();
-        }
-      }
-    } catch (err) {
-      console.error('Error saving preferences:', err);
-      // Don't show the error toast if it's actually a success message
-      if (err.message !== "Favourite preferences updated successfully") {
-        toast.error(err.message || "Failed to save preferences");
-      }
-    } finally {
-      setIsSubmitting(false);
+  try {
+    // Input validation
+    if (!user?._id && !user?.id) {
+      throw new Error('User not authenticated');
     }
-  };
+
+    if (!Array.isArray(filters?.destinationTypes) || filters.destinationTypes.length === 0) {
+      throw new Error('Please select at least one destination type');
+    }
+
+    const selectedBudget = BUDGET_OPTIONS.find(opt => opt.value === filters.budget) || BUDGET_OPTIONS[1];
+    if (!selectedBudget) {
+      throw new Error('Invalid budget selection');
+    }
+
+    const payload = {
+      userId: user._id || user.id,
+      favouriteDestinationTypes: filters.destinationTypes,
+      favouriteActivities: Array.isArray(filters.activities) ? filters.activities : [],
+      favouriteClimates: Array.isArray(filters.climates) ? filters.climates : [],
+      favouriteDurations: Array.isArray(filters.duration) ? filters.duration : [],
+      favouriteBudget: selectedBudget.range?.max || 0,
+    };
+
+    console.log("Sending payload to backend:", payload);
+
+    const res = await BACKEND_API.Users.SetFavouriteCategories(payload);
+
+    // console.log("Filter panel response:", res.data);
+    // Handle response
+    const responseMessage = res?.data?.message || '';
+    const isSuccess = res?.data?.status === 200 ||
+                      responseMessage.includes('successfully');
+
+    if (!isSuccess) {
+      throw new Error(responseMessage || 'Failed to save preferences');
+    }
+
+    // Update user context with new preferences
+    // updateUser(user);
+
+    toast.success("Preferences saved successfully!");
+    if (onClose && typeof onClose === 'function') {
+      onClose();
+    }
+  } catch (err) {
+    console.error('Error saving preferences:', err);
+    const errorMessage = err?.response?.data?.message ||
+                        err?.message ||
+                        'Failed to save preferences';
+
+    if (errorMessage !== 'Favourite preferences updated successfully') {
+      toast.error(errorMessage);
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const backdrop = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
   const panel = { hidden: { x: "100%" }, visible: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } } };

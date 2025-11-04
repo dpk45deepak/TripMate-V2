@@ -10,7 +10,7 @@ import AuthContext from "../../Context/AuthContext";
 export default function AuthenticationForm() {
 
   // Global Context
-  const { login } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -29,7 +29,7 @@ export default function AuthenticationForm() {
       ...prevState,
       [name]: value
     }));
-    
+
     if (authStatus) {
       setAuthStatus(null);
     }
@@ -42,11 +42,13 @@ export default function AuthenticationForm() {
     setErrorMsg("");
 
     try {
-      const { data } = await BACKEND_API.Auth.SignUp(credentials);
+      await BACKEND_API.Auth.SignUp(credentials);
       // console log success
-      console.log("✅ SignUp success:", data);
+      console.log("SignUp successful !! ✅");
+      const userResponse = await BACKEND_API.Users.GetProfile();
       // Set Global Context an navigate user
-      login(data);
+      updateUser(userResponse.data);
+      setAuthStatus("success");
     } catch (error) {
       console.error("❌ SignUp failed:", error.response?.data || error.message);
       setErrorMsg(error.response?.data?.message || "Invalid credentials. Try again.");
@@ -55,15 +57,18 @@ export default function AuthenticationForm() {
     }
   };
 
-  const handleSocialLogin = (provider) => {
+  const handleSocialLogin = async (provider) => {
     setIsLoading(true);
     try {
-    // implement social login logic here
-
-
-
-
-
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+      console.log("Backend URL: ", BACKEND_URL);
+    // implement social sign up logic here
+      window.location.href = `${BACKEND_URL}/auth/google`;
+      const userResponse = await BACKEND_API.Users.GetProfile();
+      console.log("✅ Social Login success");
+      // Set Global Context an navigate user
+      updateUser(userResponse.data);
+      setAuthStatus("success");
     } catch (error) {
       console.error('OAuth error:', error);
       setErrorMsg('Failed to initiate Google sign up');
@@ -71,10 +76,8 @@ export default function AuthenticationForm() {
     }
   };
 
-  const { user } = useContext(AuthContext);
-
   useEffect(() => {
-    if (user) navigate("/home"); // already signed in
+    if (user) navigate("/home");
   }, [user]);
 
   return (

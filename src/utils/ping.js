@@ -1,19 +1,18 @@
 // src/utils/ping.js
 import axios from "axios";
 
-const BACKEND_URL = "https://tripsbcknd.onrender.com";
-// const BACKEND_URL = "http://localhost:8082";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Function to ping backend when frontend loads
 export const pingBackend = async () => {
   try {
-    const response = await axios.get(`${BACKEND_URL}/api`, {
+    const response = await axios.get(`${BACKEND_URL}`, {
       timeout: 100000, // 10 min
     });
-    console.log("Backend awake: ✅ ", response.data);
+    console.log("Backend pinged Successfully!! ✅");
   } catch (error) {
     console.warn("⚠️ Backend ping failed, retrying in 10 min...", error.message);
-    // Retry once after 10 seconds
+    // Retry once after 60 minutes
     setTimeout(() => pingBackend(), 600000);
   }
 };

@@ -27,8 +27,11 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
         navigate("/signin");
     };
+
+    // console.log("User from AuthContext ✅", user);
 
     const updateUser = (user) => {
         // Normalize the ID field
