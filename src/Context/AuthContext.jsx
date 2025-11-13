@@ -6,8 +6,8 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [ user, setUser ] = useState(null);
+    const [ loading, setLoading ] = useState(true);
 
     // Load user from backend (no localStorage)
     useEffect(() => {
