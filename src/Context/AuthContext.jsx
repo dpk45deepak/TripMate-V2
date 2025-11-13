@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import BACKEND_API from "../Services/Backend";
 
 const AuthContext = createContext();
 
@@ -8,45 +9,45 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Load from localStorage
+    // Load user from backend (no localStorage)
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        const fetchUser = async () => {
+            try {
+                const response = await BACKEND_API.Users.GetProfile();
+                if (response?.data) {
+                    setUser(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
     }, []);
 
     const login = (data) => {
         const { user } = data;
         setUser(user);
-        localStorage.setItem("user", JSON.stringify(user));
         navigate("/home");
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
         navigate("/signin");
     };
 
-    // console.log("User from AuthContext ✅", user);
-
-    const updateUser = (user) => {
-        // Normalize the ID field
+    const updateUser = (userData) => {
         const normalizedUser = {
-            ...user,
-            id: user.id || user._id || user.userId, // pick whichever exists
+            ...userData,
+            id: userData.id || userData._id || userData.userId,
         };
 
-        // Remove unwanted keys
         delete normalizedUser._id;
         delete normalizedUser.userId;
 
-        // Save to state and localStorage
         setUser(normalizedUser);
-        localStorage.setItem("user", JSON.stringify(normalizedUser));
     };
 
     return (
@@ -55,6 +56,5 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
 
 export default AuthContext;

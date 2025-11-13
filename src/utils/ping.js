@@ -9,7 +9,13 @@ export const pingBackend = async () => {
     const response = await axios.get(`${BACKEND_URL}`, {
       timeout: 100000, // 10 min
     });
-    console.log("Backend pinged Successfully!! ✅");
+
+    if(response){
+      console.log("Backend pinged Successfully!! ✅");
+    }
+    else{
+      console.log("Backend ping failed!! ⚠️");
+    }
   } catch (error) {
     console.warn("⚠️ Backend ping failed, retrying in 10 min...", error.message);
     // Retry once after 60 minutes
