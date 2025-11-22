@@ -7,16 +7,16 @@ export function useMediaQuery(query) {
     // Only run on client-side
     if (typeof window !== 'undefined') {
       const media = window.matchMedia(query);
-      
+
       // Set initial value
       setMatches(media.matches);
-      
+
       // Create event listener function
       const listener = (e) => setMatches(e.matches);
-      
+
       // Add listener
       media.addListener(listener);
-      
+
       // Clean up
       return () => media.removeListener(listener);
     }

@@ -80,16 +80,42 @@ const DASHBOARD_CONFIG = {
 const useDestinations = (userId) => {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchRecommendations = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('No user ID provided, skipping recommendation fetch');
+      setLoading(false);
+      return;
+    }
 
     try {
+      console.log(`Fetching recommendations for user: ${userId}`);
       setLoading(true);
+      setError(null);
+      
       const response = await BACKEND_API.Recommend.GetRecommendation(userId);
-      setDestinations(response.data?.recommendations || []);
+      console.log('Recommendations API Response:', response);
+      
+      if (response && response.data) {
+        // Check if the response has the expected data structure
+        if (Array.isArray(response.data)) {
+          console.log(`Received ${response.data.length} recommendations`);
+          setDestinations(response.data);
+        } else if (response.data.recommendations && Array.isArray(response.data.recommendations)) {
+          console.log(`Received ${response.data.recommendations.length} recommendations`);
+          setDestinations(response.data.recommendations);
+        } else {
+          console.warn('Unexpected response format:', response.data);
+          setDestinations([]);
+        }
+      } else {
+        console.warn('Empty or invalid response from API');
+        setDestinations([]);
+      }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
+      setError(error.message || 'Failed to load recommendations');
       setDestinations([]);
     } finally {
       setLoading(false);
@@ -100,7 +126,7 @@ const useDestinations = (userId) => {
     fetchRecommendations();
   }, [fetchRecommendations]);
 
-  return { destinations, loading, refetch: fetchRecommendations };
+  return { destinations, loading, error, refetch: fetchRecommendations };
 };
 
 const useFilters = (initialFilters = DASHBOARD_CONFIG.INITIAL_FILTERS) => {
@@ -1015,7 +1041,7 @@ const PromotionalBanner = () => (
       src="https://placehold.co/100x100/4CAF50/ffffff?text=Traveler" 
       alt="Traveler" 
       className="absolute top-0 right-0 h-full w-1/3 object-cover opacity-30" 
-      loading="lazy" 
+      loading="lazy"
     />
     <div className="relative z-10">
       <h3 className="text-2xl font-bold">Let's Explore the beauty</h3>
@@ -1044,10 +1070,10 @@ export default function Dashboard() {
   const [showDetailView, setShowDetailView] = useState(false);
   const [filterPanels, setFilterPanels] = useState([]);
 
-  const { destinations, loading } = useDestinations(user?.id);
+  const { destinations, loading } = useDestinations(user?._id || user?.id);
   const { filters, showFilters, setFilters, setShowFilters, resetFilters } = useFilters();
 
-  
+
   const toggleSidebar = useCallback(() => setIsSidebarOpen(prev => !prev), []);
   const closeModal = useCallback(() => {
     setSelectedItem(null);

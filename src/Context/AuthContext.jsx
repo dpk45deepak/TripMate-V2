@@ -38,17 +38,31 @@ export const AuthProvider = ({ children }) => {
         navigate("/signin");
     };
 
-    const updateUser = (userData) => {
+const updateUser = (userData) => {
+    try {
+
+        if (!userData) {
+            console.error('No user data provided to updateUser');
+            return;
+        }
+
         const normalizedUser = {
             ...userData,
             id: userData.id || userData._id || userData.userId,
         };
 
-        delete normalizedUser._id;
-        delete normalizedUser.userId;
+        // Clean up the object
+        if ('_id' in normalizedUser) delete normalizedUser._id;
+        if ('userId' in normalizedUser) delete normalizedUser.userId;
 
-        setUser(normalizedUser);
-    };
+        setUser(prevUser => {
+            const updatedUser = { ...prevUser, ...normalizedUser };
+            return updatedUser;
+        });
+    } catch (error) {
+        console.error('Error in updateUser:', error);
+    }
+};
 
     return (
         <AuthContext.Provider value={{ user, login, logout, loading, updateUser }}>

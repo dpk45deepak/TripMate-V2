@@ -4,8 +4,9 @@ import { ToastContainer } from "react-toastify";
 
 // Import the CSS directly from the package
 import "react-toastify/dist/ReactToastify.css";
-
 import "./App.css";
+
+// Unauthorized Pages
 import Video404 from "./components/Video404";
 
 // Main Pages
@@ -43,17 +44,30 @@ function App() {
   return (
     <BrowserRouter>
       <ToastContainer
-        position="center"
-        toastClassName="center-toast"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
+        position="top-center"
+        autoClose={3000}
+        closeButton={false}
+        hideProgressBar
+        newestOnTop
         closeOnClick
         rtl={false}
-        pauseOnFocusLoss
+        pauseOnFocusLoss={false}
         draggable
         pauseOnHover
         theme="light"
+        style={{
+          width: 'auto',
+          minWidth: '300px',
+          maxWidth: '500px',
+          marginTop: '1rem'
+        }}
+        toastStyle={{
+          borderRadius: '8px',
+          padding: '12px 20px',
+          fontSize: '14px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          marginBottom: '1rem'
+        }}
       />
       <AuthProvider>
         <Routes>
