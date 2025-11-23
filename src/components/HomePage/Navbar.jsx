@@ -88,6 +88,7 @@ export default function Navbar() {
   const navItems = [
     { name: "Home", href: "/home", icon: Sparkles },
     { name: "Explore", href: "/explore", icon: Globe },
+    { name: "Map", href: "https://tripmatev2a.netlify.app/", icon: MapPin, badge: 3 },
     { name: "Itinerary", href: "/itinerary", icon: Calendar },
     { name: "Profile", href: "/profile", icon: User },
   ];
