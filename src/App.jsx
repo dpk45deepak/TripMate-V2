@@ -19,6 +19,8 @@ import NewPage from './Pages/FinalPage';
 
 // Helpers
 import ItineraryPlanner from "./Pages/ItineraryPlanner";
+import Memories from "./components/itinerary/Memories";
+import Itinerary_plan from "./components/itinerary/Itenerary";
 import SearchResults from "./Pages/SearchResults";
 
 // Authentication
@@ -114,6 +116,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ItineraryPlanner />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/memories"
+            element={
+              <ProtectedRoute>
+                <Memories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/itinerary-plan"
+            element={
+              <ProtectedRoute>
+                <Itinerary_plan />
               </ProtectedRoute>
             }
           />
