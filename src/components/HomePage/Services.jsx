@@ -29,12 +29,27 @@ const containerVariants = {
     },
   };
 
-  const DUMMY_REVIEWS = [
-    { name: "Thomas Jordan", title: "Frequent Traveler", text: "We have always been careful about the quality of service, and Travigo doesn't disappoint.", avatar: "https://placehold.co/40x40/f44336/ffffff?text=TJ" },
-    { name: "Nicole Welson", title: "Travel Writer", text: "The service and booking process were seamless. The recommendations were spot on!", avatar: "https://placehold.co/40x40/2196f3/ffffff?text=NW" },
-    { name: "Jimmy Wilson", title: "Adventure Seeker", text: "Easy booking, great deals, and unforgettable experiences. Highly recommended!", avatar: "https://placehold.co/40x40/4caf50/ffffff?text=JW" },
-  ];
-  
+const DUMMY_REVIEWS = [
+  {
+    name: "Rahul Sharma",
+    title: "Frequent Traveler",
+    text: "Service quality kaafi achhi hai. Booking process smooth tha aur travel experience bilkul hassle-free raha.",
+    avatar: "https://placehold.co/40x40/f44336/ffffff?text=RS",
+  },
+  {
+    name: "Priya Verma",
+    title: "Travel Blogger",
+    text: "Recommendations kaafi accurate the. Budget aur preferences ke according options mil gaye, which I really liked.",
+    avatar: "https://placehold.co/40x40/2196f3/ffffff?text=PV",
+  },
+  {
+    name: "Amit Patel",
+    title: "Adventure Enthusiast",
+    text: "Booking easy thi, deals bhi achhe mile. Trip memorable rahi — definitely recommend karunga.",
+    avatar: "https://placehold.co/40x40/4caf50/ffffff?text=AP",
+  },
+];
+
 
 const CustomerReviewSection = () => (
     <motion.section 

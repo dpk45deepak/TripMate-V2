@@ -1,458 +1,887 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Twitter, Instagram, Facebook, BookOpen, Menu, X, Star, StarHalf, Sun, Waves, Anchor, Ship, Bird, Zap, Landmark, Heart, Castle, Wine, Mountain, PawPrint, Bus, MapPin } from 'lucide-react';
-import DestinationCarousel from '../components/DestinationCarousel';
-import CitySelector from '../components/CitySelector';
+import { Star, MapPin, Calendar, Users, Search, Filter, X, Globe, Heart, Navigation, TrendingUp, Sparkles, Zap, Target, Grid3x3, List, Shield } from 'lucide-react';
+import BACKEND_API from '../Services/Backend';
 
-// --- MOCK DATA FOR ALL CITIES ---
-const citiesData = {
-    mexico: {
-        id: 'mexico',
-        name: "Mexico",
-        backgroundImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZHzb3ASXhWVXTyVp3TuLh7VWVAna7qfVq9BGxws9-w0C5BRP5cmmM1aQP7lcV20ySLmA&usqp=CAU",
-        introductoryText: "Snorkeling in tropical waters, climbing ancient pyramids, and exploring the hidden world of cenotes are just a few samples of what Mexico has to offer.",
-        islandsData: [
-            {
-                id: 1,
-                name: "Isla Mujeres",
-                tagline: "Paradise Found: The Island of Women",
-                description: "Snorkeling in tropical waters, climbing a pyramid, and exploring the breathtaking cliffside views at Punta Sur are just a few samples of what Isla Mujeres has to offer. Experience the tranquil, turquoise Caribbean waters.",
-                image: "https://www.hotelmiareefislamujeres.com/files/all_inclusive/hotel_mia_reef_aero.webp",
-                rating: 5,
-                features: [
-                    { icon: Sun, label: 'Beach Life' },
-                    { icon: Waves, label: 'Snorkeling' },
-                    { icon: Anchor, label: 'Yachting' },
-                    { icon: Ship, label: 'Ferry Access' },
-                ]
-            },
-            {
-                id: 2,
-                name: "Isla Holbox",
-                tagline: "The Bohemian Gateway: A True Escape",
-                description: "Located off the north coast of the Yucatán Peninsula, Holbox is car-free and famous for its unpaved roads and vibrant street art. It is best known for being a seasonal home to the majestic whale sharks.",
-                image: "https://i.ytimg.com/vi/UByINB69_xo/maxresdefault.jpg",
-                rating: 4.5,
-                features: [
-                    { icon: Bird, label: 'Flamingos' },
-                    { icon: Ship, label: 'Whale Sharks' },
-                    { icon: Zap, label: 'Bioluminescence' },
-                    { icon: Map, label: 'Nature Reserve' },
-                ]
-            },
-            {
-                id: 3,
-                name: "Cozumel",
-                tagline: "Diver's Dream: World-Class Reefs",
-                description: "Cozumel is a large, predominantly flat island off the eastern coast of Mexico's Yucatán Peninsula, renowned for its incredible coral reefs and crystal-clear visibility, making it a global hub for scuba diving.",
-                image: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/689520918.jpg?k=b3c606100a5c03a35c8f446d226f3ca9537fdda9d07aa18983f6a8bc383375b4&o=&hp=1",
-                rating: 5,
-                features: [
-                    { icon: Waves, label: 'Scuba Dive' },
-                    { icon: Anchor, label: 'Cruising' },
-                    { icon: Sun, label: 'Great Weather' },
-                    { icon: Ship, label: 'Port City' },
-                ]
+const colorPalettes = [
+    'bg-linear-to-br from-blue-500 to-cyan-400',
+    'bg-linear-to-br from-purple-500 to-pink-400',
+    'bg-linear-to-br from-green-500 to-emerald-400',
+    'bg-linear-to-br from-yellow-500 to-orange-400',
+    'bg-linear-to-br from-red-500 to-pink-400',
+    'bg-linear-to-br from-indigo-500 to-blue-400',
+    'bg-linear-to-br from-teal-500 to-green-400',
+    'bg-linear-to-br from-rose-500 to-pink-400',
+    'bg-linear-to-br from-violet-500 to-purple-400',
+    'bg-linear-to-br from-amber-500 to-yellow-400',
+];
+
+const desktopPatterns = [
+    { width: 1, height: 2 },
+    { width: 2, height: 3 },
+    { width: 1, height: 2 },
+    { width: 1, height: 2 },
+    { width: 1, height: 1 },
+    { width: 1, height: 1 },
+    { width: 1, height: 1 },
+];
+
+const mobilePatterns = [
+    { width: 1, height: 1 },
+    { width: 1, height: 2 },
+    { width: 1, height: 1 },
+    { width: 1, height: 1 },
+    { width: 1, height: 2 },
+    { width: 1, height: 1 },
+    { width: 1, height: 1 },
+];
+
+const useTrips = (userId) => {
+    const [trips, setTrips] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchTrips = useCallback(async () => {
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await BACKEND_API.Recommend.GetRecommendation(userId);
+
+            if (response?.data) {
+                if (Array.isArray(response.data)) {
+                    setTrips(response.data);
+                } else if (response.data.recommendations && Array.isArray(response.data.recommendations)) {
+                    setTrips(response.data.recommendations);
+                } else if (response.data.destinations && Array.isArray(response.data.destinations)) {
+                    setTrips(response.data.destinations);
+                } else {
+                    setTrips([]);
+                }
+            } else {
+                setTrips([]);
             }
-        ]
-    },
-    paris: {
-        id: 'paris',
-        name: "Paris",
-        backgroundImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMWdaiUG6E7JbwXyd-LLahQipbSFuTeJvF8w&s",
-        introductoryText: "Experience the city of love with its iconic landmarks, world-class cuisine, and romantic ambiance that has captivated visitors for centuries.",
-        islandsData: [
-            {
-                id: 1,
-                name: "Eiffel Tower",
-                tagline: "Iron Lady of Paris",
-                description: "The most iconic landmark in Paris, offering breathtaking views of the city from its observation decks. A masterpiece of engineering and symbol of French ingenuity.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhzprd-N295k5OgIpOlz1ZaiDoQnoirL5kWA&s",
-                rating: 5,
-                features: [
-                    { icon: Landmark, label: 'Iconic View' }, // FIX: Changed '' to Landmark
-                    { icon: Map, label: 'City Panorama' },
-                    { icon: Zap, label: 'Light Shows' },
-                    { icon: Heart, label: 'Romantic' }, // Changed Sun to Heart for Paris context
-                ]
-            },
-            {
-                id: 2,
-                name: "Louvre Museum",
-                tagline: "Art Lover's Paradise",
-                description: "The world's largest art museum and historic monument in Paris. Home to thousands of works from antiquity to the 21st century, including the Mona Lisa.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRACkFKjqoHqQBSB5y6W4mQbgr5R2blBT4xUg&s",
-                rating: 4.5,
-                features: [
-                    { icon: Castle, label: 'Historic Palace' },
-                    { icon: BookOpen, label: 'Art Masterpieces' },
-                    { icon: Map, label: 'Grand Architecture' },
-                    { icon: Wine, label: 'Cultural Hub' },
-                ]
-            },
-            {
-                id: 3,
-                name: "Montmartre",
-                tagline: "Bohemian Hilltop Village",
-                description: "Historic district on a hill in Paris's 18th arrondissement, known for its artistic history, the white-domed Basilica of the Sacré-Cœur, and charming streets.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiKmXX7Zzw-W9OVwIYiWkT6BF71V23pOR3XA&s",
-                rating: 4.5,
-                features: [
-                    { icon: Mountain, label: 'Hilltop Views' },
-                    { icon: MessageCircle, label: 'Artistic Spirit' },
-                    { icon: Wine, label: 'Café Culture' },
-                    { icon: Map, label: 'Historic Streets' },
-                ]
-            }
-        ]
-    },
-    queensland: {
-        id: 'queensland',
-        name: "Queensland",
-        backgroundImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLz-e5YqtEjOmvESEgADhCAl7a2_dFXfuOCQ&s",
-        introductoryText: "Discover Australia's sunshine state with its pristine beaches, ancient rainforests, and the world's largest coral reef system.",
-        islandsData: [
-            {
-                id: 1,
-                name: "Great Barrier Reef",
-                tagline: "World's Largest Living Structure",
-                description: "The world's largest coral reef system composed of over 2,900 individual reefs and 900 islands stretching for over 2,300 kilometers. A UNESCO World Heritage site.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWmMZ_-k_4jY65VFXJMk2uuHoNcy7ZMrIXZg&s",
-                rating: 5,
-                features: [
-                    { icon: Anchor, label: 'Coral Reefs' }, // FIX: Changed '' to Anchor
-                    { icon: Waves, label: 'Marine Life' },
-                    { icon: Sun, label: 'Tropical Waters' },
-                    { icon: Ship, label: 'Island Hopping' },
-                ]
-            },
-            {
-                id: 2,
-                name: "Whitsunday Islands",
-                tagline: "74 Island Wonders",
-                description: "A collection of 74 stunning islands in the Heart of the Great Barrier Reef, famous for white-sand beaches, crystal-clear waters, and luxury resorts.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwtlsuB0vY1pNLQ_98QTKO1jTL_exIoooLK82TL-vGHmwxof6r7Kw9qgfGJrXVLlfr-c&usqp=CAU",
-                rating: 5,
-                features: [
-                    { icon: Sun, label: 'Whitehaven Beach' },
-                    { icon: Waves, label: 'Sailing Paradise' },
-                    { icon: Anchor, label: 'Luxury Resorts' },
-                    { icon: Bird, label: 'Wildlife' },
-                ]
-            },
-            {
-                id: 3,
-                name: "Daintree Rainforest",
-                tagline: "Ancient Tropical Wonder",
-                description: "The oldest surviving tropical rainforest in the world, estimated to be over 180 million years old. Home to an incredible diversity of plants and animals.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3_gP4mSpFeTyMBDnFA9EHKGAzJd9mzVLtHg&s",
-                rating: 4.5,
-                features: [
-                    { icon: Bird, label: 'Wildlife' }, // FIX: Changed '' to Bird
-                    { icon: Mountain, label: 'Ancient Forest' },
-                    { icon: Bird, label: 'Exotic Birds' },
-                    { icon: Map, label: 'Eco Tours' },
-                ]
-            }
-        ]
-    },
-    capetown: {
-        id: 'capetown',
-        name: "Cape Town",
-        backgroundImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6G42bq6RBc84dKGda7uGP5H3Nd_JYX1FtRQ&s",
-        introductoryText: "Where mountains meet oceans in South Africa's Mother City, offering breathtaking landscapes, rich history, and vibrant culture.",
-        islandsData: [
-            {
-                id: 1,
-                name: "Table Mountain",
-                tagline: "Flat-Topped Natural Wonder",
-                description: "A flat-topped mountain forming a prominent landmark overlooking the city of Cape Town. Take the cable car or hike to the top for spectacular 360-degree views.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHcG0tD-2YZefk35oIDTwVGSX00ZlxiU0w39kqmzfNlvPLUawbW8-HatJvfYUxq6k-lxI&usqp=CAU",
-                rating: 5,
-                features: [
-                    { icon: Mountain, label: 'Mountain Views' }, // FIX: Replaced MountainSnow with Mountain
-                    { icon: Map, label: 'Hiking Trails' },
-                    { icon: Bird, label: 'Unique Flora' },
-                    { icon: Zap, label: 'Cable Car' },
-                ]
-            },
-            {
-                id: 2,
-                name: "Robben Island",
-                tagline: "Island of Freedom",
-                description: "A UNESCO World Heritage site known for being the prison where Nelson Mandela was held for 18 years. Now a symbol of the triumph of democracy over oppression.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiJGLpv3gxXXN3a_3ryn_qm-NQ7aPyCG_BCw&s",
-                rating: 4.5,
-                features: [
-                    { icon: BookOpen, label: 'Historic Tour' },
-                    { icon: Map, label: 'UNESCO Site' },
-                    { icon: Ship, label: 'Ferry Access' },
-                    { icon: Anchor, label: 'Cultural Heritage' },
-                ]
-            },
-            {
-                id: 3,
-                name: "Cape Peninsula",
-                tagline: "Where Two Oceans Meet",
-                description: "Experience the dramatic coastline where the Atlantic and Indian Oceans meet. Visit the Cape of Good Hope and see penguins at Boulders Beach.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFiqsnAaYLo0ibK7sd8YeV9vZ8qpEoFz41XA&s",
-                rating: 5,
-                features: [
-                    { icon: Waves, label: 'Ocean Views' },
-                    { icon: PawPrint, label: 'Penguin Colony' }, // FIX: Changed '' to PawPrint
-                    { icon: Bus, label: 'Scenic Drive' }, // FIX: Changed '' to Bus
-                    { icon: Map, label: 'Lighthouse' },
-                ]
-            }
-        ]
-    }
-};
+        } catch (error) {
+            setError(error.message || 'Failed to load trip recommendations');
+            setTrips([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [userId]);
 
-// --- COMPONENTS ---
-
-// Helper component for Star Rating
-const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-    return (
-        <div className="flex space-x-0.5">
-            {Array(fullStars).fill(0).map((_, i) => <Star key={`full-${i}`} className="w-4 h-4 fill-yellow-400 stroke-yellow-400" />)}
-            {hasHalfStar && <StarHalf key="half" className="w-4 h-4 fill-yellow-400 stroke-yellow-400" />}
-            {Array(emptyStars).fill(0).map((_, i) => <Star key={`empty-${i}`} className="w-4 h-4 fill-gray-500 stroke-gray-500" />)}
-        </div>
-    );
-};
-
-// Mobile Navigation Component
-const MobileNav = ({ isOpen, onClose }) => {
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ opacity: 0, x: '100%' }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: '100%' }}
-                    transition={{ duration: 0.3 }}
-                    className="fixed inset-0 z-50 bg-teal-600/95 backdrop-blur-md lg:hidden"
-                >
-                    <div className="flex flex-col items-center justify-center h-full space-y-8">
-                        <button
-                            onClick={onClose}
-                            className="absolute top-6 right-6 text-white p-2"
-                            aria-label="Close menu"
-                        >
-                            <X className="w-8 h-8" />
-                        </button>
-                        <a href="home" className="text-2xl font-bold text-white hover:text-teal-200 transition" onClick={onClose}>Go Back</a>
-                        <a href="profile" className="text-2xl font-bold text-white hover:text-teal-200 transition" onClick={onClose}>Profile</a>
-                        <a href="itinerary" className="text-2xl font-bold text-white hover:text-teal-200 transition" onClick={onClose}>Itinerary</a>
-                    </div>
-                </motion.div>
-            )}
-        </AnimatePresence>
-    );
-};
-
-// Main Explore Component
-const Explore = () => {
-    const [activeCity, setActiveCity] = useState('paris');
-    const [isIntroAnimating, setIsIntroAnimating] = useState(true);
-    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-
-    const currentCityData = citiesData[activeCity];
-
-    // Restart the intro animation when the city changes
     useEffect(() => {
-        setIsIntroAnimating(true);
-        const timer = setTimeout(() => {
-            setIsIntroAnimating(false);
-        }, 2000); // 2 seconds delay for a smooth transition animation
+        fetchTrips();
+    }, [fetchTrips]);
 
-        return () => clearTimeout(timer);
-    }, [activeCity]);
+    return { trips, loading, error, refetch: fetchTrips };
+};
 
-    // Handle Initial Intro Animation Finish (runs only on mount)
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsIntroAnimating(false);
-        }, 3000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Variant for the text on the left hero side
-    const textVariants = {
-        hidden: { opacity: 0, x: -50 },
-        visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } },
-    };
-
-    // Variant for the main intro text
-    const introVariants = {
-        hidden: { scale: 1, opacity: 1, y: 0 },
-        exit: { scale: 0.8, opacity: 0, y: -50, transition: { duration: 1, ease: "easeOut" } },
-        appear: { opacity: 1, scale: 1, transition: { duration: 1.5, ease: "easeOut" } }
-    };
+const TripCard = ({ trip, index, isMobile, pattern, isFavorite, onFavoriteToggle, onClick }) => {
+    const color = colorPalettes[index % colorPalettes.length];
+    const isLarge = !isMobile && pattern.width === 2;
 
     return (
-        <div className='w-full min-h-screen p-2 sm:p-4 bg-gray-100'>
-            {/* Mobile Navigation */}
-            <MobileNav isOpen={isMobileNavOpen} onClose={() => setIsMobileNavOpen(false)} />
+        <motion.div
+            layout
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            whileHover={{
+                scale: 1.03,
+                y: -4,
+                transition: { type: "spring", stiffness: 400, damping: 25 }
+            }}
+            className={`relative rounded-xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 ${isMobile ? 'aspect-square' : isLarge ? 'col-span-2 row-span-3' : pattern.height === 2 ? 'row-span-2' : 'row-span-1'
+                }`}
+            onClick={onClick}
+        >
+            <div className="absolute inset-0">
+                <img
+                    src={trip.image_url || 'https://placehold.co/600x400/4CAF50/ffffff?text=Trip+Image'}
+                    alt={trip.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className={`absolute inset-0 ${color} opacity-60 mix-blend-overlay`} />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
+            </div>
 
-            {/* Main Content Card */}
-            <div className="relative w-full max-w-7xl mx-auto h-[90vh] min-h-[600px] max-h-[1200px] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
-
-                {/* Background Image */}
-                <div className="absolute inset-0 z-0">
-                    <img
-                        key={activeCity + "bg"} // Added key to force re-render/transition on city change
-                        src={currentCityData.backgroundImage}
-                        alt={`${currentCityData.name} Background`}
-                        className="w-full h-full object-cover transition-all duration-1000"
-                    />
-                    <div className="absolute inset-0 bg-black/40"></div>
-                </div>
-
-                {/* City Selector */}
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
-                    <CitySelector currentCity={activeCity} onCityChange={setActiveCity} />
-                </div>
-
-                {/* Intro Splash Screen Animation */}
-                <AnimatePresence mode="wait">
-                    {isIntroAnimating && (
-                        <motion.div
-                            key={activeCity + "intro"} // Added key to trigger exit animation on city change
-                            className="absolute inset-0 flex items-center justify-center z-50 bg-teal-500/80 backdrop-blur-sm"
-                            variants={introVariants}
-                            initial="appear"
-                            exit="exit"
-                        >
-                            <motion.h1
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 1, delay: 0.5 }}
-                                className="text-5xl sm:text-7xl md:text-[10vw] font-extrabold text-white tracking-widest text-center px-4"
-                            >
-                                {currentCityData.name.toUpperCase()}
-                            </motion.h1>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* Main Content Overlay */}
-                <motion.div
-                    className={`absolute inset-0 p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row transition-opacity duration-1000 ${isIntroAnimating ? 'opacity-0' : 'opacity-100'}`}
-                >
-                    {/* Left Column - Hero Content & Socials */}
-                    <div className="w-full lg:w-1/2 flex flex-col justify-between text-white z-10 pb-4 lg:pb-0">
-                        {/* Nav and Logo */}
-                        <div className="flex justify-between items-start">
-                            <motion.div
-                                initial={{ y: -20, opacity: 0 }}
-                                animate={!isIntroAnimating ? { y: 0, opacity: 1 } : {}}
-                                transition={{ delay: 1, duration: 0.5 }}
-                            >
-                                <h2 className="text-xl font-bold">{currentCityData.name} <span className="text-teal-400">Adventures</span></h2>
-                            </motion.div>
-
-                            {/* Desktop Navigation */}
-                            <motion.nav
-                                className="space-x-6 hidden lg:flex text-sm font-medium"
-                                initial={{ y: -20, opacity: 0 }}
-                                animate={!isIntroAnimating ? { y: 0, opacity: 1 } : {}}
-                                transition={{ delay: 1.2, duration: 0.5 }}
-                            >
-                                <a href="/home" className="hover:text-teal-400 transition">Go Back</a>
-                                <a href="/itinerary" className="hover:text-teal-400 transition">Itinerary</a>
-                                <a href="/profile" className="hover:text-teal-400 transition">Profile</a>
-                            </motion.nav>
-
-                            {/* Mobile Menu Button */}
-                            <motion.button
-                                initial={{ y: -20, opacity: 0 }}
-                                animate={!isIntroAnimating ? { y: 0, opacity: 1 } : {}}
-                                transition={{ delay: 1.2, duration: 0.5 }}
-                                className="lg:hidden text-white p-2"
-                                onClick={() => setIsMobileNavOpen(true)}
-                                aria-label="Open menu"
-                            >
-                                <Menu className="w-6 h-6" />
-                            </motion.button>
-                        </div>
-
-                        {/* Hero Text */}
-                        <div className="my-auto pt-4 lg:pt-0">
-                            <motion.h1
-                                key={activeCity + "title"} // Added key to trigger animation on city change
-                                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-tight tracking-tighter"
-                                variants={textVariants}
-                                initial="hidden"
-                                animate={!isIntroAnimating ? "visible" : "hidden"}
-                                transition={{ delay: 1.5, duration: 0.8 }}
-                            >
-                                Explore <br />
-                                {currentCityData.name}
-                            </motion.h1>
-
-                            <motion.p
-                                key={activeCity + "text"} // Added key to trigger animation on city change
-                                className="mt-4 max-w-md text-sm sm:text-base text-gray-200"
-                                variants={textVariants}
-                                initial="hidden"
-                                animate={!isIntroAnimating ? "visible" : "hidden"}
-                                transition={{ delay: 1.8, duration: 0.8 }}
-                            >
-                                {currentCityData.introductoryText}
-                            </motion.p>
-
-                            <motion.button
-                                className="mt-6 sm:mt-8 flex items-center justify-center lg:justify-start text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 bg-teal-500 hover:bg-teal-600 transition duration-300 rounded-full shadow-lg shadow-teal-500/50 w-full lg:w-auto"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={!isIntroAnimating ? { opacity: 1, y: 0 } : {}}
-                                transition={{ delay: 2, duration: 0.6 }}
-                            >
-                                <BookOpen className="w-5 h-5 mr-2" />
-                                Book Now
-                            </motion.button>
-                        </div>
-
-                        {/* Social Icons */}
-                        <motion.div
-                            className="flex flex-row lg:flex-col space-x-4 lg:space-x-0 lg:space-y-4 mt-6 lg:mt-0"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={!isIntroAnimating ? { x: 0, opacity: 1 } : {}}
-                            transition={{ delay: 2.2, duration: 0.6 }}
-                        >
-                            <a href="#" aria-label="Facebook" className="hover:text-teal-400 transition"><Facebook className="w-5 h-5" /></a>
-                            <a href="#" aria-label="Twitter" className="hover:text-teal-400 transition"><Twitter className="w-5 h-5" /></a>
-                            <a href="#" aria-label="Instagram" className="hover:text-teal-400 transition"><Instagram className="w-5 h-5" /></a>
-                            <a href="#" aria-label="Message" className="hover:text-teal-400 transition"><MessageCircle className="w-5 h-5" /></a>
-                        </motion.div>
+            <div className="relative h-full p-4 flex flex-col justify-end">
+                <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-20">
+                    <div className="flex flex-wrap gap-2">
+                        <span className="px-2 py-1 bg-black/40 backdrop-blur-md rounded-full text-xs font-semibold text-white">
+                            {trip.type || 'Destination'}
+                        </span>
+                        {isLarge && !isMobile && (
+                            <span className="px-2 py-1 bg-linear-to-r from-yellow-500 to-amber-400 backdrop-blur-md rounded-full text-xs font-semibold text-white flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                Featured
+                            </span>
+                        )}
                     </div>
 
-                    {/* Right Column - Sliding Content */}
-                    <div className="w-full lg:w-1/2 pt-4 lg:pt-0 lg:pl-4 xl:pl-8 z-20 flex-1 min-h-0">
-                        <div className="relative w-full h-full min-h-[400px] sm:min-h-[500px] lg:min-h-0">
-                            <DestinationCarousel 
-                              destinations={currentCityData.islandsData.map(island => ({
-                                ...island,
-                                title: island.name,
-                                location: island.location || currentCityData.name,
-                                rating: island.rating || 0,
-                                price: island.average_cost_per_day || 0,
-                                image: island.image || currentCityData.backgroundImage,
-                                description: island.description || island.tagline || '',
-                                features: island.features || []
-                              }))} 
+                    <div className="flex items-center gap-2">
+                        {!isMobile && (
+                            <div className="px-2 py-1 bg-black/30 backdrop-blur-md rounded text-xs font-bold text-white">
+                                {pattern.width}×{pattern.height}
+                            </div>
+                        )}
+                        <motion.button
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => onFavoriteToggle(trip._id || trip.id, e)}
+                            className="p-2 bg-black/40 backdrop-blur-md rounded-full hover:bg-black/60 transition"
+                        >
+                            <Heart
+                                className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white'}`}
                             />
+                        </motion.button>
+                    </div>
+                </div>
+
+                {!isMobile && (
+                    <div className="absolute bottom-3 left-3 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full">
+                        <span className="text-xs text-white font-medium">
+                            {(index % desktopPatterns.length) + 1}/{desktopPatterns.length}
+                        </span>
+                    </div>
+                )}
+
+                <div className="relative z-10 space-y-2">
+                    <div>
+                        <h3 className={`font-bold text-white mb-1 ${isMobile ? 'text-sm' : isLarge ? 'text-xl' : 'text-lg'} line-clamp-2`}>
+                            {trip.name}
+                        </h3>
+                        <div className="flex items-center gap-1 text-white/90">
+                            <MapPin className="w-3 shrink-0" />
+                            <span className="text-xs line-clamp-1">
+                                {trip.region}, {trip.country}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                                <Shield className="w-3 h-3 text-white/90" />
+                                <span className="text-xs text-white/90">Safety</span>
+                            </div>
+                            <SafetyRating rating={trip.safety_rating || 0} size="sm" />
+                        </div>
+
+                        <div className="text-right">
+                            <div className={`font-bold text-white ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                                {formatCost(trip.average_cost_per_day, trip.currency)}/day
+                            </div>
+                            {!isMobile && (
+                                <div className="text-xs text-white/70">
+                                    avg. per day
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    className="absolute inset-0 bg-linear-to-t from-black/90 via-black/60 to-transparent flex items-center justify-center"
+                >
+                    <div className="text-center p-4">
+                        <div className="inline-flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-md rounded-full mb-3">
+                            <Navigation className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="text-white font-bold text-base mb-1">
+                            View Details
+                        </div>
+                        <div className="text-white/80 text-xs">
+                            Click to explore
                         </div>
                     </div>
                 </motion.div>
             </div>
+        </motion.div>
+    );
+};
+
+const ListTripCard = ({ trip, index, isFavorite, onFavoriteToggle, onClick }) => (
+    <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.05 }}
+        whileHover={{ x: 4 }}
+        onClick={onClick}
+        className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer group overflow-hidden border border-white/50"
+    >
+        <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-64 xl:w-72 shrink-0">
+                <div className="relative h-56 lg:h-full rounded-xl overflow-hidden">
+                    <img
+                        src={trip.image_url || 'https://placehold.co/600x400/4CAF50/ffffff?text=Trip+Image'}
+                        alt={trip.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-r from-black/20 to-transparent" />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                        <button
+                            onClick={(e) => onFavoriteToggle(trip._id || trip.id, e)}
+                            className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition"
+                        >
+                            <Heart
+                                className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                            />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex-1">
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-4">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="px-3 py-1.5 bg-linear-to-r from-blue-100 to-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                                {trip.type || 'Destination'}
+                            </span>
+                            <SafetyRating rating={trip.safety_rating || 0} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                            {trip.name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-gray-600 mb-4">
+                            <MapPin className="w-4 h-4" />
+                            <span>{trip.region}, {trip.country}</span>
+                        </div>
+                    </div>
+
+                    <div className="bg-linear-to-r from-blue-500 to-cyan-400 px-5 py-3 rounded-xl shadow-lg">
+                        <div className="text-white font-bold text-xl">
+                            {formatCost(trip.average_cost_per_day || 0, trip.currency)}
+                            <span className="text-white/80 text-sm font-normal ml-1">/day</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed">{trip.description}</p>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-50 rounded-lg">
+                            <Calendar className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">Best Time</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {(trip.best_time_to_visit || []).slice(0, 2).join(', ')}
+                                {(trip.best_time_to_visit || []).length > 2 && '...'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-50 rounded-lg">
+                            <Shield className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">Safety Rating</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {(trip.safety_rating || 0).toFixed(1)}/5
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-50 rounded-lg">
+                            <Users className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">Visa</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {trip.visa_requirements?.includes('required') ? 'Required' : 'Check'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-end">
+                        <span className="inline-flex items-center text-blue-600 font-semibold hover:text-blue-700">
+                            View Details
+                            <Navigation className="w-4 h-4 ml-2" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </motion.div>
+);
+
+const SafetyRating = ({ rating, size = "md" }) => {
+    const safeRating = rating || 0;
+    const starSize = size === "sm" ? "w-3 h-3" : "w-5 h-5";
+
+    return (
+        <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+                <Star
+                    key={i}
+                    className={`${starSize} ${i < Math.floor(safeRating)
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
+                        }`}
+                />
+            ))}
+            <span className={`${size === "sm" ? 'text-xs ml-1' : 'ml-2 font-medium'} text-white/90`}>
+                {safeRating.toFixed(1)}
+            </span>
         </div>
     );
 };
 
-export default Explore;
+const formatCost = (cost, currency) => {
+    if (!cost) return 'N/A';
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency || 'INR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(cost);
+};
+
+const ScrollableTripDetailsModal = ({ trip, onClose }) => {
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const renderStars = (rating) => {
+        const safeRating = rating || 0;
+        return (
+            <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                    <Star
+                        key={i}
+                        className={`w-5 h-5 ${i < Math.floor(safeRating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                    />
+                ))}
+                <span className="ml-2 font-medium text-gray-900">{safeRating.toFixed(1)}/5</span>
+            </div>
+        );
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/50"
+            >
+                <div className="relative">
+                    <div className="relative h-64 md:h-72">
+                        <img
+                            src={trip.image_url || 'https://placehold.co/600x400/4CAF50/ffffff?text=Trip+Image'}
+                            alt={trip.name}
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
+
+                        <div className="absolute top-6 right-6 flex gap-3">
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setIsFavorite(!isFavorite)}
+                                className="p-3 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/30 transition"
+                            >
+                                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={onClose}
+                                className="p-3 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/30 transition"
+                            >
+                                <X className="w-5 h-5 text-white" />
+                            </motion.button>
+                        </div>
+
+                        <div className="absolute bottom-6 left-6 right-6">
+                            <div className="flex flex-wrap items-center gap-4 mb-4">
+                                <span className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-sm font-medium">
+                                    {trip.type || 'Destination'}
+                                </span>
+                                <div className="flex items-center gap-2 text-white">
+                                    {renderStars(trip.safety_rating || 0)}
+                                </div>
+                            </div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">{trip.name}</h2>
+                            <div className="flex items-center gap-2 text-white/90">
+                                <MapPin className="w-5 h-5" />
+                                <span className="text-base md:text-lg">{trip.region}, {trip.country}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="overflow-y-auto max-h-[calc(90vh-16rem)]">
+                    <div className="p-6 md:p-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-8">
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                                        <div className="p-2 bg-linear-to-br from-blue-100 to-blue-50 rounded-lg">
+                                            <Globe className="w-5 h-5 text-blue-600" />
+                                        </div>
+                                        About This Destination
+                                    </h3>
+                                    <p className="text-gray-600 leading-relaxed">{trip.description}</p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                                        <div className="p-2 bg-linear-to-br from-green-100 to-green-50 rounded-lg">
+                                            <Calendar className="w-5 h-5 text-green-600" />
+                                        </div>
+                                        Best Time to Visit
+                                    </h3>
+                                    <div className="flex flex-wrap gap-3">
+                                        {(trip.best_time_to_visit || []).map((month) => (
+                                            <span
+                                                key={month}
+                                                className="px-4 py-2 bg-linear-to-r from-green-50 to-emerald-50 text-green-700 rounded-lg font-medium border border-green-100 hover:border-green-300 transition"
+                                            >
+                                                {month}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                                        <div className="p-2 bg-linear-to-br from-purple-100 to-purple-50 rounded-lg">
+                                            <Users className="w-5 h-5 text-purple-600" />
+                                        </div>
+                                        Visa Requirements
+                                    </h3>
+                                    <div className="bg-linear-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100">
+                                        <p className="text-gray-700 leading-relaxed">{trip.visa_requirements || 'Please check with the local embassy for visa requirements.'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="bg-linear-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-6">Trip Details</h3>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <p className="text-sm text-gray-500 mb-2">Average Cost Per Day</p>
+                                            <p className="text-2xl font-bold text-gray-900">
+                                                {formatCost(trip.average_cost_per_day || 0, trip.currency)}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">Inclusive of accommodation and activities</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-white/50 p-4 rounded-xl border border-gray-100">
+                                                <p className="text-sm text-gray-500 mb-1">Country</p>
+                                                <p className="font-medium text-gray-900 flex items-center gap-2">
+                                                    <Globe className="w-4 h-4 text-blue-500" />
+                                                    {trip.country}
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-white/50 p-4 rounded-xl border border-gray-100">
+                                                <p className="text-sm text-gray-500 mb-1">Region</p>
+                                                <p className="font-medium text-gray-900">{trip.region}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white/50 p-4 rounded-xl border border-gray-100">
+                                            <p className="text-sm text-gray-500 mb-3">Safety Rating</p>
+                                            <div className="flex items-center gap-2">
+                                                {renderStars(trip.safety_rating || 0)}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">Based on recent traveler reviews</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full bg-linear-to-r from-blue-500 to-cyan-400 text-white font-bold py-4 rounded-xl hover:shadow-xl transition-all shadow-lg shadow-blue-500/30"
+                                    >
+                                        Plan This Trip
+                                    </motion.button>
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full bg-white border-2 border-blue-500 text-blue-600 font-bold py-4 rounded-xl hover:bg-blue-50 transition-colors"
+                                    >
+                                        Save for Later
+                                    </motion.button>
+
+                                    <button
+                                        onClick={onClose}
+                                        className="w-full text-gray-600 hover:text-gray-900 font-medium py-4 rounded-xl hover:bg-gray-50 transition"
+                                    >
+                                        Back to Recommendations
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
+
+export default function TripRecommendationPage() {
+    const userId = 'current-user-id';
+    const { trips, loading, error } = useTrips(userId);
+
+    const [selectedTrip, setSelectedTrip] = useState(null);
+    const [viewMode, setViewMode] = useState('grid');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filters, setFilters] = useState({
+        type: 'all',
+        minRating: 0,
+        maxPrice: 50000,
+        sortBy: 'rating',
+    });
+    const [favorites, setFavorites] = useState(new Set());
+
+    const getPatternForIndex = (index, isMobile = false) => {
+        const patterns = isMobile ? mobilePatterns : desktopPatterns;
+        return patterns[index % patterns.length];
+    };
+
+    const toggleFavorite = (tripId, e) => {
+        e.stopPropagation();
+        setFavorites(prev => {
+            const newFavorites = new Set(prev);
+            if (newFavorites.has(tripId)) {
+                newFavorites.delete(tripId);
+            } else {
+                newFavorites.add(tripId);
+            }
+            return newFavorites;
+        });
+    };
+
+    const filteredTrips = useMemo(() => {
+        return trips.filter(trip => {
+            const matchesSearch = searchTerm === '' ||
+                trip.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                trip.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                trip.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                trip.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesType = filters.type === 'all' || trip.type === filters.type;
+            const matchesRating = (trip.safety_rating || 0) >= filters.minRating;
+            const matchesPrice = (trip.average_cost_per_day || 0) <= filters.maxPrice;
+
+            return matchesSearch && matchesType && matchesRating && matchesPrice;
+        }).sort((a, b) => {
+            switch (filters.sortBy) {
+                case 'price_asc':
+                    return (a.average_cost_per_day || 0) - (b.average_cost_per_day || 0);
+                case 'price_desc':
+                    return (b.average_cost_per_day || 0) - (a.average_cost_per_day || 0);
+                case 'rating':
+                    return (b.safety_rating || 0) - (a.safety_rating || 0);
+                case 'name':
+                    return (a.name || '').localeCompare(b.name || '');
+                default:
+                    return 0;
+            }
+        });
+    }, [trips, searchTerm, filters]);
+
+    const resetFilters = () => {
+        setFilters({
+            type: 'all',
+            minRating: 0,
+            maxPrice: 50000,
+            sortBy: 'rating',
+        });
+    };
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-blue-50/30">
+                <div className="text-center p-8 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md border border-white/50">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-red-100 to-red-50 rounded-2xl mb-6">
+                        <X className="w-10 h-10 text-red-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Trips</h2>
+                    <p className="text-gray-600 mb-6">{error}</p>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => window.location.reload()}
+                        className="px-6 py-3 bg-linear-to-r from-blue-500 to-cyan-400 text-white rounded-xl font-semibold hover:shadow-lg transition-all shadow-md shadow-blue-500/30"
+                    >
+                        Try Again
+                    </motion.button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30">
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/4 -left-20 w-72 h-72 bg-blue-300/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-300/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-cyan-300/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <motion.header
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-10"
+                >
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2 bg-linear-to-br from-blue-500 to-cyan-400 rounded-xl shadow-lg">
+                                    <Sparkles className="w-6 h-6 text-white" />
+                                </div>
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-linear-to-r from-gray-900 via-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                                    Discover Your Next Adventure
+                                </h1>
+                            </div>
+                            <p className="text-gray-600 text-lg max-w-2xl">
+                                Personalized trip recommendations tailored just for you. Explore the world with confidence.
+                            </p>
+                        </div>
+
+                        <div className="flex sm:flex-row items-center gap-4">
+                            <div className="flex sm:flex-row items-center gap-4">
+                                <div className="relative group">
+                                    <div className="absolute -inset-1 bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+                                    <div className="relative bg-white/90 backdrop-blur-md rounded-xl px-5 py-3 border border-white/50 shadow-lg">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-linear-to-br from-blue-100 to-blue-50 rounded-lg">
+                                                <Target className="w-5 h-5 text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm md:text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                                    {trips.length}
+                                                </div>
+                                                <div className="text-xs md:text-sm text-gray-500">Recommended Trips</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex bg-white/90 backdrop-blur-md rounded-xl px-2 py-4 md:p-1 border border-white/50 shadow-lg">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setViewMode('grid')}
+                                        className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-linear-to-r from-blue-500 to-cyan-400 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
+                                    >
+                                        <Grid3x3 className={`w-4 h-4 ${viewMode === 'grid' ? 'text-white' : 'text-gray-500'}`} />
+                                        <span className="font-medium hidden sm:inline">Grid</span>
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setViewMode('list')}
+                                        className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-linear-to-r from-blue-500 to-cyan-400 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
+                                    >
+                                        <List className={`w-4 h-4 ${viewMode === 'list' ? 'text-white' : 'text-gray-500'}`} />
+                                        <span className="font-medium hidden sm:inline">List</span>
+                                    </motion.button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.header>
+
+                <div className="relative">
+                    {loading ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                            {[...Array(10)].map((_, i) => {
+                                const pattern = getPatternForIndex(i, typeof window !== 'undefined' && window.innerWidth < 640);
+                                return (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        className="bg-white/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/30 shadow-lg"
+                                        style={{
+                                            gridColumn: `span ${pattern.width}`,
+                                            gridRow: `span ${pattern.height}`,
+                                            minHeight: `${pattern.height * 120}px`,
+                                        }}
+                                    >
+                                        <div className="h-full bg-linear-to-br from-gray-100 to-gray-200 animate-pulse">
+                                            <div className="h-48 bg-gray-300"></div>
+                                            <div className="p-6 space-y-4">
+                                                <div className="h-4 bg-gray-300 rounded"></div>
+                                                <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                                                    <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <>
+                            {viewMode === 'grid' && (
+                                <div className="relative">
+                                    <motion.div
+                                        layout
+                                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.6 }}
+                                    >
+                                        <AnimatePresence>
+                                            {filteredTrips.map((trip, index) => {
+                                                const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+                                                const pattern = getPatternForIndex(index, isMobile);
+                                                const isFavorite = favorites.has(trip._id || trip.id);
+
+                                                return (
+                                                    <TripCard
+                                                        key={trip._id || trip.id}
+                                                        trip={trip}
+                                                        index={index}
+                                                        isMobile={isMobile}
+                                                        pattern={pattern}
+                                                        isFavorite={isFavorite}
+                                                        onFavoriteToggle={toggleFavorite}
+                                                        onClick={() => setSelectedTrip(trip)}
+                                                    />
+                                                );
+                                            })}
+                                        </AnimatePresence>
+                                    </motion.div>
+
+                                    {filteredTrips.length === 0 && !loading && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="text-center py-16"
+                                        >
+                                            <div className="inline-flex items-center justify-center w-24 h-24 bg-linear-to-br from-blue-50 to-cyan-50 rounded-3xl mb-6">
+                                                <Search className="w-12 h-12 text-blue-500" />
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                                No matching trips found
+                                            </h3>
+                                            <p className="text-gray-600 max-w-md mx-auto mb-8">
+                                                Try adjusting your search or filters to find what you're looking for.
+                                            </p>
+                                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={resetFilters}
+                                                    className="px-6 py-3 bg-linear-to-r from-blue-500 to-cyan-400 text-white font-semibold rounded-xl hover:shadow-lg transition-shadow shadow-md"
+                                                >
+                                                    Clear All Filters
+                                                </motion.button>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => setSearchTerm('')}
+                                                    className="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition"
+                                                >
+                                                    Clear Search
+                                                </motion.button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </div>
+                            )}
+
+                            {viewMode === 'list' && (
+                                <motion.div
+                                    layout
+                                    className="space-y-4"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.6 }}
+                                >
+                                    {filteredTrips.map((trip, index) => (
+                                        <ListTripCard
+                                            key={trip._id || trip.id}
+                                            trip={trip}
+                                            index={index}
+                                            isFavorite={favorites.has(trip._id || trip.id)}
+                                            onFavoriteToggle={toggleFavorite}
+                                            onClick={() => setSelectedTrip(trip)}
+                                        />
+                                    ))}
+                                </motion.div>
+                            )}
+                        </>
+                    )}
+                </div>
+
+                <AnimatePresence>
+                    {selectedTrip && (
+                        <ScrollableTripDetailsModal trip={selectedTrip} onClose={() => setSelectedTrip(null)} />
+                    )}
+                </AnimatePresence>
+
+                <motion.footer
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-12 pt-8 border-t border-gray-100"
+                >
+                    <div className="text-center">
+                        <div className="inline-flex items-center justify-center gap-3 mb-6">
+                            <div className="w-3 h-3 bg-linear-to-r from-blue-500 to-cyan-400 rounded-full animate-pulse"></div>
+                            <div className="w-3 h-3 bg-linear-to-r from-purple-500 to-pink-400 rounded-full animate-pulse delay-150"></div>
+                            <div className="w-3 h-3 bg-linear-to-r from-green-500 to-emerald-400 rounded-full animate-pulse delay-300"></div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                            Showing <span className="font-bold text-gray-900">{filteredTrips.length}</span> personalized trip recommendations
+                        </p>
+                        <p className="text-xs text-gray-500">
+                            All information is based on the latest travel data • Updated regularly • Powered by AI Recommendations
+                        </p>
+                        <div className="mt-6 flex items-center justify-center gap-6">
+                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                                <TrendingUp className="w-3 h-3" />
+                                Real-time updates
+                            </span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                                <Shield className="w-3 h-3" />
+                                Safety verified
+                            </span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" />
+                                AI-powered
+                            </span>
+                        </div>
+                    </div>
+                </motion.footer>
+            </div>
+        </div>
+    );
+}

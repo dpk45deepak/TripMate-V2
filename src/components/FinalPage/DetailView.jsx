@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import icons from "../FinalPage/Icons.jsx";
-import WeatherWidget from '../FinalPage/WeatherWidget.jsx'
+import WeatherWidget from '../FinalPage/WeatherWidget.jsx';
 import CurrencyConverter from "../FinalPage/CurrencyConverter.jsx";
 import DestinationCard from '../FinalPage/DestinationCard.jsx';
 import AnimatedTravelBackground from "../../components/AnimatedTravelBackground.jsx";
@@ -10,270 +10,379 @@ import AnimatedTravelBackground from "../../components/AnimatedTravelBackground.
 const DetailView = ({
     destination,
     onBack,
-    favorites,
+    favorites = [],
     onToggleFavorite,
     similarTrips = [],
     onSelect,
 }) => {
-    if (!destination) return null;
-
-    const d = destination.details;
+    // State Management
     const [currentImage, setCurrentImage] = useState(0);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
     const [isBookingSticky, setIsBookingSticky] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [selectedDate, setSelectedDate] = useState("");
+    const [travelers, setTravelers] = useState(1);
+    const [showAmenities, setShowAmenities] = useState(false);
 
-    // Enhanced images array with more variety
+    const bookingRef = useRef(null);
+    const headerRef = useRef(null);
+
+    // Fallback data structure
+    const d = destination?.details || {
+        description: "Experience an unforgettable adventure with breathtaking views and cultural immersion.",
+        highlights: [
+            "Guided hiking tours",
+            "Local cuisine tasting",
+            "Cultural village visits",
+            "Photography sessions",
+            "Wildlife spotting"
+        ],
+        included: [
+            "Accommodation",
+            "All meals",
+            "Transportation",
+            "Guide services",
+            "Permits and fees"
+        ],
+        amenities: [
+            "Free WiFi",
+            "Breakfast included",
+            "Swimming pool",
+            "Spa services",
+            "Airport transfer",
+            "24/7 Support"
+        ],
+        rating: 4.8,
+        reviews: 124,
+        price: 24999,
+        dates: "May 15 - 22, 2024",
+        duration: "7 days",
+        people: "12",
+        difficulty: "Moderate",
+        season: "Spring",
+        altitude: "3,500m",
+        location: "Mountain Region",
+        distance: "150 km",
+        hotel: "Premium Mountain Resort"
+    };
+
+    // Enhanced images array
     const images = [
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStjdmE4KbyzYU8FCWH-vlKi19CA8te9uGERg&s",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfDBfiqPZuCrPhBhQ1IFUMge0Atj-lkaOiLA&s",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv0c1QjBUt__3Cyj8EYFVg2PhEVAoKMhHJjg&s",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2FuzbQRZbjHCtbpEDhl6k_p0HNrkfHj-A-Q&s"
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1474&q=80",
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
     ];
 
-
-    // Sample reviews data
+    // Reviews data
     const reviews = [
         {
             id: 1,
             name: "Sarah Johnson",
             rating: 5,
             date: "2 weeks ago",
-            comment:
-                "Absolutely breathtaking experience! The guides were knowledgeable and the scenery was beyond expectations.",
-            avatar:
-                "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+            comment: "Absolutely breathtaking experience! The guides were knowledgeable and the scenery was beyond expectations.",
+            avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
         },
         {
             id: 2,
             name: "Mike Chen",
             rating: 4,
             date: "1 month ago",
-            comment:
-                "Great adventure with amazing views. The accommodation was comfortable and food was delicious.",
-            avatar:
-                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+            comment: "Great adventure with amazing views. The accommodation was comfortable and food was delicious.",
+            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
         },
+        {
+            id: 3,
+            name: "Priya Sharma",
+            rating: 5,
+            date: "3 days ago",
+            comment: "Life-changing experience! Highly recommend for anyone looking for adventure and cultural immersion.",
+            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+        }
     ];
 
-    // Sticky booking widget effect
+    // Sticky booking widget and header effects
     useEffect(() => {
         const handleScroll = () => {
-            const bookingWidget = document.getElementById("booking-widget");
-            if (bookingWidget) {
-                const rect = bookingWidget.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            setIsScrolled(scrollTop > 100);
+
+            if (bookingRef.current) {
+                const rect = bookingRef.current.getBoundingClientRect();
                 setIsBookingSticky(rect.top <= 100);
             }
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Enhanced IconText component
+    // Auto-advance images
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImage((prev) => (prev + 1) % images.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [images.length]);
+
+    // Enhanced IconText Component
     const IconText = ({ icon: Icon, text, subtext, color = "teal" }) => (
-        <div className="flex items-start space-x-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className={`p-3 bg-${color}-50 rounded-lg`}>
+        <motion.div
+            className="flex items-start space-x-3 p-4 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+        >
+            <div className={`p-3 bg-${color}-50 rounded-lg flex-shrink-0`}>
                 <Icon className={`w-6 h-6 text-${color}-600`} />
             </div>
-            <div className="flex-1">
-                <p className="font-semibold text-gray-900 text-lg">{text}</p>
-                {subtext && <p className="text-sm text-gray-500 mt-1">{subtext}</p>}
+            <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 text-sm md:text-base truncate">{text}</p>
+                {subtext && <p className="text-xs md:text-sm text-gray-500 mt-1 truncate">{subtext}</p>}
             </div>
-        </div>
+        </motion.div>
     );
 
     // Review Stars Component
-    const ReviewStars = ({ rating }) => (
-        <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-                <icons.Star
-                    key={star}
-                    className={`w-4 h-4 ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
-                        }`}
-                />
-            ))}
-        </div>
-    );
+    const ReviewStars = ({ rating, size = "sm" }) => {
+        const starSize = size === "lg" ? "w-5 h-5" : "w-4 h-4";
+        return (
+            <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <icons.Star
+                        key={star}
+                        className={`${starSize} ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                    />
+                ))}
+            </div>
+        );
+    };
 
     // Navigation Tabs Component
-    const DetailTabs = () => (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="flex overflow-x-auto border-b border-gray-200">
-                {["overview", "itinerary", "reviews", "location", "photos"].map(
-                    (tab) => (
+    const DetailTabs = () => {
+        const tabs = [
+            { id: "overview", label: "Overview", icon: icons.Info },
+            { id: "itinerary", label: "Itinerary", icon: icons.Calendar },
+            { id: "reviews", label: "Reviews", icon: icons.Star },
+            { id: "location", label: "Location", icon: icons.MapPin },
+            { id: "photos", label: "Photos", icon: icons.Camera },
+        ];
+
+        return (
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-200">
+                    {tabs.map((tab) => (
                         <button
-                            key={tab}
-                            className={`flex-1 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === tab
+                            key={tab.id}
+                            className={`flex items-center space-x-2 px-4 sm:px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors flex-1 justify-center min-w-[120px] ${activeTab === tab.id
                                 ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
                                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                                 }`}
-                            onClick={() => setActiveTab(tab)}
+                            onClick={() => setActiveTab(tab.id)}
                         >
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            <tab.icon className="w-4 h-4" />
+                            <span>{tab.label}</span>
                         </button>
-                    )
-                )}
-            </div>
+                    ))}
+                </div>
 
-            <div className="p-6">
-                {activeTab === "overview" && (
-                    <div className="space-y-4">
-                        <p className="text-gray-700 leading-relaxed text-lg">
-                            {d.description}
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="font-semibold text-gray-900 mb-3 text-lg">
-                                    Trip Highlights
-                                </h3>
-                                <ul className="space-y-3">
-                                    {d.highlights?.map((highlight, index) => (
-                                        <li key={index} className="flex items-center text-gray-700">
-                                            <icons.Check className="w-5 h-5 text-teal-500 mr-3 flex-shrink-0" />
-                                            <span>{highlight}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-gray-900 mb-3 text-lg">
-                                    What's Included
-                                </h3>
-                                <ul className="space-y-3">
-                                    {d.included?.map((item, index) => (
-                                        <li key={index} className="flex items-center text-gray-700">
-                                            <icons.Check className="w-5 h-5 text-teal-500 mr-3 flex-shrink-0" />
-                                            <span>{item}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === "reviews" && (
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900">
-                                    Customer Reviews
-                                </h3>
-                                <div className="flex items-center mt-2">
-                                    <ReviewStars rating={d.rating} />
-                                    <span className="ml-2 text-gray-600">
-                                        {d.rating} out of 5
-                                    </span>
-                                    <span className="mx-2 text-gray-300">•</span>
-                                    <span className="text-gray-600">{d.reviews} reviews</span>
+                <div className="p-4 sm:p-6">
+                    {activeTab === "overview" && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-4"
+                        >
+                            <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
+                                {d.description}
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 mb-3 text-lg">
+                                        Trip Highlights
+                                    </h3>
+                                    <ul className="space-y-3">
+                                        {d.highlights?.map((highlight, index) => (
+                                            <motion.li
+                                                key={index}
+                                                className="flex items-center text-gray-700"
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                            >
+                                                <icons.Check className="w-5 h-5 text-teal-500 mr-3 flex-shrink-0" />
+                                                <span>{highlight}</span>
+                                            </motion.li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 mb-3 text-lg">
+                                        What's Included
+                                    </h3>
+                                    <ul className="space-y-3">
+                                        {d.included?.map((item, index) => (
+                                            <motion.li
+                                                key={index}
+                                                className="flex items-center text-gray-700"
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                            >
+                                                <icons.Check className="w-5 h-5 text-teal-500 mr-3 flex-shrink-0" />
+                                                <span>{item}</span>
+                                            </motion.li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
-                            <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">
-                                Write a Review
-                            </button>
-                        </div>
+                        </motion.div>
+                    )}
 
-                        <div className="space-y-4">
-                            {reviews.map((review) => (
-                                <div key={review.id} className="bg-gray-50 rounded-xl p-6">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center space-x-3">
-                                            <img
-                                                src={review.avatar}
-                                                alt={review.name}
-                                                className="w-10 h-10 rounded-full"
-                                            />
-                                            <div>
-                                                <h4 className="font-semibold text-gray-900">
-                                                    {review.name}
-                                                </h4>
-                                                <ReviewStars rating={review.rating} />
+                    {activeTab === "reviews" && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="space-y-6"
+                        >
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div>
+                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                                        Customer Reviews
+                                    </h3>
+                                    <div className="flex items-center mt-2 flex-wrap gap-2">
+                                        <ReviewStars rating={d.rating} size="lg" />
+                                        <span className="ml-2 text-gray-600 font-medium">
+                                            {d.rating} out of 5
+                                        </span>
+                                        <span className="text-gray-300 hidden sm:inline">•</span>
+                                        <span className="text-gray-600">{d.reviews} reviews</span>
+                                    </div>
+                                </div>
+                                <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors w-full sm:w-auto">
+                                    Write a Review
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {reviews.map((review) => (
+                                    <motion.div
+                                        key={review.id}
+                                        className="bg-gray-50 rounded-xl p-4 sm:p-6"
+                                        whileHover={{ y: -2 }}
+                                    >
+                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-3">
+                                            <div className="flex items-center space-x-3">
+                                                <img
+                                                    src={review.avatar}
+                                                    alt={review.name}
+                                                    className="w-10 h-10 rounded-full"
+                                                />
+                                                <div>
+                                                    <h4 className="font-semibold text-gray-900">
+                                                        {review.name}
+                                                    </h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <ReviewStars rating={review.rating} />
+                                                        <span className="text-sm text-gray-500">{review.date}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <span className="text-sm text-gray-500">{review.date}</span>
-                                    </div>
-                                    <p className="text-gray-700">{review.comment}</p>
+                                        <p className="text-gray-700">{review.comment}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === "location" && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="space-y-4"
+                        >
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Location & Map</h3>
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl h-64 flex items-center justify-center">
+                                <div className="text-center p-4">
+                                    <icons.MapPin className="w-12 h-12 text-indigo-500 mx-auto mb-4" />
+                                    <p className="text-gray-700 font-medium">Interactive map of {d.location}</p>
+                                    <button className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">
+                                        View Full Map
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="bg-blue-50 p-4 rounded-lg">
+                                    <h4 className="font-semibold text-gray-900 mb-2">
+                                        Getting There
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                        Nearest airport: {d.location} International Airport
+                                    </p>
+                                </div>
+                                <div className="bg-green-50 p-4 rounded-lg">
+                                    <h4 className="font-semibold text-gray-900 mb-2">
+                                        Best Time to Visit
+                                    </h4>
+                                    <p className="text-sm text-gray-600">{d.season} season</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
 
-                {activeTab === "location" && (
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-gray-900">Location & Map</h3>
-                        <div className="bg-gray-200 rounded-xl h-64 flex items-center justify-center">
-                            <div className="text-center">
-                                <icons.MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                                <p className="text-gray-600">Interactive map of {d.location}</p>
-                                <button className="mt-2 px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">
-                                    View Full Map
-                                </button>
+                    {activeTab === "photos" && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="space-y-4"
+                        >
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Photo Gallery</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                                {images.map((image, index) => (
+                                    <motion.button
+                                        key={index}
+                                        className={`aspect-square rounded-lg overflow-hidden ${currentImage === index
+                                            ? "ring-3 ring-indigo-500 ring-offset-2"
+                                            : ""
+                                            }`}
+                                        onClick={() => setCurrentImage(index)}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <img
+                                            src={image}
+                                            alt={`${destination?.title || 'Destination'} ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </motion.button>
+                                ))}
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                                <h4 className="font-semibold text-gray-900 mb-2">
-                                    Getting There
-                                </h4>
-                                <p className="text-sm text-gray-600">
-                                    Nearest airport: {d.location} International Airport
-                                </p>
-                            </div>
-                            <div className="bg-green-50 p-4 rounded-lg">
-                                <h4 className="font-semibold text-gray-900 mb-2">
-                                    Best Time to Visit
-                                </h4>
-                                <p className="text-sm text-gray-600">{d.season} season</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === "photos" && (
-                    <div className="space-y-4">
-                        <h3 className="text-2xl font-bold text-gray-900">Photo Gallery</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {images.map((image, index) => (
-                                <button
-                                    key={index}
-                                    className={`aspect-square rounded-lg overflow-hidden ${currentImage === index
-                                        ? "ring-2 ring-indigo-500 ring-offset-2"
-                                        : ""
-                                        }`}
-                                    onClick={() => setCurrentImage(index)}
-                                >
-                                    <img
-                                        src={image}
-                                        alt={`${destination.title} ${index + 1}`}
-                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                                    />
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                        </motion.div>
+                    )}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     // Sticky Booking Widget Component
     const StickyBookingWidget = () => (
         <motion.div
             id="booking-widget"
-            className={`bg-white rounded-2xl shadow-2xl border border-gray-200 ${isBookingSticky ? "fixed top-4 z-40 w-[380px]" : "relative"
+            ref={bookingRef}
+            className={`bg-white rounded-2xl shadow-2xl border border-gray-200 transition-all duration-300 ${isBookingSticky ? "fixed top-4 z-50 w-[calc(100%-2rem)] max-w-sm" : "relative"
                 }`}
             initial={isBookingSticky ? { scale: 0.95, opacity: 0 } : false}
             animate={isBookingSticky ? { scale: 1, opacity: 1 } : false}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900">Book This Trip</h3>
-                        <p className="text-2xl font-extrabold text-teal-600 mt-1">
-                            ₹{d.price?.toLocaleString()}
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900">Book This Trip</h3>
+                        <p className="text-2xl sm:text-3xl font-extrabold text-teal-600 mt-1">
+                            ₹{(d.price || 0).toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-500">per person</p>
                     </div>
@@ -299,7 +408,7 @@ const DetailView = ({
                 </div>
 
                 <motion.button
-                    className="w-full py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center"
+                    className="w-full py-3 sm:py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-base sm:text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center"
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowBookingModal(true)}
@@ -315,58 +424,74 @@ const DetailView = ({
         </motion.div>
     );
 
+    // Sticky Header for Mobile
+    const StickyHeader = () => (
+        <motion.header
+            ref={headerRef}
+            initial={{ y: -100 }}
+            animate={{ y: isScrolled ? 0 : -100 }}
+            className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4"
+        >
+            <div className="flex items-center justify-between">
+                <button
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    onClick={onBack}
+                >
+                    <icons.ArrowLeft className="w-6 h-6 text-gray-600" />
+                </button>
+                <h1 className="text-lg font-bold text-gray-900 truncate max-w-[200px] text-center">
+                    {destination?.title || "Adventure Destination"}
+                </h1>
+                <button
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    onClick={() => onToggleFavorite?.(destination?.id)}
+                >
+                    <icons.Heart
+                        className={`w-6 h-6 ${favorites?.includes(destination?.id)
+                            ? "fill-red-500 stroke-red-500 text-red-500"
+                            : "text-gray-600"
+                            }`}
+                    />
+                </button>
+            </div>
+        </motion.header>
+    );
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="min-h-screen bg-gray-50"
-            layoutId={`card-${destination.id}`}
+            className="min-h-screen bg-gradient-to-b from-gray-50 to-white"
         >
-            {/* Compact Mobile Header */}
-            <div className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4 rounded-xl mb-2">
-                <div className="flex items-center justify-between">
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        onClick={onBack}
-                    >
-                        <icons.ArrowLeft className="w-6 h-6 text-gray-600" />
-                    </button>
-                    <h1 className="text-lg font-bold text-gray-900 truncate max-w-xs text-center">
-                        {destination.title}
-                    </h1>
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        onClick={() => onToggleFavorite(destination.id)}
-                    >
-                        <icons.Heart
-                            className={`w-6 h-6 ${favorites.includes(destination.id)
-                                ? "fill-red-500 stroke-red-500 text-red-500"
-                                : "text-gray-600"
-                                }`}
-                        />
-                    </button>
-                </div>
-            </div>
+            {/* Sticky Mobile Header */}
+            <StickyHeader />
 
-            {/* Hero Image Section */}
-            <div className="relative h-[50vh] md:h-[70vh] overflow-hidden">
-                <motion.img
-                    key={currentImage}
-                    src={destination?.image || images[currentImage]}
-                    alt={destination.title}
-                    className="w-full h-full object-cover rounded-xl"
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.7 }}
-                />
+            {/* Hero Section */}
+            <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden">
+                {/* Animated Background */}
+                <AnimatedTravelBackground />
+
+                {/* Hero Image */}
+                <AnimatePresence mode="wait">
+                    <motion.img
+                        key={currentImage}
+                        src={images[currentImage]}
+                        alt={destination?.title || "Travel destination"}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7 }}
+                    />
+                </AnimatePresence>
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-                {/* Desktop Header */}
-                <div className="absolute top-0 left-0 w-full p-6 hidden lg:flex justify-between items-center">
+                {/* Desktop Navigation */}
+                <div className="absolute top-0 left-0 w-full p-4 sm:p-6 hidden lg:flex justify-between items-center z-10">
                     <motion.button
                         onClick={onBack}
                         className="p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg text-gray-700 hover:bg-white transition-all group"
@@ -381,10 +506,10 @@ const DetailView = ({
                             className="p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg text-gray-600 hover:text-red-500 transition-colors"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => onToggleFavorite(destination.id)}
+                            onClick={() => onToggleFavorite?.(destination?.id)}
                         >
                             <icons.Heart
-                                className={`w-6 h-6 ${favorites.includes(destination.id)
+                                className={`w-6 h-6 ${favorites?.includes(destination?.id)
                                     ? "fill-red-500 stroke-red-500"
                                     : ""
                                     }`}
@@ -395,83 +520,64 @@ const DetailView = ({
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            <icons.ArrowRight className="w-6 h-6" />
+                            <icons.Share2 className="w-6 h-6" />
                         </motion.button>
                     </div>
                 </div>
 
-                {/* Image Navigation Dots */}
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3">
+                {/* Image Navigation */}
+                <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-10">
                     {images.map((_, index) => (
                         <button
                             key={index}
-                            className={`w-3 h-3 rounded-full transition-all ${currentImage === index
+                            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${currentImage === index
                                 ? "bg-white scale-125"
                                 : "bg-white/50 hover:bg-white/70"
                                 }`}
                             onClick={() => setCurrentImage(index)}
+                            aria-label={`Go to image ${index + 1}`}
                         />
-                    ))}
-                </div>
-
-                {/* Image Thumbnails */}
-                <div className="absolute bottom-6 right-6 hidden lg:flex space-x-2">
-                    {images.slice(0, 4).map((image, index) => (
-                        <button
-                            key={index}
-                            className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${currentImage === index
-                                ? "border-white scale-110"
-                                : "border-white/30 hover:border-white/50"
-                                }`}
-                            onClick={() => setCurrentImage(index)}
-                        >
-                            <img
-                                src={image}
-                                alt={`Thumbnail ${index + 1}`}
-                                className="w-full h-full object-cover"
-                            />
-                        </button>
                     ))}
                 </div>
 
                 {/* Hero Content */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 p-6 text-white"
+                    className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white"
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.5 }}
                 >
-                    <div className="max-w-4xl">
-                        <div className="flex flex-wrap items-center gap-2 mb-4">
-                            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
-                                {destination.flag} {destination.country}
+                    <div className="max-w-7xl mx-auto">
+                        <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+                            <span className="bg-white/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+                                {destination?.flag || "🏔️"} {destination?.country || "Mountain Region"}
                             </span>
-                            <span className="bg-teal-500/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                            <span className="bg-teal-500/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                                 {d.difficulty}
                             </span>
-                            <span className="bg-purple-500/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                            <span className="bg-purple-500/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                                 {d.duration}
                             </span>
                         </div>
 
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-                            {destination.title}
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight">
+                            {destination?.title || "Mountain Adventure Expedition"}
                         </h1>
 
-                        <div className="flex flex-wrap items-center gap-6 text-lg">
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm sm:text-base">
                             <div className="flex items-center">
-                                <icons.Star className="w-6 h-6 text-yellow-400 fill-yellow-400 mr-2" />
+                                <icons.Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400 mr-2" />
                                 <span className="font-bold">{d.rating}</span>
                                 <span className="text-white/80 ml-1">
                                     ({d.reviews} reviews)
                                 </span>
                             </div>
                             <div className="flex items-center">
-                                <icons.MapPin className="w-5 h-5 mr-2 text-white/80" />
+                                <icons.MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-white/80" />
                                 <span>{d.location}</span>
                             </div>
                             <div className="flex items-center">
-                                <icons.Users className="w-5 h-5 mr-2 text-white/80" />
+                                <icons.Users className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-white/80" />
                                 <span>{d.people} people max</span>
                             </div>
                         </div>
@@ -479,50 +585,48 @@ const DetailView = ({
                 </motion.div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <AnimatedTravelBackground />
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column: Main Content */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Quick Facts Grid */}
-                        <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-ful max-w-6xl mx-auto px-4"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                        >
-                            <IconText
-                                icon={icons.Calendar}
-                                text={d.dates}
-                                subtext="Travel Dates"
-                                color="blue"
-                            />
-                            <IconText
-                                icon={icons.MapPin}
-                                text={d.distance}
-                                subtext="Distance"
-                                color="green"
-                            />
-                            <IconText
-                                icon={icons.Users}
-                                text={`${d.people} people`}
-                                subtext="Group Size"
-                                color="purple"
-                            />
-                            <IconText
-                                icon={icons.IndianRupee}
-                                text={`₹${d.price?.toLocaleString()}`}
-                                subtext="Per person"
-                                color="teal"
-                            />
-                        </motion.div>
+            {/* Main Content */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                {/* Quick Facts Grid */}
+                <motion.div
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                >
+                    <IconText
+                        icon={icons.Calendar}
+                        text={d.dates}
+                        subtext="Travel Dates"
+                        color="blue"
+                    />
+                    <IconText
+                        icon={icons.MapPin}
+                        text={d.distance}
+                        subtext="Distance"
+                        color="green"
+                    />
+                    <IconText
+                        icon={icons.Users}
+                        text={`${d.people} people`}
+                        subtext="Group Size"
+                        color="purple"
+                    />
+                    <IconText
+                        icon={icons.IndianRupee}
+                        text={`₹${(d.price || 0).toLocaleString()}`}
+                        subtext="Per person"
+                        color="teal"
+                    />
+                </motion.div>
 
-
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                    {/* Left Column - Main Content */}
+                    <div className="lg:col-span-2 space-y-6 sm:space-y-8">
                         {/* Weather Widget */}
                         <WeatherWidget
                             location={d.location}
-                            country={destination.country}
+                            country={destination?.country}
                         />
 
                         {/* Tabbed Content */}
@@ -530,45 +634,53 @@ const DetailView = ({
 
                         {/* Amenities Section */}
                         <motion.section
-                            className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100"
+                            className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-100"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
                         >
-                            <h2 className="text-2xl font-bold text-indigo-800 mb-6">
-                                Amenities & Services
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl sm:text-2xl font-bold text-indigo-800">
+                                    Amenities & Services
+                                </h2>
+                                <button
+                                    onClick={() => setShowAmenities(!showAmenities)}
+                                    className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                                >
+                                    {showAmenities ? "Show Less" : "Show All"}
+                                </button>
+                            </div>
+                            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ${!showAmenities ? 'max-h-48 overflow-hidden' : ''}`}>
                                 {d.amenities?.map((item, index) => (
                                     <motion.div
                                         key={index}
-                                        className="flex items-center p-4 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all"
+                                        className="flex items-center p-3 sm:p-4 bg-indigo-50 rounded-xl border border-indigo-100 hover:shadow-md transition-all"
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.1 * index }}
+                                        transition={{ delay: 0.05 * index }}
                                         whileHover={{ scale: 1.02, y: -2 }}
                                     >
                                         <icons.Check className="w-5 h-5 text-teal-600 mr-3 flex-shrink-0" />
-                                        <span className="text-gray-800 font-medium">{item}</span>
+                                        <span className="text-gray-800 font-medium text-sm sm:text-base">{item}</span>
                                     </motion.div>
                                 ))}
                             </div>
                         </motion.section>
 
-                        {/* Similar Trips Section */}
+                        {/* Similar Trips */}
                         {similarTrips.length > 0 && (
-                            <section className="mt-12">
-                                <h2 className="text-2xl font-bold text-indigo-900 mb-6">
+                            <section className="pt-6 sm:pt-8 border-t border-gray-200">
+                                <h2 className="text-xl sm:text-2xl font-bold text-indigo-900 mb-4 sm:mb-6">
                                     Similar Adventures
                                 </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {similarTrips.slice(0, 4).map((trip) => (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                                    {similarTrips.slice(0, 2).map((trip) => (
                                         <DestinationCard
                                             key={trip.id}
                                             destination={trip}
                                             onSelect={onSelect}
                                             layout="list"
-                                            isFavorite={favorites.includes(trip.id)}
+                                            isFavorite={favorites?.includes(trip.id)}
                                             onToggleFavorite={onToggleFavorite}
                                         />
                                     ))}
@@ -577,93 +689,90 @@ const DetailView = ({
                         )}
                     </div>
 
-                    {/* Right Column: Booking Widget */}
-                    <div className="lg:col-span-1">
-                        <div
-                            className={`${isBookingSticky ? "lg:h-0 lg:overflow-hidden" : "space-y-6"
-                                }`}
+                    {/* Right Column - Sidebar */}
+                    <div className="lg:col-span-1 space-y-6 sm:space-y-8">
+                        {/* Currency Converter */}
+                        <CurrencyConverter
+                            basePrice={d.price}
+                            country={destination?.country}
+                            location={d.location}
+                        />
+
+                        {/* Hotel Card */}
+                        <motion.div
+                            className="bg-white p-4 sm:p-6 rounded-2xl shadow-xl border border-indigo-100"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 }}
                         >
-                            {/* Currency Converter */}
-                            <CurrencyConverter
-                                basePrice={d.price}
-                                country={destination.country}
-                                location={d.location}
-                            />
-
-                            {/* Hotel Card */}
-                            <motion.div
-                                className="bg-white p-6 rounded-2xl shadow-xl border border-indigo-100"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                <h3 className="text-xl font-bold text-indigo-800 mb-4">
-                                    Accommodation
-                                </h3>
-                                <div className="flex items-center space-x-4 mb-4">
-                                    <img
-                                        src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                        alt={d.hotel}
-                                        className="w-16 h-16 rounded-xl object-cover shadow-md"
-                                    />
-                                    <div>
-                                        <h4 className="font-bold text-lg text-gray-900">
-                                            {d.hotel}
-                                        </h4>
-                                        <p className="text-sm text-gray-500 flex items-center">
-                                            <icons.Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
-                                            {d.rating} ({d.reviews} reviews)
-                                        </p>
-                                    </div>
+                            <h3 className="text-lg sm:text-xl font-bold text-indigo-800 mb-4">
+                                Accommodation
+                            </h3>
+                            <div className="flex items-center space-x-4 mb-4">
+                                <img
+                                    src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt={d.hotel}
+                                    className="w-16 h-16 rounded-xl object-cover shadow-md"
+                                />
+                                <div>
+                                    <h4 className="font-bold text-gray-900 text-base sm:text-lg">
+                                        {d.hotel}
+                                    </h4>
+                                    <p className="text-sm text-gray-500 flex items-center">
+                                        <icons.Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
+                                        {d.rating} ({d.reviews} reviews)
+                                    </p>
                                 </div>
+                            </div>
 
-                                <div className="space-y-3 pt-4 border-t border-gray-100">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-gray-600">Price per person</span>
-                                        <span className="text-2xl font-extrabold text-teal-600">
-                                            ₹{d.price?.toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm text-gray-500">
-                                        <span>Taxes & fees</span>
-                                        <span>Included</span>
-                                    </div>
+                            <div className="space-y-3 pt-4 border-t border-gray-100">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">Price per person</span>
+                                    <span className="text-xl sm:text-2xl font-extrabold text-teal-600">
+                                        ₹{(d.price || 0).toLocaleString()}
+                                    </span>
                                 </div>
-                            </motion.div>
-
-                            {/* Trip Details Card */}
-                            <motion.div
-                                className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white shadow-xl"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.6 }}
-                            >
-                                <h3 className="text-xl font-bold mb-4">Quick Facts</h3>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between">
-                                        <span>Difficulty</span>
-                                        <span className="font-semibold">{d.difficulty}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Best Season</span>
-                                        <span className="font-semibold">{d.season}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Altitude</span>
-                                        <span className="font-semibold">{d.altitude}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Trip Type</span>
-                                        <span className="font-semibold">
-                                            {destination.type === "domestic" ? "Domestic" : "Foreign"}
-                                        </span>
-                                    </div>
+                                <div className="flex justify-between items-center text-sm text-gray-500">
+                                    <span>Taxes & fees</span>
+                                    <span>Included</span>
                                 </div>
-                            </motion.div>
+                            </div>
+                        </motion.div>
 
-                            {/* CTA Button */}
+                        {/* Trip Details Card */}
+                        <motion.div
+                            className="bg-gradient-to-br from-indigo-500 to-purple-600 p-4 sm:p-6 rounded-2xl text-white shadow-xl"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                        >
+                            <h3 className="text-lg sm:text-xl font-bold mb-4">Quick Facts</h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between">
+                                    <span>Difficulty</span>
+                                    <span className="font-semibold">{d.difficulty}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Best Season</span>
+                                    <span className="font-semibold">{d.season}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Altitude</span>
+                                    <span className="font-semibold">{d.altitude}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Trip Type</span>
+                                    <span className="font-semibold">
+                                        {destination?.type === "domestic" ? "Domestic" : "Foreign"}
+                                    </span>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* CTA Button for Mobile */}
+                        <div className="lg:hidden">
                             <motion.button
-                                className="w-full py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center transition-all hover:shadow-xl hover:shadow-teal-300/60 mt-2"
+                                className="w-full py-3 sm:py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-base sm:text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center"
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setShowBookingModal(true)}
@@ -671,21 +780,32 @@ const DetailView = ({
                                 Book Your Trip Now
                                 <icons.ArrowRight className="w-5 h-5 ml-2" />
                             </motion.button>
-
-                            <p className="text-xs text-center text-gray-400">
+                            <p className="text-xs text-center text-gray-400 mt-3">
                                 Secure payment via Google Pay, Apple Pay, and major cards.
                             </p>
                         </div>
 
-                        {/* Sticky Booking Widget */}
+                        {/* Sticky Booking Widget (Desktop) */}
                         <div className="hidden lg:block">
                             <StickyBookingWidget />
                         </div>
                     </div>
                 </div>
+            </main>
+
+            {/* Fixed CTA for Mobile */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white to-transparent pt-8 pb-4 px-4 z-30">
+                <motion.button
+                    className="w-full py-3 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-teal-300/50 flex items-center justify-center"
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowBookingModal(true)}
+                >
+                    Book Now - ₹{(d.price || 0).toLocaleString()}
+                    <icons.ArrowRight className="w-5 h-5 ml-2" />
+                </motion.button>
             </div>
 
-            {/* Enhanced Booking Modal */}
+            {/* Booking Modal */}
             <AnimatePresence>
                 {showBookingModal && (
                     <motion.div
@@ -699,23 +819,23 @@ const DetailView = ({
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+                            className="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-2xl font-bold text-indigo-900">
+                                <h3 className="text-xl sm:text-2xl font-bold text-indigo-900">
                                     Book Your Adventure
                                 </h3>
                                 <button
                                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                                     onClick={() => setShowBookingModal(false)}
                                 >
-                                    <icons.ArrowLeft className="w-6 h-6 transform rotate-180" />
+                                    <icons.X className="w-6 h-6" />
                                 </button>
                             </div>
 
                             <p className="text-gray-600 mb-6">
-                                Complete your booking for {destination.title}
+                                Complete your booking for {destination?.title || "this adventure"}
                             </p>
 
                             <div className="space-y-4">
@@ -723,8 +843,12 @@ const DetailView = ({
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Travel Dates
                                     </label>
-                                    <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white">
-                                        <option>Select dates</option>
+                                    <select
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white"
+                                        value={selectedDate}
+                                        onChange={(e) => setSelectedDate(e.target.value)}
+                                    >
+                                        <option value="">Select dates</option>
                                         <option>May 10 - May 17, 2024</option>
                                         <option>Jun 14 - Jun 21, 2024</option>
                                         <option>Jul 12 - Jul 19, 2024</option>
@@ -735,21 +859,39 @@ const DetailView = ({
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Number of Travelers
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="10"
-                                        defaultValue="1"
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                                    />
+                                    <div className="flex items-center space-x-4">
+                                        <button
+                                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+                                            onClick={() => setTravelers(Math.max(1, travelers - 1))}
+                                        >
+                                            <icons.Minus className="w-5 h-5" />
+                                        </button>
+                                        <span className="text-xl font-bold">{travelers}</span>
+                                        <button
+                                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+                                            onClick={() => setTravelers(travelers + 1)}
+                                        >
+                                            <icons.Plus className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="pt-4 border-t border-gray-200">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-gray-600">Total</span>
-                                        <span className="text-2xl font-bold text-teal-600">
-                                            ₹{d.price?.toLocaleString()}
-                                        </span>
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-600">Price per person</span>
+                                            <span className="font-medium">₹{(d.price || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-600">Number of travelers</span>
+                                            <span className="font-medium">{travelers}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-lg font-bold pt-2 border-t">
+                                            <span className="text-gray-900">Total</span>
+                                            <span className="text-2xl text-teal-600">
+                                                ₹{((d.price || 0) * travelers).toLocaleString()}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <button className="w-full py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors">
@@ -761,6 +903,17 @@ const DetailView = ({
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Custom CSS for scrollbar */}
+            <style jsx>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
         </motion.div>
     );
 };

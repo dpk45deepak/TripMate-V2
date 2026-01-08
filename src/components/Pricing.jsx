@@ -47,7 +47,7 @@ const PricingSection = () => (
           },
           {
             title: "Premium",
-            price: "59",
+            price: "5",
             features: [
               "Unlimited destinations",
               "24/7 Priority support",
@@ -58,7 +58,7 @@ const PricingSection = () => (
           },
           {
             title: "Enterprise",
-            price: "99",
+            price: "10",
             features: [
               "All Premium features",
               "Dedicated Account Manager",

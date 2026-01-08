@@ -14,7 +14,6 @@ const Destination = () => {
       image: "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       rating: 4.8,
       reviews: 1247,
-      price: 899,
       duration: "7 days",
       category: "Beach"
     },
@@ -24,7 +23,6 @@ const Destination = () => {
       image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       rating: 4.9,
       reviews: 892,
-      price: 1250,
       duration: "10 days",
       category: "Cultural"
     },
@@ -34,7 +32,6 @@ const Destination = () => {
       image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       rating: 4.7,
       reviews: 1563,
-      price: 1100,
       duration: "6 days",
       category: "Island"
     },
@@ -44,7 +41,6 @@ const Destination = () => {
       image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       rating: 4.9,
       reviews: 734,
-      price: 1500,
       duration: "8 days",
       category: "Mountain"
     },
@@ -54,7 +50,6 @@ const Destination = () => {
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTswgN5j3WJ5vL8HNRofYiKIahlNReGxxiO4w&s",
       rating: 4.6,
       reviews: 2105,
-      price: 950,
       duration: "5 days",
       category: "City"
     },
@@ -64,7 +59,6 @@ const Destination = () => {
       image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       rating: 4.8,
       reviews: 987,
-      price: 1800,
       duration: "7 days",
       category: "Luxury"
     }
@@ -283,17 +277,12 @@ const Destination = () => {
                       <Calendar size={16} />
                       <span className="text-sm">{destination.duration}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Users size={16} />
-                      <span className="text-sm">2 Adults</span>
-                    </div>
                   </div>
 
                   {/* Price & CTA */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div>
-                      <span className="text-2xl font-bold text-blue-600">₨{destination.price}</span>
-                      <span className="text-gray-500 text-sm">/person</span>
+                      {/* Nothing */}
                     </div>
                     <motion.button
                       className="bg-gradient-to-r from-blue-500 to-teal-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200 font-medium"

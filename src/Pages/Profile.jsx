@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Ticket, Star, MessageSquare, Wallet, Settings,
   LogOut, Search, ChevronDown, MapPin, Filter, Menu, X, ChevronRight,
   Sun, Cloud, Bell, Sparkles, User, Plus, Moon, HelpCircle, Mail,
-  CreditCard, Shield, Globe, Calendar
+  CreditCard, Shield, Globe, Calendar, Heart
 } from 'lucide-react';
 
 // Components
@@ -22,7 +22,7 @@ import BACKEND_API from "../Services/Backend";
 const DASHBOARD_CONFIG = {
   NAV_ITEMS: [
     { key: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
-    { key: 'ticket', name: 'Ticket', icon: Ticket },
+    { key: 'wishlist', name: 'Wishlist', icon: Heart },
     { key: 'favorite', name: 'Favorite', icon: Star },
     { key: 'history', name: 'History', icon: MessageSquare },
     { key: 'transaction', name: 'Transaction', icon: Wallet },
@@ -84,37 +84,29 @@ const useDestinations = (userId) => {
 
   const fetchRecommendations = useCallback(async () => {
     if (!userId) {
-      console.log('No user ID provided, skipping recommendation fetch');
       setLoading(false);
       return;
     }
 
     try {
-      console.log(`Fetching recommendations for user: ${userId}`);
       setLoading(true);
       setError(null);
       
       const response = await BACKEND_API.Recommend.GetRecommendation(userId);
-      console.log('Recommendations API Response:', response);
       
       if (response && response.data) {
         // Check if the response has the expected data structure
         if (Array.isArray(response.data)) {
-          console.log(`Received ${response.data.length} recommendations`);
           setDestinations(response.data);
         } else if (response.data.recommendations && Array.isArray(response.data.recommendations)) {
-          console.log(`Received ${response.data.recommendations.length} recommendations`);
           setDestinations(response.data.recommendations);
         } else {
-          console.warn('Unexpected response format:', response.data);
           setDestinations([]);
         }
       } else {
-        console.warn('Empty or invalid response from API');
         setDestinations([]);
       }
     } catch (error) {
-      console.error("Error fetching recommendations:", error);
       setError(error.message || 'Failed to load recommendations');
       setDestinations([]);
     } finally {
@@ -199,20 +191,9 @@ const DashboardHeader = ({
           <Menu className="w-5 h-5" />
         </button>
 
-        <h1 className="text-2xl md:hidden font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl  font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">
           Dashboard
         </h1>
-
-        <div className="hidden lg:flex items-center space-x-2 ml-2">
-          <div className="flex flex-col">
-            <span className="text-sm lg:text-2sm font-black bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
-              TripMate
-            </span>
-            <span className="text-xs text-gray-500 font-medium -mt-1 hidden sm:block">
-              Travel Smart
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Search Bar */}
@@ -827,7 +808,7 @@ const FilterSection = ({ filters, showFilters, onFiltersChange, onToggleFilters,
     <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} className="mb-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Best Destinations</h2>
+          <h2 className="text-2xl font-bol bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">Best Destinations</h2>
         </div>
         
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
@@ -1027,35 +1008,11 @@ const RightPanel = ({ searchTerm }) => {
         )}
       </motion.div>
 
-      <PromotionalBanner />
     </div>
   );
 };
 
-const PromotionalBanner = () => (
-  <motion.div 
-    variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} 
-    className="mt-8 bg-gray-900 rounded-xl shadow-lg p-6 text-white text-center relative overflow-hidden"
-  >
-    <img 
-      src="https://placehold.co/100x100/4CAF50/ffffff?text=Traveler" 
-      alt="Traveler" 
-      className="absolute top-0 right-0 h-full w-1/3 object-cover opacity-30" 
-      loading="lazy"
-    />
-    <div className="relative z-10">
-      <h3 className="text-2xl font-bold">Let's Explore the beauty</h3>
-      <p className="text-sm mt-2 text-gray-300">Get special offers & news</p>
-      <motion.button
-        whileHover={{ scale: 1.05, backgroundColor: "#38A169" }}
-        whileTap={{ scale: 0.95 }}
-        className="mt-4 px-6 py-2 bg-emerald-500 rounded-full font-semibold shadow-md shadow-emerald-500/50"
-      >
-        Join now
-      </motion.button>
-    </div>
-  </motion.div>
-);
+
 
 // Main Component
 export default function Dashboard() {
@@ -1125,8 +1082,8 @@ export default function Dashboard() {
       case "setting":
         navigate("/settings");
         break;
-      case "ticket":
-        alert("Ticket functionality will be available soon");
+      case "wishlist":
+        alert("Wishlist functionality will be available soon");
         break;
       case "transaction":
         alert("Transaction functionality will be available soon");
@@ -1195,13 +1152,6 @@ export default function Dashboard() {
 
             <div className="p-4 sm:p-6 lg:p-8 flex-grow">
               <WelcomeSection userName={getUserDisplayName()} />
-              
-              {destinations.length > 0 && (
-                <FeaturedDestinations 
-                  destinations={destinations.slice(0,3)} 
-                  onDestinationSelect={handleDestinationSelect}
-                />
-              )}
 
               <FilterSection 
                 filters={filters}
@@ -1248,23 +1198,11 @@ export default function Dashboard() {
 }
 
 const WelcomeSection = ({ userName }) => (
-  <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} className="mb-8 mt-4">
+  <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}>
     <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
       Hello, {userName}
     </h1>
-    <p className="text-gray-500 text-sm p-2">Welcome back and explore the world</p>
-  </motion.div>
-);
-
-const FeaturedDestinations = ({ destinations, onDestinationSelect }) => (
-  <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-    {destinations.map((card) => (
-      <FeatureCard
-        key={card._id}
-        {...card}
-        onClick={() => onDestinationSelect(card)}
-      />
-    ))}
+    <p className="text-teal-500 text-sm p-2">Welcome back and explore the world</p>
   </motion.div>
 );
 
