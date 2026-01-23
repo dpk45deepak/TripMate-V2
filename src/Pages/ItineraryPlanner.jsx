@@ -1,62 +1,32 @@
-// src/App.jsx
-import React, { useState } from 'react';
-import DashboardHeader from '../components/itinearary/DashboardHeader';
-import ItineraryTimeline from '../components/itinearary/ItineraryTimeline';
-import TripOverview from '../components/itinearary/TripOverview';
-import TripCustomizationPanel from '../components/itinearary/TripCustomizationPanel';
-import BudgetOverview from '../components/itinearary/BudgetOverview';
-import { mockData } from '../data/mockData';
+// src/Pages/ItineraryPlanner.jsx
+import React from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import DashboardHeader from '../components/Itinerary/components/DashboardHeader';
+import Dashboard from '../components/Itinerary/pages/Dashboard';
+import MemoriesPage from '../components/Itinerary/pages/MemoriesPage';
+import CreateItinerary from '../components/Itinerary/pages/CreateItinerary';
+import TripPlanner from '../components/Itinerary/pages/TripPlanner';
+import ItineraryPage from '../components/Itinerary/pages/ItineraryPage';
 
-function App() {
-  const [tripData, setTripData] = useState(mockData);
-  const [budget, setBudget] = useState(5000);
-  const [selectedActivities, setSelectedActivities] = useState(['sightseeing', 'food']);
+function ItineraryPlanner() {
+  const location = useLocation();
+
+  // Check if we're on a subpage that should hide the header
+  const isSubPage = location.pathname.includes('/itinerary/') &&
+    !location.pathname.endsWith('/itinerary');
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <DashboardHeader />
-
-      <div className="max-w-7xl mx-auto mt-6">
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Itinerary Timeline */}
-          <div className="lg:col-span-2 space-y-6">
-            <ItineraryTimeline
-              itinerary={tripData.itinerary}
-              onUpdateItinerary={(updated) => setTripData({ ...tripData, itinerary: updated })}
-            />
-
-            {/* Bottom Chart Section */}
-            <div className="mt-8">
-              <BudgetOverview
-                budget={budget}
-                breakdown={tripData.budgetBreakdown}
-              />
-            </div>
-          </div>
-
-          {/* Right Column - Side Panels */}
-          <div className="space-y-6">
-            <TripOverview
-              stats={tripData.stats}
-              suggestions={tripData.aiSuggestions}
-              budget={budget}
-              onBudgetChange={setBudget}
-            />
-
-            <TripCustomizationPanel
-              selectedActivities={selectedActivities}
-              onActivitiesChange={setSelectedActivities}
-              budget={budget}
-              onBudgetChange={setBudget}
-              tripDuration={tripData.duration}
-            />
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
+      {!isSubPage && <DashboardHeader />}
+      <Routes>
+        <Route index element={<Dashboard />} />
+        <Route path="create" element={<CreateItinerary />} />
+        <Route path="memories" element={<MemoriesPage />} />
+        <Route path="planner" element={<TripPlanner />} />
+        <Route path=":id" element={<ItineraryPage />} />
+      </Routes>
     </div>
   );
 }
 
-export default App;
+export default ItineraryPlanner;

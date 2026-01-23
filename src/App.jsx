@@ -1,3 +1,4 @@
+// src/App.js
 import { useEffect } from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -19,8 +20,6 @@ import NewPage from './Pages/FinalPage';
 
 // Helpers
 import ItineraryPlanner from "./Pages/ItineraryPlanner";
-// import Memories from "./components/itinerary/Memories";
-// import Itinerary_plan from "./components/itinerary/Itinerary_plan";
 import SearchResults from "./Pages/SearchResults";
 
 // Authentication
@@ -112,29 +111,13 @@ function App() {
             }
           />
           <Route
-            path="/itinerary"
+            path="/itinerary/*"
             element={
               <ProtectedRoute>
                 <ItineraryPlanner />
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/memories"
-            element={
-              <ProtectedRoute>
-                <Memories />
-              </ProtectedRoute>
-            }
-          /> */}
-          {/* <Route
-            path="/itinerary-plan"
-            element={
-              <ProtectedRoute>
-                <Itinerary_plan />
-              </ProtectedRoute>
-            }
-          /> */}
           <Route
             path="/final"
             element={

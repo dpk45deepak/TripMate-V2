@@ -110,7 +110,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
                     onClick={() => markAsRead(notification.id)}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 mt-0.5">
+                      <div className="shrink-0 mt-0.5">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">

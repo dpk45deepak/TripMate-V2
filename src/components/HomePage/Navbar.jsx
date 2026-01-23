@@ -141,13 +141,13 @@ export default function Navbar() {
           {/* Logo Section */}
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-linear-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl lg:text-2xl font-black bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-xl lg:text-2xl font-black bg-linear-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
                 TripMate
               </span>
               <span className="text-xs text-gray-500 font-medium -mt-1 hidden sm:block">
@@ -242,7 +242,7 @@ export default function Navbar() {
                 onClick={() => setShowDropdown(!showDropdown)}
                 className="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
               >
-                <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-9 h-9 bg-linear-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
                   <img
                     src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.username
                       ?.toString()[0]
@@ -383,7 +383,7 @@ export default function Navbar() {
             {/* Mobile User Section */}
             <div className="pt-3 border-t border-gray-200 space-y-3">
               <div className="flex items-center space-x-3 px-3 py-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-linear-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
                   <img
                     src={`https://placehold.co/40x40/0000FF/ffffff?text=${user.username
                       ?.toString()[0]
