@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -18,19 +18,19 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function SearchBox() {
   const navigate = useNavigate();
   const tabs = [
-    { id: "Hotel", icon: Hotel, color: "text-blue-600", bgColor: "bg-blue-50" },
+    { id: "Location", icon: MapPin, color: "text-blue-600", bgColor: "bg-blue-50" },
     { id: "Holiday", icon: Sparkles, color: "text-amber-600", bgColor: "bg-amber-50" },
     { id: "Flight", icon: Plane, color: "text-emerald-600", bgColor: "bg-emerald-50" },
     { id: "Bus & Train", icon: Bus, color: "text-purple-600", bgColor: "bg-purple-50" },
   ];
 
-  const [activeTab, setActiveTab] = useState("Hotel");
+  const [activeTab, setActiveTab] = useState("Location");
   const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [guests, setGuests] = useState({ adults: 1, children: 0, rooms: 1 });
   const [checkInDate, setCheckInDate] = useState(getDefaultDate(0));
   const [checkOutDate, setCheckOutDate] = useState(getDefaultDate(2));
-  const [destination, setDestination] = useState("Bali, Indonesia");
+  const [destination, setDestination] = useState("Goa, India");
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -96,11 +96,11 @@ export default function SearchBox() {
   const getGuestSummary = () => {
     const { adults, children, rooms } = guests;
     const totalGuests = adults + children;
-    
+
     if (isMobile) {
       return `${totalGuests}`;
     }
-    
+
     let summary = `${totalGuests} Guest${totalGuests !== 1 ? 's' : ''}`;
     if (activeTab === "Hotel") {
       summary += `, ${rooms} Room${rooms !== 1 ? 's' : ''}`;
@@ -108,18 +108,54 @@ export default function SearchBox() {
     return summary;
   };
 
-  // Handle search submission
+  // Handle search submission - UPDATED to include filter parameter
   const handleSearch = () => {
     const searchParams = new URLSearchParams();
-    searchParams.append("destination", destination);
+
+    // Always include the filter parameter based on activeTab
+    searchParams.append("filter", getFilterFromTab(activeTab));
+
+    // Include destination if provided
+    if (destination && destination.trim()) {
+      searchParams.append("destination", destination.trim());
+    }
+
+    // Include dates
     searchParams.append("checkInDate", checkInDate);
     searchParams.append("checkOutDate", checkOutDate);
+
+    // Include guest information
     searchParams.append("adults", guests.adults);
     searchParams.append("children", guests.children);
     searchParams.append("rooms", guests.rooms);
 
-    // navigate(`/search?${searchParams.toString()}`);
+    // Navigate to final page with all parameters
     navigate(`/final?${searchParams.toString()}`);
+  };
+
+  // Helper function to convert tab to filter value
+  const getFilterFromTab = (tab) => {
+    switch (tab) {
+      case "Location":
+        // For Location tab, use destination-based filtering
+        if (destination.toLowerCase().includes("india")) {
+          return "domestic";
+        } else if (destination.toLowerCase().includes("bali") ||
+          destination.toLowerCase().includes("paris") ||
+          destination.toLowerCase().includes("tokyo") ||
+          destination.toLowerCase().includes("dubai")) {
+          return "foreign";
+        }
+        return "all";
+      case "Holiday":
+        return "holiday";
+      case "Flight":
+        return "flight";
+      case "Bus & Train":
+        return "transport";
+      default:
+        return "all";
+    }
   };
 
   // Handle tab switching with proper state reset
@@ -127,27 +163,45 @@ export default function SearchBox() {
     setActiveTab(tabId);
     setIsGuestDropdownOpen(false);
     setIsMobileMenuOpen(false); // FIX: Close mobile menu when tab is selected
-    
+
     // Reset guest configuration based on tab type
     if (tabId !== "Hotel") {
-      setGuests(prev => ({ 
-        adults: Math.max(1, prev.adults), 
-        children: prev.children, 
-        rooms: 1 
+      setGuests(prev => ({
+        adults: Math.max(1, prev.adults),
+        children: prev.children,
+        rooms: 1
       }));
     } else {
       // For hotel, ensure minimum configuration
-      setGuests(prev => ({ 
-        adults: Math.max(1, prev.adults), 
-        children: prev.children, 
-        rooms: Math.max(1, prev.rooms) 
+      setGuests(prev => ({
+        adults: Math.max(1, prev.adults),
+        children: prev.children,
+        rooms: Math.max(1, prev.rooms)
       }));
     }
   };
 
-  // Quick destination selection
+  // Quick destination selection - UPDATED to set destination and filter
   const handleQuickDestination = (city) => {
     setDestination(`${city}`);
+
+    // Automatically set appropriate filter based on destination
+    const lowerCity = city.toLowerCase();
+    let filterType = "all";
+
+    if (lowerCity === "goa" || lowerCity === "mumbai" || lowerCity === "delhi") {
+      filterType = "domestic";
+    } else if (lowerCity === "bali" || lowerCity === "paris" ||
+      lowerCity === "tokyo" || lowerCity === "dubai" ||
+      lowerCity === "london" || lowerCity === "new york") {
+      filterType = "foreign";
+    }
+
+    // Update active tab based on destination type
+    if (filterType === "domestic" || filterType === "foreign") {
+      setActiveTab("Location");
+    }
+
     if (isMobileMenuOpen) {
       setIsMobileMenuOpen(false);
     }
@@ -212,16 +266,15 @@ export default function SearchBox() {
                   {tabs.map((tab) => {
                     const IconComponent = tab.icon;
                     const isActive = activeTab === tab.id; // FIX: Check if this tab is active
-                    
+
                     return (
                       <button
                         key={tab.id}
                         onClick={() => handleTabClick(tab.id)} // FIX: Use the handler directly
-                        className={`flex items-center justify-center space-x-2 p-3 rounded-lg text-sm font-medium transition-all ${
-                          isActive
+                        className={`flex items-center justify-center space-x-2 p-3 rounded-lg text-sm font-medium transition-all ${isActive
                             ? `${tab.bgColor} ${tab.color} border-2 border-current`
                             : "text-gray-600 bg-gray-50 border-2 border-transparent"
-                        }`}
+                          }`}
                       >
                         <IconComponent size={16} />
                         <span>{tab.id}</span>
@@ -287,9 +340,8 @@ export default function SearchBox() {
                   <span className="text-sm text-gray-900">{getGuestSummary()}</span>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-500 transition-transform ${
-                    isGuestDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-gray-500 transition-transform ${isGuestDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -318,11 +370,11 @@ export default function SearchBox() {
                                 onClick={() => handleGuestChange(type, "decrease")}
                                 className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={
-                                  type === "adults" 
-                                    ? guests[type] <= 1 
-                                    : type === "rooms" 
-                                    ? guests[type] <= 1 
-                                    : guests[type] <= 0
+                                  type === "adults"
+                                    ? guests[type] <= 1
+                                    : type === "rooms"
+                                      ? guests[type] <= 1
+                                      : guests[type] <= 0
                                 }
                               >
                                 −
@@ -346,18 +398,36 @@ export default function SearchBox() {
               </AnimatePresence>
             </div>
 
-            {/* Quick Suggestions */}
+            {/* Quick Suggestions with filter indicators */}
             <div className="flex flex-wrap gap-2 pt-2">
               <span className="text-xs text-gray-500">Popular:</span>
-              {["Bangkok", "Paris", "Tokyo", "Dubai"].map((city) => (
+              {[
+                { city: "Goa", filter: "domestic" },
+                { city: "Mumbai", filter: "domestic" },
+                { city: "Bali", filter: "foreign" },
+                { city: "Paris", filter: "foreign" },
+                { city: "Tokyo", filter: "foreign" },
+                { city: "Dubai", filter: "foreign" }
+              ].map((item) => (
                 <button
-                  key={city}
-                  onClick={() => handleQuickDestination(city)}
-                  className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                  key={item.city}
+                  onClick={() => handleQuickDestination(item.city)}
+                  className={`text-xs px-2 py-1 rounded transition-colors ${item.filter === "domestic"
+                      ? "text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100"
+                      : "text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100"
+                    }`}
                 >
-                  {city}
+                  {item.city}
                 </button>
               ))}
+            </div>
+
+            {/* Filter Info */}
+            <div className="text-xs text-gray-500 mt-2 px-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
+              Domestic
+              <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mx-2 ml-3 mr-1"></span>
+              International
             </div>
           </div>
         </motion.div>
@@ -385,11 +455,10 @@ export default function SearchBox() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleTabClick(tab.id)}
-              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all flex-1 min-w-[120px] text-center text-sm font-medium ${
-                isActive
+              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all flex-1 min-w-30 text-center text-sm font-medium ${isActive
                   ? "bg-white shadow-md border-2 border-current"
                   : "text-gray-600 hover:text-gray-900 border-2 border-transparent"
-              } ${isActive ? tab.color : ""}`}
+                } ${isActive ? tab.color : ""}`}
             >
               <IconComponent
                 className={`w-4 h-4 ${isActive ? tab.color : "text-gray-400"}`}
@@ -459,9 +528,8 @@ export default function SearchBox() {
               <span className="text-sm text-gray-900">{getGuestSummary()}</span>
             </div>
             <ChevronDown
-              className={`w-4 h-4 text-gray-500 transition-transform ${
-                isGuestDropdownOpen ? "rotate-180" : ""
-              }`}
+              className={`w-4 h-4 text-gray-500 transition-transform ${isGuestDropdownOpen ? "rotate-180" : ""
+                }`}
             />
           </motion.button>
 
@@ -491,11 +559,11 @@ export default function SearchBox() {
                             onClick={() => handleGuestChange(type, "decrease")}
                             className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={
-                              type === "adults" 
-                                ? guests[type] <= 1 
-                                : type === "rooms" 
-                                ? guests[type] <= 1 
-                                : guests[type] <= 0
+                              type === "adults"
+                                ? guests[type] <= 1
+                                : type === "rooms"
+                                  ? guests[type] <= 1
+                                  : guests[type] <= 0
                             }
                           >
                             −
@@ -525,7 +593,7 @@ export default function SearchBox() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSearch}
-            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 px-4 py-3 rounded-lg text-white font-medium shadow-lg flex items-center justify-center text-sm"
+            className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 px-4 py-3 rounded-lg text-white font-medium shadow-lg flex items-center justify-center text-sm"
           >
             <Search className="w-4 h-4 mr-2" />
             Search
@@ -533,21 +601,45 @@ export default function SearchBox() {
         </div>
       </div>
 
-      {/* Quick Suggestions */}
+      {/* Quick Suggestions with filter indicators */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <span className="text-xs text-gray-500">Popular:</span>
-        {["Bangkok", "Paris", "Tokyo", "Dubai", "London", "New York"].map((city, i) => (
+        {[
+          { city: "Goa", filter: "domestic" },
+          { city: "Mumbai", filter: "domestic" },
+          { city: "Delhi", filter: "domestic" },
+          { city: "Bali", filter: "foreign" },
+          { city: "Paris", filter: "foreign" },
+          { city: "Tokyo", filter: "foreign" },
+          { city: "Dubai", filter: "foreign" },
+          { city: "London", filter: "foreign" },
+          { city: "New York", filter: "foreign" }
+        ].map((item, i) => (
           <motion.button
-            key={city}
+            key={item.city}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ delay: i * 0.05 }}
-            onClick={() => handleQuickDestination(city)}
-            className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+            onClick={() => handleQuickDestination(item.city)}
+            className={`text-xs px-2 py-1 rounded transition-colors ${item.filter === "domestic"
+                ? "text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100"
+                : "text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100"
+              }`}
           >
-            {city}
+            {item.city}
           </motion.button>
         ))}
+      </div>
+
+      {/* Filter Info */}
+      <div className="mt-3 text-xs text-gray-500 flex items-center">
+        <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
+        Domestic destinations
+        <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mx-2 ml-4 mr-1"></span>
+        International destinations
+        <span className="ml-auto text-blue-600 font-medium">
+          Current filter will be applied: {getFilterFromTab(activeTab)}
+        </span>
       </div>
     </motion.div>
   );

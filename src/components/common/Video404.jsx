@@ -1,6 +1,6 @@
 // src/components/Video404.jsx
 import React from "react";
-import StoneAge from "../assets/StoneAge.mp4";
+import StoneAge from "../../assets/StoneAge.mp4";
 
 const Video404 = () => {
   return (
@@ -19,7 +19,7 @@ const Video404 = () => {
       <div className="relative z-10 text-white text-center p-4">
         <h1
           className="text-6xl md:text-8xl font-bold mb-4
-            bg-gradient-to-r from-blue-500 to-teal-500
+            bg-linear-to-r from-blue-500 to-teal-500
             bg-clip-text text-transparent inline-block"
         >
           404
@@ -29,7 +29,7 @@ const Video404 = () => {
         </p>
         <a
           href="/home"
-          className="mt-8 inline-block px-6 py-3 bg-gradient-to-r from-blue-400 via-teal-600 to-indigo-500 text-gray-200 rounded-full font-semibold hover:bg-gray-200 transition-colors"
+          className="mt-8 inline-block px-6 py-3 bg-linear-to-r from-blue-400 via-teal-600 to-indigo-500 text-gray-200 rounded-full font-semibold hover:bg-gray-200 transition-colors"
         >
           Go back home
         </a>

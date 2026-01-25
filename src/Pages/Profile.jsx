@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 // Components
-import NotificationDropdown from '../components/NotificationDropdown';
+import NotificationDropdown from '../components/common/NotificationDropdown';
 // import FilterPanel from '../components/FilterPanel';
 
 // Context
@@ -182,7 +182,7 @@ const DashboardHeader = ({
       className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white sticky top-0 border-b border-gray-100 shadow-sm lg:shadow-none z-20"
     >
       {/* Left Section */}
-      <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1 sm:max-w-[200px]">
+      <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1 sm:max-w-50">
         <button
           onClick={onToggleSidebar}
           className="p-2 lg:hidden bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-lg transition-all duration-200 active:scale-95"
@@ -191,7 +191,7 @@ const DashboardHeader = ({
           <Menu className="w-5 h-5" />
         </button>
 
-        <h1 className="text-2xl  font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl  font-extrabold bg-linear-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">
           Dashboard
         </h1>
       </div>
@@ -285,7 +285,7 @@ const ProfileDropdown = React.forwardRef(({
         </div>
 
         <div className="hidden xs:block min-w-0 flex-1">
-          <p className="font-semibold text-gray-800 text-sm truncate max-w-[80px] sm:max-w-[100px]">
+          <p className="font-semibold text-gray-800 text-sm truncate max-w-20 sm:max-w-25">
             {userDisplayName}
           </p>
           <p className="text-xs text-gray-500 truncate">Traveler</p>
@@ -413,13 +413,13 @@ const SidebarHeader = ({ onClose }) => (
   <div className="flex justify-between items-center mb-10">
     <div className="flex items-center space-x-3">
       <div className="relative">
-        <div className="w-10 h-10 bg-gradient-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+        <div className="w-10 h-10 bg-linear-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
           <Sparkles className="w-6 h-6 text-white" />
         </div>
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
       </div>
       <div className="flex flex-col">
-        <span className="text-xl lg:text-2xl font-black bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+        <span className="text-xl lg:text-2xl font-black bg-linear-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
           TripMate
         </span>
         <span className="text-xs text-gray-500 font-medium -mt-1 hidden sm:block">
@@ -576,7 +576,7 @@ const FeatureCard = React.memo(({
     variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
     onClick={onClick}
     whileHover={{ scale: 1.03 }}
-    className="relative h-[26rem] rounded-2xl shadow-lg overflow-hidden cursor-pointer flex flex-col justify-end p-5 transition-all duration-300 ease-in-out hover:shadow-2xl"
+    className="relative h-104 rounded-2xl shadow-lg overflow-hidden cursor-pointer flex flex-col justify-end p-5 transition-all duration-300 ease-in-out hover:shadow-2xl"
   >
     <div className="absolute inset-0">
       <img
@@ -585,7 +585,7 @@ const FeatureCard = React.memo(({
         className="w-full h-full object-cover"
         loading="lazy"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/40 to-transparent"></div>
     </div>
 
     <div className="relative z-10 text-white space-y-2">
@@ -808,7 +808,7 @@ const FilterSection = ({ filters, showFilters, onFiltersChange, onToggleFilters,
     <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} className="mb-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <div>
-          <h2 className="text-2xl font-bol bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">Best Destinations</h2>
+          <h2 className="text-2xl font-bol bg-linear-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">Best Destinations</h2>
         </div>
         
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
@@ -1150,7 +1150,7 @@ export default function Dashboard() {
               userDisplayName={getUserDisplayName()}
             />
 
-            <div className="p-4 sm:p-6 lg:p-8 flex-grow">
+            <div className="p-4 sm:p-6 lg:p-8 grow">
               <WelcomeSection userName={getUserDisplayName()} />
 
               <FilterSection 
@@ -1199,7 +1199,7 @@ export default function Dashboard() {
 
 const WelcomeSection = ({ userName }) => (
   <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}>
-    <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
+    <h1 className="text-4xl font-extrabold bg-linear-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
       Hello, {userName}
     </h1>
     <p className="text-teal-500 text-sm p-2">Welcome back and explore the world</p>
@@ -1323,7 +1323,7 @@ const DetailModal = ({ item, onClose }) => {
           >
             <X className="w-5 h-5 text-gray-700" />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 pt-12">
+          <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6 pt-12">
             <h2 className="text-2xl font-bold text-white">{title}</h2>
             <div className="flex items-center mt-1 text-white/90">
               <MapPin className="w-4 h-4 mr-1" />

@@ -12,7 +12,7 @@ import Highlights from "../components/HomePage/Highlights";
 import WorldMap from '../components/HomePage/WorldMap';
 import Services from '../components/HomePage/Services';
 import Destination from "../components/HomePage/Destination";
-import Pricing from '../components/Pricing';
+import Pricing from '../components/common/Pricing';
 import Footer from "../components/HomePage/Footer";
 
 // Custom Hook for InView Detection (Reused from Highlights component concept)
@@ -72,7 +72,7 @@ export default function Home() {
 
   return (
     <>
-    <div className="font-sans bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800 relative">      
+    <div className="font-sans bg-linear-to-br from-gray-50 to-blue-50 text-gray-800 relative">      
       {/* Hero Section with proper SearchBox positioning */}
       <div className="relative mb-32 md:mb-40 rounded-xl overflow-visible">
         <Hero />

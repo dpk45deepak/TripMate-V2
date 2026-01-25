@@ -4,8 +4,8 @@ import { X, Filter, Save } from "lucide-react";
 import { toast } from "react-toastify";
 
 // Backend API and logic
-import BACKEND_API from "../Services/Backend";
-import AuthContext from "../Context/AuthContext";
+import BACKEND_API from "../../Services/Backend";
+import AuthContext from "../../Context/AuthContext";
 
 // CONSTANTS
 const DEST_TYPES = ["Beaches","Mountains","Cities","Nature's Beauty","Adventure","Islands","Historical","Wildlife"];
@@ -296,7 +296,7 @@ const handleSave = async (e) => {
                       onClick={() => handleBudgetSelect(option.value)}
                       className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                         filters.budget === option.value
-                          ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-md'
+                          ? 'bg-linear-to-r from-teal-500 to-indigo-600 text-white shadow-md'
                           : 'bg-white text-gray-700 border border-gray-300 hover:border-teal-300 hover:bg-teal-50'
                       }`}
                     >
@@ -402,7 +402,7 @@ const FilterSection = ({ title, items, selected, toggle, color, multiSelect }) =
             onClick={() => toggle(item)}
             className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
               selected.includes(item)
-                ? `bg-gradient-to-r from-${color}-500 to-${color}-600 text-white shadow-md`
+                ? `bg-linear-to-r from-${color}-500 to-${color}-600 text-white shadow-md`
                 : `bg-white text-gray-700 border border-gray-300 hover:border-${color}-300 hover:bg-${color}-50`
             }`}
           >

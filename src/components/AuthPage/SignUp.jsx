@@ -1,13 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle, Sparkles } from "lucide-react";
 
 // Authentication
 import BACKEND_API from '../../Services/Backend';
 import AuthContext from "../../Context/AuthContext";
+import useToast from "../../hooks/useToast";
 
 export default function AuthenticationForm() {
+
+  const toast = useToast();
 
   // Global Context
   const { user, updateUser } = useContext(AuthContext);
@@ -44,14 +47,16 @@ export default function AuthenticationForm() {
     try {
       await BACKEND_API.Auth.SignUp(credentials);
       // console log success
-      console.log("SignUp successful !! ✅");
       const userResponse = await BACKEND_API.Users.GetProfile();
       // Set Global Context an navigate user
       updateUser(userResponse.data);
       setAuthStatus("success");
+      toast.success("Sign up successful! Welcome aboard!");
     } catch (error) {
       console.error("❌ SignUp failed:", error.response?.data || error.message);
       setErrorMsg(error.response?.data?.message || "Invalid credentials. Try again.");
+      setAuthStatus("error");
+      toast.info(error.response?.data?.message || "Invalid credentials. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -65,13 +70,14 @@ export default function AuthenticationForm() {
     // implement social sign up logic here
       window.location.href = `${BACKEND_URL}/auth/google`;
       const userResponse = await BACKEND_API.Users.GetProfile();
-      console.log("✅ Social Login success");
       // Set Global Context an navigate user
       updateUser(userResponse.data);
       setAuthStatus("success");
+      toast.success("Social sign up successful! Welcome aboard!");
     } catch (error) {
       console.error('OAuth error:', error);
       setErrorMsg('Failed to initiate Google sign up');
+      setAuthStatus("error");
       setIsLoading(false);
     }
   };
@@ -81,7 +87,7 @@ export default function AuthenticationForm() {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-gray-50 to-teal-100 px-6 py-12 overflow-hidden font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-teal-50 via-gray-50 to-teal-100 px-6 py-12 overflow-hidden font-sans">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -94,13 +100,13 @@ export default function AuthenticationForm() {
           {/* Logo Section */}
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-linear-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl lg:text-2xl font-black bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-xl lg:text-2xl font-black bg-linear-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
                 TripMate
               </span>
               <span className="text-xs text-gray-500 font-medium -mt-1 hidden sm:block">
@@ -109,7 +115,7 @@ export default function AuthenticationForm() {
             </div>
           </div>
           </div>
-          <h2 className="text-2xl font-extrabold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent m-2">Create Account</h2>
+          <h2 className="text-2xl font-extrabold bg-linear-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent m-2">Create Account</h2>
           <p className="text-gray-500 text-sm">Join us and start your travel journey</p>
         </div>
 
@@ -178,7 +184,7 @@ export default function AuthenticationForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3.5 rounded-lg text-white font-semibold shadow-md bg-gradient-to-r from-blue-600 to-teal-500 hover:from-indigo-700 hover:to-teal-600 transition-all duration-300 ${
+            className={`w-full py-3.5 rounded-lg text-white font-semibold shadow-md bg-linear-to-r from-blue-600 to-teal-500 hover:from-indigo-700 hover:to-teal-600 transition-all duration-300 ${
               isLoading ? "opacity-70 cursor-not-allowed" : "hover:scale-105"
             }`}
           >
@@ -195,9 +201,9 @@ export default function AuthenticationForm() {
 
         {/* Divider */}
         <div className="my-6 flex items-center">
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="grow border-t border-gray-300"></div>
           <span className="mx-3 text-gray-400 text-sm">or</span>
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="grow border-t border-gray-300"></div>
         </div>
 
         {/* Google Sign Up */}

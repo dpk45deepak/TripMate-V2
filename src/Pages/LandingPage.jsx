@@ -150,15 +150,15 @@ const FeatureCard = ({ icon: Icon, title, description, delay = 0 }) => {
       className="group relative bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-3 border border-white/20 overflow-hidden"
     >
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-50 via-white to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       {/* Animated Border */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-teal-500 via-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ padding: '2px' }}>
+      <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-teal-500 via-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ padding: '2px' }}>
         <div className="w-full h-full bg-white rounded-3xl" />
       </div>
 
       <div className="relative z-10">
-        <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-teal-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
           <Icon className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-gray-800 transition-colors">{title}</h3>
@@ -208,11 +208,11 @@ const DestinationCard = ({ image, title, location, rating, price, delay = 0 }) =
         />
         
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
         
         {/* Price Tag */}
         <motion.div 
-          className="absolute top-4 left-4 bg-gradient-to-r from-teal-500 to-indigo-600 text-white px-4 py-2 rounded-xl font-bold shadow-2xl"
+          className="absolute top-4 left-4 bg-linear-to-r from-teal-500 to-indigo-600 text-white px-4 py-2 rounded-xl font-bold shadow-2xl"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: delay * 0.2 + 0.3 }}
@@ -286,13 +286,13 @@ const CtaButton = ({ children, variant = 'primary', className = '', icon: Icon, 
       whileTap={{ scale: 0.98 }}
       className={`relative px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 overflow-hidden group ${
         variant === 'primary' 
-          ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white hover:from-teal-600 hover:to-indigo-700' 
+          ? 'bg-linear-to-r from-teal-500 to-indigo-600 text-white hover:from-teal-600 hover:to-indigo-700' 
           : 'border-2 border-teal-500 text-teal-600 hover:bg-teal-50'
       } ${className}`}
       {...props}
     >
       {/* Shine Effect */}
-      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-linear-to-r from-transparent via-white/20 to-transparent" />
       
       <span className="relative flex items-center justify-center">
         {children}
@@ -387,13 +387,13 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header />
-      <main className="flex-grow">
+      <main className="grow">
         {/* Enhanced Hero Section */}
         <section 
           ref={heroRef}
-          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900"
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-gray-900 via-blue-900 to-indigo-900"
         >
           {/* Animated Background */}
           <div className="absolute inset-0">
@@ -403,7 +403,7 @@ const LandingPage = () => {
                 backgroundImage: "url('https://www.followmeaway.com/wp-content/uploads/2024/04/best-beach-towns-in-Europe-Palma2-1000x533.jpg')"
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-100/80 via-purple-100/10 to-indigo-100/40" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-100/80 via-purple-100/10 to-indigo-100/40" />
           </div>
 
           {/* Floating Icons */}
@@ -448,7 +448,7 @@ const LandingPage = () => {
               >
                 Discover{' '}
                 <motion.span 
-                  className="bg-gradient-to-r from-teal-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent"
+                  className="bg-linear-to-r from-teal-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent"
                   initial={{ backgroundPosition: '0% 50%' }}
                   animate={{ backgroundPosition: '100% 50%' }}
                   transition={{
@@ -565,7 +565,7 @@ const LandingPage = () => {
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6"
               >
                 Travel Smarter,{' '}
-                <span className="bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent">
                   Not Harder
                 </span>
               </motion.h2>
@@ -619,7 +619,7 @@ const LandingPage = () => {
                   className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-white/20"
                 >
                   <motion.div 
-                    className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent mb-3"
+                    className="text-4xl md:text-5xl font-bold bg-linear-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent mb-3"
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
@@ -638,7 +638,7 @@ const LandingPage = () => {
         {/* Enhanced Destinations Section */}
         <section 
           ref={destinationsRef}
-          className="py-auto bg-gradient-to-br from-white via-blue-50 to-indigo-50"
+          className="py-auto bg-linear-to-br from-white via-blue-50 to-indigo-50"
         >
           <div className="container mx-auto px-4">
             <motion.div 
@@ -657,7 +657,7 @@ const LandingPage = () => {
                 variants={fadeInUp}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6"
               >
-                Discover <span className="text-transparent bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text">Dream</span> Destinations
+                Discover <span className="text-transparent bg-linear-to-r from-teal-600 to-indigo-600 bg-clip-text">Dream</span> Destinations
               </motion.h2>
               <motion.p 
                 variants={fadeInUp}
@@ -728,7 +728,7 @@ const LandingPage = () => {
         </section>
 
         {/* Enhanced Testimonials Section */}
-        <section className="py-24 bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
+        <section className="py-24 bg-linear-to-br from-gray-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -763,7 +763,7 @@ const LandingPage = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
               >
-                What Our <span className="bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">Travelers</span> Say
+                What Our <span className="bg-linear-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">Travelers</span> Say
               </motion.h2>
               <motion.p 
                 className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
@@ -798,7 +798,7 @@ const LandingPage = () => {
         </section>
 
         {/* Enhanced CTA Section */}
-        <section className="relative py-28 bg-gradient-to-br from-teal-600 via-blue-600 to-indigo-700 text-white overflow-hidden">
+        <section className="relative py-28 bg-linear-to-br from-teal-600 via-blue-600 to-indigo-700 text-white overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/always-grey.png')] opacity-10"></div>
@@ -849,7 +849,7 @@ const LandingPage = () => {
                 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight"
               >
                 Ready for Your Next{' '}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-amber-400">
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-yellow-300 to-amber-400">
                   Adventure?
                 </span>
               </motion.h2>
@@ -867,7 +867,7 @@ const LandingPage = () => {
                 className="flex flex-col sm:flex-row justify-center gap-6 mb-12"
               >
                 <Link to="/signup" className="flex-1 max-w-xs mx-auto">
-                  <CtaButton className="w-full py-5 text-lg bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-gray-900">
+                  <CtaButton className="w-full py-5 text-lg bg-linear-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-gray-900">
                     Get Started Free
                   </CtaButton>
                 </Link>
@@ -958,12 +958,12 @@ const LandingPage = () => {
         }
 
         ::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #0d9488, #3b82f6);
+          background: linear-linear(to bottom, #0d9488, #3b82f6);
           border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, #0f766e, #2563eb);
+          background: linear-linear(to bottom, #0f766e, #2563eb);
         }
       `}</style>
     </div>

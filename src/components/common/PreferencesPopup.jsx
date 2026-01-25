@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, X } from 'lucide-react';
 import FilterPanel from './FilterPanel';
 import { toast } from 'react-toastify';
-import AuthContext from '../Context/AuthContext';
+import AuthContext from '../../Context/AuthContext';
 
 const PreferencesPopup = ({ onClose }) => {
     const [initialFilters, setInitialFilters] = useState({

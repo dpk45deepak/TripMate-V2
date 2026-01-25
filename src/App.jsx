@@ -1,5 +1,5 @@
 // src/App.js
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
 // Unauthorized Pages
-import Video404 from "./components/Video404";
+import Video404 from "./components/common/Video404";
 
 // Main Pages
 import LandingPage from "./Pages/LandingPage";
@@ -34,7 +34,8 @@ import { pingBackend } from "./utils/ping";
 
 // Auth Context
 import { AuthProvider } from "./Context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import GoogleCallback from "./GoogleCallback";
 
 function App() {
 
@@ -45,7 +46,7 @@ function App() {
   return (
     <BrowserRouter>
       <ToastContainer
-        position="top-center"
+        position="top-right"
         autoClose={3000}
         closeButton={false}
         hideProgressBar
@@ -76,6 +77,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
           {/* Protected Routes */}
           <Route

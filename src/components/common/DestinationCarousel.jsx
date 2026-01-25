@@ -152,7 +152,7 @@ const DestinationCarousel = ({ destinations = [] }) => {
                   alt={currentDestination.title}
                   className="w-full h-full object-cover transition-transform duration-700 ease-in-out transform hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/30 to-transparent"></div>
               </div>
 
               {/* Destination Info Overlay */}

@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-
-// tostify
- import "react-toastify/dist/ReactToastify.css";
-
-// Backend API and logic
+import "react-toastify/dist/ReactToastify.css";
 import BACKEND_API from "../Services/Backend";
 import AuthContext from "../Context/AuthContext";
 
@@ -18,93 +14,66 @@ import {
     Heart,
     Globe,
     Calendar,
-    Shield,
     Bell,
     Save,
     ArrowLeft,
     Sparkles,
     CheckCircle,
-    X,
-    Plus,
-    Trash2,
-    Waves,
-    Mountain,
     Building2,
-    Compass,
-    Landmark,
     Palette,
-    Utensils,
-    PawPrint,
     HeartPulse,
     ShoppingBag,
     Moon,
     Car,
+    Target,
+    TrendingUp,
+    Sunset,
+    Sun,
+    Navigation,
+    Compass as CompassIcon,
+    MountainSnow,
+    Settings2,
+    Crown,
+    Trophy,
+    Check,
+    Smartphone,
+    Gift,
+    Coffee,
+    TreePine,
+    Castle,
+    Plane,
+    Shield,
+    Edit3,
+    Zap
 } from "lucide-react";
 
-const container = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            duration: 0.6
-        }
-    }
-};
-
-const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: {
+// Animation variants
+const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
         opacity: 1,
         y: 0,
         transition: {
-            duration: 0.5,
-            ease: [0.25, 0.46, 0.45, 0.94]
+            duration: 0.6,
+            ease: [0.6, -0.05, 0.01, 0.99]
         }
     }
 };
 
-const cardVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
+const staggerContainer = {
+    hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        scale: 1,
         transition: {
-            duration: 0.4,
-            ease: "easeOut"
+            staggerChildren: 0.1,
+            delayChildren: 0.2
         }
     }
 };
 
-export const DESTINATION_CATEGORIES = [
-    { name: "Beach", icon: Waves, color: "from-amber-400 to-orange-500" },
-    { name: "Mountain", icon: Mountain, color: "from-emerald-500 to-teal-600" },
-    { name: "City", icon: Building2, color: "from-blue-500 to-indigo-600" },
-    { name: "Adventure", icon: Compass, color: "from-red-500 to-pink-600" },
-    { name: "Historical", icon: Landmark, color: "from-amber-600 to-orange-700" },
-    { name: "Cultural", icon: Palette, color: "from-purple-500 to-pink-600" },
-    { name: "Food & Drink", icon: Utensils, color: "from-rose-500 to-red-600" },
-    { name: "Wildlife", icon: PawPrint, color: "from-green-500 to-emerald-600" },
-    { name: "Wellness", icon: HeartPulse, color: "from-teal-500 to-cyan-600" },
-    { name: "Shopping", icon: ShoppingBag, color: "from-fuchsia-500 to-purple-600" },
-    { name: "Nightlife", icon: Moon, color: "from-violet-500 to-purple-700" },
-    { name: "Road Trip", icon: Car, color: "from-sky-500 to-blue-600" },
-];
-
-const BUDGET_OPTIONS = [
-    { value: "Under 50K", label: "Budget Friendly", color: "from-green-500 to-emerald-600" },
-    { value: "50K - 100K", label: "Comfort", color: "from-blue-500 to-cyan-600" },
-    { value: "100K - 250K", label: "Premium", color: "from-purple-500 to-fuchsia-600" },
-    { value: "250K - 500K", label: "Luxury", color: "from-amber-500 to-orange-600" },
-    { value: "Above 500K", label: "Ultra Luxury", color: "from-rose-500 to-pink-600" },
-];
-
-export default function ProfileSettings() {
-
+export default function ModernProfileSettings() {
     const { user: currentUser, updateUser } = useContext(AuthContext);
-    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [activeTab, setActiveTab] = useState("profile");
     const [formData, setFormData] = useState({
         displayName: "",
         email: "",
@@ -120,21 +89,59 @@ export default function ProfileSettings() {
         newsletter: true,
         theme: "light"
     });
-    const [previewImage, setPreviewImage] = useState(" ");
+    const [previewImage, setPreviewImage] = useState("");
     const [errors, setErrors] = useState({});
     const [imageUploading, setImageUploading] = useState(false);
     const [completion, setCompletion] = useState(0);
 
+    // Modern destination categories
+    const MODERN_CATEGORIES = [
+        { name: "Beach", icon: Sunset, color: "from-amber-200 to-orange-300" },
+        { name: "Mountain", icon: MountainSnow, color: "from-blue-100 to-cyan-200" },
+        { name: "City", icon: Building2, color: "from-teal-100 to-blue-200" },
+        { name: "Adventure", icon: Navigation, color: "from-green-100 to-emerald-200" },
+        { name: "Historical", icon: Castle, color: "from-yellow-100 to-amber-200" },
+        { name: "Cultural", icon: Palette, color: "from-fuchsia-100 to-rose-200" },
+        { name: "Nature", icon: TreePine, color: "from-emerald-100 to-green-200" },
+        { name: "Nightlife", icon: Moon, color: "from-indigo-100 to-blue-200" },
+        { name: "Road Trip", icon: Car, color: "from-rose-100 to-blue-200" }
+    ];
+
+    const BUDGET_OPTIONS = [
+        { value: "Under 50K", label: "Budget", color: "from-green-400 to-emerald-500", icon: DollarSign },
+        { value: "50K - 100K", label: "Comfort", color: "from-blue-400 to-cyan-500", icon: DollarSign },
+        { value: "100K - 250K", label: "Premium", color: "from-teal-400 to-fuchsia-500", icon: DollarSign },
+        { value: "250K - 500K", label: "Luxury", color: "from-amber-400 to-orange-500", icon: Crown },
+        { value: "Above 500K", label: "Ultra Luxury", color: "from-rose-400 to-blue-500", icon: Trophy }
+    ];
+
+    // Calculate profile completion
+    const calculateProfileCompletion = () => {
+        let score = 0;
+        const total = 100;
+
+        if (formData.displayName?.trim()) score += 15;
+        if (formData.email?.trim()) score += 10;
+        if (formData.bio?.trim()) score += 10;
+        if (formData.location?.trim()) score += 10;
+        if (formData.budget) score += 10;
+        if (formData.phone?.trim()) score += 10;
+        if (formData.dateOfBirth) score += 10;
+        if (previewImage && !previewImage.includes('unsplash.com')) score += 15;
+        if (formData.favoriteDestinations.length >= 3) score += 10;
+
+        return Math.min(score, total);
+    };
+
     useEffect(() => {
         if (currentUser) {
-            // Format the date to YYYY-MM-DD if it exists
             const formatDate = (dateString) => {
                 if (!dateString) return '';
                 const date = new Date(dateString);
                 return date.toISOString().split('T')[0];
             };
 
-            setFormData({
+            const userData = {
                 displayName: currentUser.displayName || currentUser.username || "",
                 email: currentUser.email || "",
                 bio: currentUser.bio || "",
@@ -145,19 +152,25 @@ export default function ProfileSettings() {
                 website: currentUser.website || "",
                 phone: currentUser.phone || "",
                 dateOfBirth: formatDate(currentUser.dateOfBirth) || "",
-                notifications: currentUser.notifications !== false,
-                newsletter: currentUser.newsletter !== false,
-                theme: currentUser.theme || "light"
-            });
+                notifications: currentUser.notificationsEnabled !== false,
+                newsletter: currentUser.newsletterEnabled !== false,
+                theme: currentUser.themePreference || "light"
+            };
+
+            setFormData(userData);
 
             setPreviewImage(
                 currentUser.profileImage
                     ? `${currentUser.profileImage}`
                     : currentUser.photoURL ||
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9jZ2FzVxFkw-yBn7FM0dOJRzLD26gS5Ro1w&s"
+                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
             );
         }
     }, [currentUser]);
+
+    useEffect(() => {
+        setCompletion(calculateProfileCompletion());
+    }, [formData, previewImage]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -182,15 +195,19 @@ export default function ProfileSettings() {
 
         setImageUploading(true);
 
-        // Simulate upload delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        setFormData((prev) => ({ ...prev, profileImage: file }));
-        const reader = new FileReader();
-        reader.onloadend = () => setPreviewImage(reader.result);
-        reader.readAsDataURL(file);
-        setImageUploading(false);
-        toast.success("Profile image updated!");
+        try {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+                setFormData(prev => ({ ...prev, profileImage: file }));
+                setImageUploading(false);
+                toast.success("Profile image updated!");
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            toast.error("Error uploading image");
+            setImageUploading(false);
+        }
     };
 
     const toggleDestinationCategory = (category) => {
@@ -202,68 +219,12 @@ export default function ProfileSettings() {
         });
     };
 
-
-
-    const suggestNextStep = (formData) => {
-        if (!formData.displayName) return "your name";
-        if (!formData.profileImage || previewImage.includes('encrypted-tbn0.gstatic.com')) return "a profile picture";
-        if (!formData.bio) return "a bio";
-        if (!formData.location) return "your location";
-        if (!formData.dateOfBirth) return "your date of birth";
-        if (!formData.phone) return "your phone number";
-        if (!formData.favoriteDestinations || formData.favoriteDestinations.length < 3) {
-            return "at least 3 favorite destinations";
-        }
-        if (!formData.budget) return "your travel budget";
-        return "more details";
-    };
-
-    // Calculate profile completion percentage
-    const calculateProfileCompletion = (formData) => {
-        const fields = [
-            { key: 'displayName', weight: 15 },
-            { key: 'email', weight: 10 },
-            { key: 'bio', weight: 10 },
-            { key: 'location', weight: 10 },
-            { key: 'budget', weight: 10 },
-            { key: 'phone', weight: 10 },
-            { key: 'dateOfBirth', weight: 10 },
-            { key: 'profileImage', weight: 15 },
-            { key: 'favoriteDestinations', minLength: 3, weight: 10 },
-        ];
-
-        let completion = 0;
-
-        fields.forEach(field => {
-            const value = formData[field.key];
-
-            if (field.key === 'favoriteDestinations') {
-                if (value && value.length >= (field.minLength || 1)) {
-                    completion += field.weight;
-                }
-            } else if (field.key === 'profileImage') {
-                if (previewImage && !previewImage.includes('encrypted-tbn0.gstatic.com')) {
-                    completion += field.weight;
-                }
-            } else if (value && value.toString().trim() !== '') {
-                completion += field.weight;
-            }
-        });
-
-        return Math.min(completion, 100);
-    };
-
-    // Update completion when form data or preview image changes
-    useEffect(() => {
-        setCompletion(calculateProfileCompletion(formData));
-    }, [formData, previewImage]);
-
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.displayName.trim()) newErrors.displayName = "Display name is required";
-        if (!formData.email) newErrors.email = "Email is required";
+        if (!formData.displayName?.trim()) newErrors.displayName = "Display name is required";
+        if (!formData.email?.trim()) newErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
-        if (!formData.location.trim()) newErrors.location = "Location is required";
+        if (!formData.location?.trim()) newErrors.location = "Location is required";
         if (!formData.budget) newErrors.budget = "Budget selection is required";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -276,12 +237,12 @@ export default function ProfileSettings() {
         try {
             setSaving(true);
 
-            // Prepare the profile data
+            // Prepare profile data according to your backend expectations
             const profileData = {
                 username: formData.displayName,
                 email: formData.email,
                 bio: formData.bio,
-                // favoriteDestinations: formData.favoriteDestinations,
+                favoriteDestinations: formData.favoriteDestinations,
                 location: formData.location,
                 budget: formData.budget,
                 website: formData.website,
@@ -292,514 +253,690 @@ export default function ProfileSettings() {
                 themePreference: formData.theme
             };
 
-            // Handle profile image upload if a new one was selected
-            if (formData.profileImage && typeof formData.profileImage !== 'string') {
-                const imageFormData = new FormData();
-                imageFormData.append('profileImage', formData.profileImage);
+            let profileImageUrl = null;
 
-                // Upload the image first
-                const imageResponse = await BACKEND_API.Users.UpdateProfileImage(imageFormData);
-                if (imageResponse.data.profileImage) {
-                    profileData.profileImage = imageResponse.data.profileImage;
+            // Handle profile image upload if a new image was selected
+            if (formData.profileImage && typeof formData.profileImage !== 'string') {
+                try {
+                    const imageFormData = new FormData();
+                    imageFormData.append('profileImage', formData.profileImage);
+
+                    const imageResponse = await BACKEND_API.Users.UpdateProfileImage(imageFormData);
+
+                    if (imageResponse.data?.profileImage) {
+                        profileImageUrl = imageResponse.data.profileImage;
+                        profileData.profileImage = profileImageUrl;
+                    }
+                } catch (imageError) {
+                    console.error("Error uploading profile image:", imageError);
+                    toast.warning("Profile saved, but image upload failed");
                 }
             }
 
-            // Update the profile data
-            const response = await BACKEND_API.Users.UpdateProfile(currentUser?.id || currentUser?._id, profileData);
+            // Update user profile
+            const response = await BACKEND_API.Users.UpdateProfile(
+                currentUser?.id || currentUser?._id || currentUser?.userId,
+                profileData
+            );
 
-            // Update the user context with new data
-            if (response.data) {
-                // This assumes your AuthContext has a way to update the user
-                // You might need to adjust this based on your AuthContext implementation
-                updateUser(response.data.user);
-                console.log("Response after updating user: ", response.data);
+            if (response.data?.user) {
+                // Update user in context with new data
+                const updatedUser = {
+                    ...currentUser,
+                    ...response.data.user,
+                    profileImage: profileImageUrl || currentUser.profileImage
+                };
+
+                updateUser(updatedUser);
                 toast.success("Profile updated successfully!");
+            } else {
+                throw new Error("Invalid response from server");
             }
         } catch (error) {
             console.error("Error updating profile:", error);
-            const errorMessage = error.response?.data?.message || "Failed to update profile. Please try again.";
+            const errorMessage = error.response?.data?.message ||
+                error.message ||
+                "Failed to update profile. Please try again.";
             toast.error(errorMessage);
-
-            // Handle token expiration or unauthorized
-            if (error.response?.status === 401) {
-                // The interceptor in Backend.js should handle token refresh
-                // If we get here, refresh might have failed
-                toast.error("Your session has expired. Please log in again.");
-                // Redirect to login or handle as per your auth flow
-            }
         } finally {
             setSaving(false);
         }
     };
 
-
-    const tabs = [
-        { id: "profile", label: "Profile", icon: User },
-        { id: "preferences", label: "Preferences", icon: Heart },
-        { id: "notifications", label: "Notifications", icon: Bell },
-        { id: "appearance", label: "Appearance", icon: Palette },
-    ];
-
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-            {/* Header */}
-            <motion.header
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/60"
-            >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center space-x-4">
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => window.history.back()}
-                                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50 rounded-xl border border-gray-200 transition-all duration-200"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                                <span>Back</span>
-                            </motion.button>
-                            <div className="hidden md:flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                                    <User className="w-4 h-4 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-xl font-bold text-gray-900">Profile Settings</h1>
-                                    <p className="text-sm text-gray-500">Manage your account and preferences</p>
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-teal-50/30 to-blue-50/30 relative overflow-hidden">
+            {/* Animated background elements */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-linear-to-br from-teal-200 to-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-linear-to-br from-cyan-200 to-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-linear-to-br from-blue-200 to-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+            </div>
+
+            <div className="relative z-10">
+                {/* Header */}
+                <motion.header
+                    initial={{ y: -100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="sticky top-0 z-50 px-6 py-4"
+                >
+                    <div className="max-w-7xl mx-auto">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <motion.button
+                                    whileHover={{ scale: 1.05, x: -5 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => window.history.back()}
+                                    className="group flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-md bg-white/30 border border-white/20 hover:bg-white/40 transition-all duration-300"
+                                >
+                                    <ArrowLeft className="w-4 h-4 text-gray-700 group-hover:text-teal-600 transition-colors" />
+                                    <span className="text-sm font-medium text-gray-700 group-hover:text-teal-600 transition-colors">Back</span>
+                                </motion.button>
+
+                                <div className="hidden md:flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-teal-500 to-blue-500 flex items-center justify-center shadow-lg">
+                                        <User className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl font-bold bg-linear-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                                            Profile Settings
+                                        </h1>
+                                        <p className="text-xs text-gray-500">Customize your travel experience</p>
+                                    </div>
                                 </div>
                             </div>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05, boxShadow: "0 20px 60px rgba(13, 148, 136, 0.3)" }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleSubmit}
+                                disabled={saving}
+                                className="group px-6 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-blue-500 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <div className="relative">
+                                    {saving ? (
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <Save className="w-4 h-4" />
+                                    )}
+                                </div>
+                                <span>{saving ? "Saving..." : "Save Changes"}</span>
+                                {!saving && (
+                                    <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
+                            </motion.button>
                         </div>
-
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleSubmit}
-                            disabled={saving}
-                            className="px-6 py-3 bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 disabled:opacity-50"
-                        >
-                            {saving ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    <span>Saving...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="w-4 h-4" />
-                                    <span>Save Changes</span>
-                                </>
-                            )}
-                        </motion.button>
                     </div>
-                </div>
-            </motion.header>
+                </motion.header>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Sidebar Navigation */}
+                {/* Main Content - Dashboard Grid */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <motion.div
-                        variants={cardVariants}
+                        variants={staggerContainer}
                         initial="hidden"
                         animate="visible"
-                        className="lg:col-span-3"
+                        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                     >
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6 sticky top-32">
-                            <nav className="space-y-2">
-                                {tabs.map((tab) => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${activeTab === tab.id
-                                            ? "bg-gradient-to-r from-teal-50 to-indigo-50 text-teal-700 border border-teal-200/50 shadow-sm"
-                                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                            }`}
-                                    >
-                                        <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-teal-600' : 'text-gray-400'}`} />
-                                        <span className="font-medium">{tab.label}</span>
-                                    </button>
-                                ))}
-                            </nav>
-
-                            {/* Stats */}
-                            <div className="mt-8 pt-6 border-t border-gray-200/60">
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-500">Profile Completion</span>
-                                        <span className="text-sm font-medium text-teal-600">{completion}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        {/* Left Column - Profile & Stats */}
+                        <div className="space-y-6">
+                            {/* Profile Card */}
+                            <motion.div
+                                variants={fadeInUp}
+                                whileHover={{ scale: 1.01 }}
+                                className="relative rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-200/60 shadow-xl"
+                            >
+                                <div className="absolute top-0 left-0 w-full h-32 bg-linear-to-r from-teal-500/10 to-blue-500/10"></div>
+                                <div className="relative p-6">
+                                    <div className="flex flex-col items-center">
+                                        {/* Profile Image */}
                                         <motion.div
-                                            className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-indigo-600"
-                                            initial={{ width: '0%' }}
-                                            animate={{ width: `${completion}%` }}
-                                            transition={{ duration: 0.5, ease: "easeOut" }}
-                                        />
-                                    </div>
-                                    {completion < 100 && (
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Complete more fields to reach 100%. Add {suggestNextStep(formData)} to increase your score.
+                                            animate={{
+                                                y: [0, -10, 0],
+                                            }}
+                                            transition={{
+                                                duration: 3,
+                                                repeat: Infinity,
+                                                ease: "easeInOut"
+                                            }}
+                                            className="relative mb-6"
+                                        >
+                                            <div className="relative w-32 h-32 rounded-full p-1 bg-linear-to-r from-teal-500 to-blue-500">
+                                                <div className="w-full h-full rounded-full overflow-hidden border-4 border-white bg-gray-100">
+                                                    {previewImage ? (
+                                                        <img
+                                                            src={previewImage}
+                                                            alt="Profile"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-linear-to-br from-teal-100 to-blue-100 flex items-center justify-center">
+                                                            <User className="w-12 h-12 text-teal-400" />
+                                                        </div>
+                                                    )}
+                                                    {imageUploading && (
+                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <label
+                                                    htmlFor="profileImage"
+                                                    className="absolute bottom-2 right-2 w-10 h-10 bg-linear-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300"
+                                                >
+                                                    <Camera className="w-4 h-4 text-white" />
+                                                    <input
+                                                        type="file"
+                                                        id="profileImage"
+                                                        className="hidden"
+                                                        onChange={handleImageChange}
+                                                        accept="image/*"
+                                                    />
+                                                </label>
+                                            </div>
+                                        </motion.div>
+
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                                            {formData.displayName || "Traveler"}
+                                        </h2>
+                                        <p className="text-gray-500 mb-4 flex items-center gap-1">
+                                            <Mail className="w-4 h-4" />
+                                            {formData.email}
                                         </p>
-                                    )}
+
+                                        {/* Badges */}
+                                        <div className="flex gap-2 mb-6">
+                                            <div className="px-3 py-1 bg-linear-to-r from-teal-100 to-blue-100 text-teal-700 rounded-full text-xs font-medium flex items-center gap-1">
+                                                <Sparkles className="w-3 h-3" />
+                                                Explorer
+                                            </div>
+                                            <div className="px-3 py-1 bg-linear-to-r from-cyan-100 to-blue-100 text-cyan-700 rounded-full text-xs font-medium flex items-center gap-1">
+                                                <CompassIcon className="w-3 h-3" />
+                                                Adventurer
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Quick Stats */}
+                                    <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-100">
+                                        {[
+                                            { label: "Trips", value: "24", icon: Plane, color: "text-teal-500" },
+                                            { label: "Countries", value: "12", icon: Globe, color: "text-blue-500" },
+                                            { label: "Level", value: "Gold", icon: Crown, color: "text-amber-500" }
+                                        ].map((stat, index) => (
+                                            <div key={index} className="text-center group">
+                                                <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                                                <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                                                    <stat.icon className={`w-3 h-3 ${stat.color}`} />
+                                                    {stat.label}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Progress Card */}
+                            <motion.div
+                                variants={fadeInUp}
+                                className="rounded-3xl p-6 bg-white/80 backdrop-blur-sm border border-gray-200/60 shadow-xl"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="font-semibold text-gray-900">Profile Completion</h3>
+                                    <span className="text-2xl font-bold bg-linear-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                                        {completion}%
+                                    </span>
+                                </div>
+
+                                {/* Circular Progress */}
+                                <div className="relative w-32 h-32 mx-auto mb-4">
+                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r="40"
+                                            stroke="#E5E7EB"
+                                            strokeWidth="8"
+                                            fill="none"
+                                        />
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r="40"
+                                            stroke="url(#progress-linear)"
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeLinecap="round"
+                                            strokeDasharray="251.2"
+                                            strokeDashoffset={251.2 * (1 - completion / 100)}
+                                        />
+                                        <defs>
+                                            <linearGradient id="progress-linear" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#0d9488" />
+                                                <stop offset="100%" stopColor="#3b82f6" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="text-center">
+                                            <div className="text-3xl font-bold text-gray-900">{completion}%</div>
+                                            <div className="text-xs text-gray-500">Complete</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    {[
+                                        { label: "Profile Info", done: formData.displayName && formData.email },
+                                        { label: "Travel Preferences", done: formData.location && formData.budget },
+                                        { label: "3+ Destinations", done: formData.favoriteDestinations.length >= 3 },
+                                        { label: "Profile Photo", done: !previewImage.includes('unsplash.com') }
+                                    ].map((item, index) => (
+                                        <div key={index} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                {item.done ? (
+                                                    <CheckCircle className="w-4 h-4 text-green-500" />
+                                                ) : (
+                                                    <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                                                )}
+                                                <span className={`text-sm ${item.done ? 'text-gray-900' : 'text-gray-500'}`}>
+                                                    {item.label}
+                                                </span>
+                                            </div>
+                                            {item.done ? (
+                                                <Check className="w-4 h-4 text-green-500" />
+                                            ) : (
+                                                <div className="w-2 h-2 rounded-full bg-gray-300" />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        {/* Middle Column - Forms & Preferences */}
+                        <div className="space-y-6">
+                            {/* Personal Information Card */}
+                            <motion.div
+                                variants={fadeInUp}
+                                className="rounded-3xl p-6 bg-white/80 backdrop-blur-sm border border-gray-200/60 shadow-xl"
+                            >
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                                        <User className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                                        <p className="text-sm text-gray-500">Your basic details</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Display Name *
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    name="displayName"
+                                                    value={formData.displayName}
+                                                    onChange={handleChange}
+                                                    className={`w-full px-4 py-3 rounded-xl border ${errors.displayName ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200`}
+                                                    placeholder="Your name"
+                                                />
+                                                <User className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+                                            </div>
+                                            {errors.displayName && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.displayName}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Email Address *
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    value={formData.email}
+                                                    onChange={handleChange}
+                                                    className={`w-full px-4 py-3 rounded-xl border ${errors.email ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200`}
+                                                    placeholder="your@email.com"
+                                                />
+                                                <Mail className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+                                            </div>
+                                            {errors.email && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Bio
+                                        </label>
+                                        <div className="relative">
+                                            <textarea
+                                                name="bio"
+                                                value={formData.bio}
+                                                onChange={handleChange}
+                                                rows={3}
+                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 resize-none"
+                                                placeholder="Tell us about your travel passions..."
+                                                maxLength={200}
+                                            />
+                                            <div className="absolute right-3 bottom-3 text-xs text-gray-400">
+                                                {formData.bio.length}/200
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Phone Number
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="tel"
+                                                    name="phone"
+                                                    value={formData.phone}
+                                                    onChange={handleChange}
+                                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200"
+                                                    placeholder="+1 (555) 123-4567"
+                                                />
+                                                <Smartphone className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Date of Birth
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="date"
+                                                    name="dateOfBirth"
+                                                    value={formData.dateOfBirth}
+                                                    onChange={handleChange}
+                                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200"
+                                                />
+                                                <Calendar className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Destination Categories Card */}
+                            <motion.div
+                                variants={fadeInUp}
+                                className="rounded-3xl p-6 bg-white/80 backdrop-blur-sm border border-gray-200/60 shadow-xl"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-rose-500 to-blue-500 flex items-center justify-center">
+                                            <Heart className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900">Favorite Destinations</h3>
+                                            <p className="text-sm text-gray-500">Select your travel interests</p>
+                                        </div>
+                                    </div>
+                                    <div className="px-3 py-1 bg-linear-to-r from-rose-100 to-blue-100 text-rose-700 rounded-full text-sm font-medium">
+                                        {formData.favoriteDestinations.length} selected
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {MODERN_CATEGORIES.map((category, index) => {
+                                        const isSelected = formData.favoriteDestinations.includes(category.name);
+
+                                        return (
+                                            <motion.button
+                                                key={index}
+                                                type="button"
+                                                whileHover={{ y: -4, scale: 1.02 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => toggleDestinationCategory(category.name)}
+                                                className={`relative p-4 rounded-xl border transition-all duration-300 overflow-hidden ${isSelected
+                                                    ? "border-transparent"
+                                                    : "border-gray-200 hover:border-gray-300"
+                                                    }`}
+                                            >
+                                                <div
+                                                    className={`absolute inset-0 bg-linear-to-br ${category.color} ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-10"
+                                                        } transition-opacity duration-300`}
+                                                />
+                                                <div className="relative z-10 flex flex-col items-center">
+                                                    <category.icon
+                                                        className={`w-6 h-6 mb-2 ${isSelected ? "text-white" : "text-gray-600"
+                                                            }`}
+                                                    />
+                                                    <span
+                                                        className={`text-xs font-medium ${isSelected ? "text-white" : "text-gray-700"
+                                                            }`}
+                                                    >
+                                                        {category.name}
+                                                    </span>
+                                                </div>
+                                                {isSelected && (
+                                                    <div className="absolute top-2 right-2">
+                                                        <div className="w-5 h-5 bg-linear-to-r from-rose-500 to-blue-500 rounded-full flex items-center justify-center">
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.button>
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        {/* Right Column - Settings & Preferences */}
+                        <div className="space-y-6">
+                            {/* Travel Preferences Card */}
+                            <motion.div
+                                variants={fadeInUp}
+                                className="rounded-3xl p-6 bg-white/80 backdrop-blur-sm border border-gray-200/60 shadow-xl"
+                            >
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                                        <CompassIcon className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Travel Preferences</h3>
+                                        <p className="text-sm text-gray-500">Your travel style & budget</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Current Location *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="location"
+                                                value={formData.location}
+                                                onChange={handleChange}
+                                                className={`w-full px-4 py-3 rounded-xl border ${errors.location ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white/50 transition-all duration-200`}
+                                                placeholder="Where are you based?"
+                                            />
+                                            <MapPin className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+                                        </div>
+                                        {errors.location && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                            Travel Budget *
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {BUDGET_OPTIONS.map((option, index) => (
+                                                <motion.button
+                                                    key={index}
+                                                    type="button"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => setFormData(prev => ({ ...prev, budget: option.value }))}
+                                                    className={`p-3 rounded-lg border transition-all duration-200 flex flex-col items-center justify-center ${formData.budget === option.value
+                                                        ? `border-transparent bg-linear-to-r ${option.color} text-white shadow-lg`
+                                                        : "border-gray-200 bg-white/50 hover:bg-white"
+                                                        }`}
+                                                >
+                                                    <option.icon
+                                                        className={`w-4 h-4 mb-1 ${formData.budget === option.value ? "text-white" : "text-gray-400"
+                                                            }`}
+                                                    />
+                                                    <div className="text-xs font-medium">{option.value}</div>
+                                                    <div className="text-xs opacity-80 mt-1">{option.label}</div>
+                                                </motion.button>
+                                            ))}
+                                        </div>
+                                        {errors.budget && (
+                                            <p className="mt-2 text-sm text-red-600">{errors.budget}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Settings Grid */}
+                            <div className="grid grid-cols-1 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                                    {/* Notifications Card */}
+                                    <motion.div
+                                        variants={fadeInUp}
+                                        className="rounded-3xl p-6 backdrop-blur-xl bg-white/40 shadow-xl border border-white/30"
+                                    >
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
+                                                <Bell className="w-6 h-4 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900">Notifications</h3>
+                                                <p className="text-xs text-gray-500">Manage how we keep you updated</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {/* Push */}
+                                            <div className="flex flex-col text-center items-center justify-between p-4 rounded-2xl border border-white/30 bg-white/50 backdrop-blur-sm shadow-sm">
+                                                <div>
+                                                    <div className="font-medium text-gray-900 text-sm">Push Notifications</div>
+                                                    <div className="text-xs text-gray-500">Instant alerts on your phone</div>
+                                                </div>
+
+                                                <motion.div
+                                                    whileTap={{ scale: 0.9 }}
+                                                    className={`relative w-12 h-6 rounded-full cursor-pointer transition-colors ${formData.notifications
+                                                            ? "bg-linear-to-r from-amber-500 to-orange-500"
+                                                            : "bg-gray-300"
+                                                        }`}
+                                                    onClick={() =>
+                                                        setFormData((prev) => ({ ...prev, notifications: !prev.notifications }))
+                                                    }
+                                                >
+                                                    <motion.div
+                                                        className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow"
+                                                        animate={{ x: formData.notifications ? 24 : 0 }}
+                                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                    />
+                                                </motion.div>
+                                            </div>
+
+                                            {/* Email */}
+                                            <div className="flex flex-col text-center items-center justify-between p-4 rounded-2xl border border-white/30 bg-white/50 backdrop-blur-sm shadow-sm">
+                                                <div>
+                                                    <div className="font-medium text-gray-900 text-sm">Email Newsletter</div>
+                                                    <div className="text-xs text-gray-500">Travel tips & exclusive deals</div>
+                                                </div>
+
+                                                <motion.div
+                                                    whileTap={{ scale: 0.9 }}
+                                                    className={`relative w-12 h-6 rounded-full cursor-pointer transition-colors ${formData.newsletter
+                                                            ? "bg-linear-to-r from-amber-500 to-orange-500"
+                                                            : "bg-gray-300"
+                                                        }`}
+                                                    onClick={() =>
+                                                        setFormData((prev) => ({ ...prev, newsletter: !prev.newsletter }))
+                                                    }
+                                                >
+                                                    <motion.div
+                                                        className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow"
+                                                        animate={{ x: formData.newsletter ? 24 : 0 }}
+                                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                    />
+                                                </motion.div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Theme Card */}
+                                    <motion.div
+                                        variants={fadeInUp}
+                                        className="rounded-3xl p-6 backdrop-blur-xl bg-white/40 shadow-xl border border-white/30"
+                                    >
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-teal-500 to-blue-500 flex items-center justify-center shadow-md">
+                                                <Palette className="w-4 h-4 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900">Theme</h3>
+                                                <p className="text-xs text-gray-500">Choose your appearance</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            {[
+                                                { id: "light", name: "Light", icon: Sun, color: "from-amber-200 to-yellow-200" },
+                                                { id: "dark", name: "Dark", icon: Moon, color: "from-gray-800 to-slate-900" },
+                                                { id: "auto", name: "Auto", icon: Settings2, color: "from-cyan-200 to-blue-200" },
+                                            ].map((theme) => {
+                                                const isActive = formData.theme === theme.id;
+
+                                                return (
+                                                    <motion.button
+                                                        key={theme.id}
+                                                        type="button"
+                                                        whileHover={{ y: -2, scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                        onClick={() => setFormData((prev) => ({ ...prev, theme: theme.id }))}
+                                                        className={`w-full p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between ${isActive
+                                                                ? "border-transparent bg-linear-to-r from-teal-100 to-blue-100 shadow-md"
+                                                                : "border-gray-200 bg-white/60 hover:shadow-sm"
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div
+                                                                className={`w-9 h-9 rounded-xl bg-linear-to-br ${theme.color} flex items-center justify-center shadow`}
+                                                            >
+                                                                <theme.icon className="w-4 h-4 text-white" />
+                                                            </div>
+                                                            <span className="font-medium text-sm text-gray-900">{theme.name}</span>
+                                                        </div>
+
+                                                        {isActive && (
+                                                            <div className="w-5 h-5 bg-linear-to-r from-teal-500 to-blue-500 rounded-full flex items-center justify-center shadow">
+                                                                <Check className="w-3 h-3 text-white" />
+                                                            </div>
+                                                        )}
+                                                    </motion.button>
+                                                );
+                                            })}
+                                        </div>
+                                    </motion.div>
                                 </div>
                             </div>
                         </div>
                     </motion.div>
-
-                    {/* Main Content */}
-                    <div className="lg:col-span-9">
-                        <motion.div
-                            key={activeTab}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3 }}
-                            className="space-y-6"
-                        >
-                            {/* Profile Tab */}
-                            {activeTab === "profile" && (
-                                <motion.div
-                                    variants={container}
-                                    initial="hidden"
-                                    animate="show"
-                                    className="grid grid-cols-1 xl:grid-cols-3 gap-6"
-                                >
-                                    {/* Profile Picture Card */}
-                                    <motion.div variants={item} className="xl:col-span-1">
-                                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6">
-                                            <div className="text-center">
-                                                <div className="relative inline-block mb-6">
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.02 }}
-                                                        className="relative"
-                                                    >
-                                                        <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white shadow-xl mx-auto">
-                                                            <img
-                                                                src={previewImage}
-                                                                alt="Profile"
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                            {imageUploading && (
-                                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <label
-                                                            htmlFor="profileImage"
-                                                            className="absolute -bottom-2 -right-2 bg-gradient-to-r from-teal-500 to-indigo-600 text-white p-2 rounded-xl cursor-pointer hover:shadow-lg transition-all duration-200 shadow-lg"
-                                                        >
-                                                            <Camera className="w-4 h-4" />
-                                                            <input
-                                                                type="file"
-                                                                id="profileImage"
-                                                                className="hidden"
-                                                                onChange={handleImageChange}
-                                                                accept="image/*"
-                                                            />
-                                                        </label>
-                                                    </motion.div>
-                                                </div>
-
-                                                <h2 className="text-xl font-bold text-gray-900 mb-1">
-                                                    {formData.displayName || "Your Name"}
-                                                </h2>
-                                                <p className="text-gray-500 mb-4">{formData.email}</p>
-
-                                                <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                                                    <div className="flex items-center space-x-1">
-                                                        <Calendar className="w-4 h-4" />
-                                                        <span>Member since 2024</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Personal Information */}
-                                    <motion.div variants={item} className="xl:col-span-2">
-                                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                                                <User className="w-5 h-5 text-teal-600" />
-                                                <span>Personal Information</span>
-                                            </h3>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Display Name *
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="displayName"
-                                                        value={formData.displayName}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white transition-all duration-200"
-                                                        placeholder="Enter your name"
-                                                    />
-                                                    {errors.displayName && (
-                                                        <p className="mt-1 text-sm text-red-600">{errors.displayName}</p>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Email Address *
-                                                    </label>
-                                                    <input
-                                                        type="email"
-                                                        name="email"
-                                                        value={formData.email}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white transition-all duration-200"
-                                                        placeholder="your@email.com"
-                                                    />
-                                                    {errors.email && (
-                                                        <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Phone Number
-                                                    </label>
-                                                    <input
-                                                        type="tel"
-                                                        name="phone"
-                                                        value={formData.phone}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white transition-all duration-200"
-                                                        placeholder="+1 (555) 123-4567"
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Date of Birth
-                                                    </label>
-                                                    <input
-                                                        type="date"
-                                                        name="dateOfBirth"
-                                                        value={formData.dateOfBirth}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white transition-all duration-200"
-                                                    />
-                                                </div>
-
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Bio
-                                                    </label>
-                                                    <textarea
-                                                        name="bio"
-                                                        value={formData.bio}
-                                                        onChange={handleChange}
-                                                        rows={4}
-                                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white transition-all duration-200 resize-none"
-                                                        placeholder="Tell us about yourself..."
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </motion.div>
-                            )}
-
-                            {/* Preferences Tab */}
-                            {activeTab === "preferences" && (
-                                <motion.div
-                                    variants={container}
-                                    initial="hidden"
-                                    animate="show"
-                                    className="space-y-6"
-                                >
-                                    {/* Location & Budget */}
-                                    <motion.div variants={item}>
-                                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                                                <MapPin className="w-5 h-5 text-teal-600" />
-                                                <span>Travel Preferences</span>
-                                            </h3>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Current Location *
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="location"
-                                                        value={formData.location}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white transition-all duration-200"
-                                                        placeholder="e.g., New Delhi, India"
-                                                    />
-                                                    {errors.location && (
-                                                        <p className="mt-1 text-sm text-red-600">{errors.location}</p>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-4">
-                                                        Travel Budget *
-                                                    </label>
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        {BUDGET_OPTIONS.map((option, index) => (
-                                                            <motion.button
-                                                                key={index}
-                                                                type="button"
-                                                                whileHover={{ scale: 1.02 }}
-                                                                whileTap={{ scale: 0.98 }}
-                                                                onClick={() => setFormData(prev => ({ ...prev, budget: option.value }))}
-                                                                className={`p-3 rounded-xl border-2 transition-all duration-200 text-left ${formData.budget === option.value
-                                                                    ? `border-transparent bg-gradient-to-r ${option.color} text-white shadow-lg`
-                                                                    : "border-gray-200 bg-white hover:border-teal-200 hover:bg-teal-50"
-                                                                    }`}
-                                                            >
-                                                                <div className="text-sm font-medium">{option.value}</div>
-                                                                <div className="text-xs opacity-80">{option.label}</div>
-                                                            </motion.button>
-                                                        ))}
-                                                    </div>
-                                                    {errors.budget && (
-                                                        <p className="mt-2 text-sm text-red-600">{errors.budget}</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Favorite Destinations */}
-                                    <motion.div variants={item}>
-                                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                                                <Heart className="w-5 h-5 text-rose-600" />
-                                                <span>Favorite Destination Types</span>
-                                            </h3>
-
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                                                {DESTINATION_CATEGORIES.map((category, index) => (
-                                                    <motion.button
-                                                        key={index}
-                                                        type="button"
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        onClick={() => toggleDestinationCategory(category.name)}
-                                                        className={`p-3 rounded-xl border-2 transition-all text-blue-400 duration-200 ${formData.favoriteDestinations.includes(category.name)
-                                                            ? `border-transparent bg-gradient-to-r ${category.color} text-white shadow-lg`
-                                                            : "border-gray-200 bg-white hover:border-gray-300"
-                                                            }`}
-                                                    >
-                                                        <div className="text-2xl mb-1 flex items-center justify-center">
-                                                            {React.createElement(category.icon, { className: "w-6 h-6" })}
-                                                        </div>
-                                                        <div className="text-xs font-medium">{category.name}</div>
-                                                    </motion.button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </motion.div>
-                            )}
-
-                            {/* Notifications Tab */}
-                            {activeTab === "notifications" && (
-                                <motion.div
-                                    variants={container}
-                                    initial="hidden"
-                                    animate="show"
-                                    className="space-y-6"
-                                >
-                                    <motion.div variants={item}>
-                                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                                                <Bell className="w-5 h-5 text-amber-600" />
-                                                <span>Notification Preferences</span>
-                                            </h3>
-
-                                            <div className="space-y-4">
-                                                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
-                                                    <div>
-                                                        <div className="font-medium text-gray-900">Push Notifications</div>
-                                                        <div className="text-sm text-gray-500">Receive push notifications on your device</div>
-                                                    </div>
-                                                    <label className="relative inline-flex items-center cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="notifications"
-                                                            checked={formData.notifications}
-                                                            onChange={handleChange}
-                                                            className="sr-only peer"
-                                                        />
-                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
-                                                    </label>
-                                                </div>
-
-                                                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white">
-                                                    <div>
-                                                        <div className="font-medium text-gray-900">Email Newsletter</div>
-                                                        <div className="text-sm text-gray-500">Receive travel tips and exclusive deals</div>
-                                                    </div>
-                                                    <label className="relative inline-flex items-center cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="newsletter"
-                                                            checked={formData.newsletter}
-                                                            onChange={handleChange}
-                                                            className="sr-only peer"
-                                                        />
-                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </motion.div>
-                            )}
-
-                            {/* Appearance Tab */}
-                            {activeTab === "appearance" && (
-                                <motion.div
-                                    variants={container}
-                                    initial="hidden"
-                                    animate="show"
-                                    className="space-y-6"
-                                >
-                                    <motion.div variants={item}>
-                                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 p-6">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                                                <Palette className="w-5 h-5 text-purple-600" />
-                                                <span>Theme Preferences</span>
-                                            </h3>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                {[
-                                                    { id: "light", name: "Light", desc: "Clean and bright" },
-                                                    { id: "dark", name: "Dark", desc: "Easy on the eyes" },
-                                                    { id: "system", name: "System", desc: "Follow system" }
-                                                ].map((theme) => (
-                                                    <motion.button
-                                                        key={theme.id}
-                                                        type="button"
-                                                        whileHover={{ scale: 1.02 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        onClick={() => setFormData(prev => ({ ...prev, theme: theme.id }))}
-                                                        className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.theme === theme.id
-                                                            ? "border-teal-500 bg-teal-50 shadow-sm"
-                                                            : "border-gray-200 bg-white hover:border-gray-300"
-                                                            }`}
-                                                    >
-                                                        <div className="font-medium text-gray-900">{theme.name}</div>
-                                                        <div className="text-sm text-gray-500 mt-1">{theme.desc}</div>
-                                                    </motion.button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </motion.div>
-                            )}
-                        </motion.div>
-                    </div>
                 </div>
             </div>
         </div>

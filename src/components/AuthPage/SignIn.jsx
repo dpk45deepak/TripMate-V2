@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, use } from "react";
 import { Eye, EyeOff, Mail, Lock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Plane } from "lucide-react";
@@ -7,11 +7,15 @@ import { Plane } from "lucide-react";
 // Authentication
 import BACKEND_API from '../../Services/Backend';
 import AuthContext from "../../Context/AuthContext";
+import useToast from '../../hooks/useToast';
 
 export default function AuthenticationForm() {
 
+  const toast = useToast();
+
   // Global Context
-  const { login, updateUser } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -21,7 +25,12 @@ export default function AuthenticationForm() {
     password: ""
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if(errorMsg){
+      toast.info(errorMsg);
+    }
+  }, [errorMsg]);
+
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -40,13 +49,13 @@ export default function AuthenticationForm() {
     try {
       await BACKEND_API.Auth.SignIn(credentials);
       // console log success
-      console.log("SignIn Successful!! ✅");
+      toast.success("Sign in successful! Welcome back!");
       // Set Global Context an navigate user
       const userResponse = await BACKEND_API.Users.GetProfile();
       updateUser(userResponse.data);
     } catch (error) {
-      console.error("❌ Login/Signin failed:", error.response?.data || error.message);
-      setErrorMsg(error.response?.data?.message || "Invalid credentials. Try again.");
+      console.error("Login/Signin failed: ❌ ", error.response?.data || error.msg);
+      setErrorMsg(error.response?.data?.msg || "Invalid credentials. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -56,13 +65,12 @@ export default function AuthenticationForm() {
     setIsLoading(true);
     try {
       const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-      console.log("Backend URL: ", BACKEND_URL);
       // Implement Social Login
       window.location.href = `${BACKEND_URL}/auth/google`;
-      const userResponse = await BACKEND_API.Users.GetProfile();
-      console.log("✅ Social Login success:", user);
       // Set Global Context an navigate user
+      const userResponse = await BACKEND_API.Users.GetProfile();
       updateUser(userResponse.data);
+      toast.success("Social login successful! Welcome back!");
     } catch (error) {
       console.error('OAuth error:', error);
       setErrorMsg('Failed to initiate Google sign in');
@@ -70,13 +78,11 @@ export default function AuthenticationForm() {
     }
   };
 
-  const { user } = useContext(AuthContext);
-
   useEffect(() => {
     if (user) navigate("/home"); // already signed in
   }, [user]);
 return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center bg-gradient-to-br from-blue-100 via-white to-cyan-100 font-sans overflow-hidden px-6 py-10">
+    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center bg-linear-to-br from-blue-100 via-white to-cyan-100 font-sans overflow-hidden px-6 py-10">
       {/* Right Login Card */}
       <motion.div
         initial={{ opacity: 0, x: 50 }}
@@ -87,13 +93,13 @@ return (
         {/* Logo Section */}
         <div className="flex items-center justify-center space-x-3 mb-6">
           <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-linear-to-br from-teal-400 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-xl lg:text-2xl font-black bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+            <span className="text-xl lg:text-2xl font-black bg-linear-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
               TripMate
             </span>
             <span className="text-xs text-gray-500 font-medium -mt-1 hidden sm:block">
@@ -102,7 +108,7 @@ return (
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent mb-6 text-center">
+        <h2 className="text-2xl font-bold bg-linear-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent mb-6 text-center">
           Sign In to Continue
         </h2>
 
@@ -146,7 +152,7 @@ return (
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 transition-all duration-300 shadow-lg ${
+            className={`w-full py-3 rounded-xl font-semibold text-white bg-linear-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 transition-all duration-300 shadow-lg ${
               isLoading ? "opacity-70 cursor-not-allowed" : "hover:scale-105"
             }`}
           >
@@ -156,9 +162,9 @@ return (
 
         {/* Divider */}
         <div className="my-6 flex items-center">
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="grow border-t border-gray-300"></div>
           <span className="mx-3 text-gray-400 text-sm">or</span>
-          <div className="flex-grow border-t border-gray-300"></div>
+          <div className="grow border-t border-gray-300"></div>
         </div>
 
         {/* Google Login */}

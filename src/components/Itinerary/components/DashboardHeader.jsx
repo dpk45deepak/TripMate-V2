@@ -21,7 +21,7 @@ import {
 // Global Context
 import AuthContext from "../../../Context/AuthContext";
 import Nav_Search from '../../../components/HomePage/Nav_Search';
-import FilterPanel from "../../FilterPanel";
+import FilterPanel from "../../common/FilterPanel";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {

@@ -1,20 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, MapPin, Calendar, Users, Search, Filter, X, Globe, Heart, Navigation, TrendingUp, Sparkles, Zap, Target, Grid3x3, List, Shield } from 'lucide-react';
+import { Star, MapPin, Calendar, Users, Search, X, Globe, Heart, Navigation, TrendingUp, Sparkles, Zap, Target, Grid3x3, List, Shield } from 'lucide-react';
 import BACKEND_API from '../Services/Backend';
-
-const colorPalettes = [
-    'bg-linear-to-br from-blue-500 to-cyan-400',
-    'bg-linear-to-br from-purple-500 to-pink-400',
-    'bg-linear-to-br from-green-500 to-emerald-400',
-    'bg-linear-to-br from-yellow-500 to-orange-400',
-    'bg-linear-to-br from-red-500 to-pink-400',
-    'bg-linear-to-br from-indigo-500 to-blue-400',
-    'bg-linear-to-br from-teal-500 to-green-400',
-    'bg-linear-to-br from-rose-500 to-pink-400',
-    'bg-linear-to-br from-violet-500 to-purple-400',
-    'bg-linear-to-br from-amber-500 to-yellow-400',
-];
 
 const desktopPatterns = [
     { width: 1, height: 2 },
@@ -82,7 +69,6 @@ const useTrips = (userId) => {
 };
 
 const TripCard = ({ trip, index, isMobile, pattern, isFavorite, onFavoriteToggle, onClick }) => {
-    const color = colorPalettes[index % colorPalettes.length];
     const isLarge = !isMobile && pattern.width === 2;
 
     return (
@@ -102,11 +88,11 @@ const TripCard = ({ trip, index, isMobile, pattern, isFavorite, onFavoriteToggle
         >
             <div className="absolute inset-0">
                 <img
-                    src={trip.image_url || 'https://placehold.co/600x400/4CAF50/ffffff?text=Trip+Image'}
+                    src={trip.image_url || 'https://content.jdmagicbox.com/comp/nagpur/u8/0712px712.x712.160825151054.l5u8/catalogue/mytripcare-com-chhatrapati-nagar-nagpur-visa-assistance-mr1fq7xyde.jpg'}
                     alt={trip.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className={`absolute inset-0 ${color} opacity-60 mix-blend-overlay`} />
+                <div className={`absolute inset-0  opacity-60 mix-blend-overlay`} />
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
             </div>
 

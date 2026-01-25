@@ -12,7 +12,7 @@ const PricingSection = () => (
   >
     <div className="max-w-6xl mx-auto text-center">
       {/* Section Title */}
-      <h2 className="text-4xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-2">
+      <h2 className="text-4xl sm:text-4xl font-extrabold bg-linear-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-2">
         Choose The Plan That Suits You
       </h2>
 
@@ -92,14 +92,14 @@ const PricingSection = () => (
             )}
 
             {/* Title with Gradient */}
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-2">
+            <h3 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-2">
               {plan.title}
             </h3>
 
             <p className="text-gray-500 mb-6">Best for solo travelers.</p>
 
             {/* Price with Gradient */}
-            <div className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-8">
+            <div className="text-4xl font-extrabold bg-linear-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-8">
               <span className="text-2xl align-top">$</span>
               {plan.price}
               <span className="text-lg font-medium text-gray-500">/mo</span>
@@ -109,7 +109,7 @@ const PricingSection = () => (
             <ul className="space-y-4 mb-10">
               {plan.features.map((feature, i) => (
                 <li key={i} className="flex items-start">
-                  <Check className="w-5 h-5 text-blue-500 mr-3 mt-1 flex-shrink-0" />
+                  <Check className="w-5 h-5 text-blue-500 mr-3 mt-1 shrink-0" />
                   <span className="text-gray-700">{feature}</span>
                 </li>
               ))}

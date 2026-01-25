@@ -22,7 +22,7 @@ import {
 import AuthContext from "../../Context/AuthContext";
 import Nav_Search from './Nav_Search';
 import NotificationDropdown from './NotificationDropdown';
-import FilterPanel from "../FilterPanel";
+import FilterPanel from "../common/FilterPanel";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
