@@ -15,21 +15,22 @@ export const AuthProvider = ({ children }) => {
             try {
                 const response = await BACKEND_API.Users.GetProfile();
                 if (response?.data) {
-                    console.log("User: ", user);
-                    console.log("User: ", response);
                     setUser(response.data);
-                    navigate("/home", { replace: true }); // auto go to home
+                    // Only redirect if on landing page
+                    if (window.location.pathname === "/") {
+                        navigate("/home", { replace: true });
+                    }
                 }
             } catch (error) {
                 console.log("Not logged in");
-                navigate("/", { replace: true }); // landing
+                navigate("/", { replace: true });
             } finally {
                 setLoading(false);
             }
         };
-        
+
         fetchUser();
-    }, []);
+    }, [navigate]); // Add navigate to dependency
     
 
     const login = (data) => {
