@@ -15,17 +15,22 @@ export const AuthProvider = ({ children }) => {
             try {
                 const response = await BACKEND_API.Users.GetProfile();
                 if (response?.data) {
+                    console.log("User: ", user);
+                    console.log("User: ", response);
                     setUser(response.data);
+                    navigate("/home", { replace: true }); // auto go to home
                 }
             } catch (error) {
-                console.error("Error fetching user profile:", error);
+                console.log("Not logged in");
+                navigate("/", { replace: true }); // landing
             } finally {
                 setLoading(false);
             }
         };
-
+        
         fetchUser();
     }, []);
+    
 
     const login = (data) => {
         const { user } = data;

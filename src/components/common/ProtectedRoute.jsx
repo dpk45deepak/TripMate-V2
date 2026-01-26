@@ -1,11 +1,9 @@
 import React, { useContext } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import AuthContext from "../../Context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
     const { user, loading } = useContext(AuthContext);
-    const navigate = useNavigate();
-
 
     if (loading)
         return (
@@ -13,7 +11,6 @@ const ProtectedRoute = ({ children }) => {
                 <div className="w-12 h-12 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
             </div>
         );
-
 
     if (user == null) return <Navigate to="/signin" replace />;
 

@@ -3,22 +3,21 @@ import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// Function to ping backend when frontend loads
-export const pingBackend = async () => {
-  try {
-    const response = await axios.get(`${BACKEND_URL}`, {
-      timeout: 100000, // 10 min
-    });
+const startBackendPing = () => {
+  const ping = async () => {
+    try {
+      await axios.get(`${BACKEND_URL}/health`, { timeout: 10000 });
+      console.log("✅ Backend is awake");
+    } catch (err) {
+      console.warn("⚠️ Backend ping failed:", err.message);
+    }
+  };
 
-    if(response){
-      console.log("Backend pinged Successfully!! ✅");
-    }
-    else{
-      console.log("Backend ping failed!! ⚠️");
-    }
-  } catch (error) {
-    console.warn("⚠️ Backend ping failed, retrying in 10 min...", error.message);
-    // Retry once after 60 minutes
-    setTimeout(() => pingBackend(), 600000);
-  }
+  // First ping on load
+  ping();
+
+  // Ping every 5 minutes to prevent sleep
+  setInterval(ping, 5 * 60 * 1000);
 };
+
+export default startBackendPing;

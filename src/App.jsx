@@ -29,18 +29,22 @@ import SignUp from "./components/AuthPage/SignUp";
 // Admin Pages (optional)
 import Admin from './Pages/Admin';
 
-// Utils
-import { pingBackend } from "./utils/ping";
 
 // Auth Context
 import { AuthProvider } from "./Context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import GoogleCallback from "./GoogleCallback";
 
+// Utils
+import startBackendPing from "./utils/ping";
+import clearLocalStorageOnLoad from "./utils/clearLocalStorageOnLoad";
+
+
 function App() {
 
   useEffect(() => {
-    pingBackend();
+    startBackendPing();
+    clearLocalStorageOnLoad();
   }, []);
 
   return (
