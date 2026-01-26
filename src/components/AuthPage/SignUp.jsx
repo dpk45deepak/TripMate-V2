@@ -87,7 +87,7 @@ export default function AuthenticationForm() {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-teal-50 via-gray-50 to-teal-100 px-6 py-12 overflow-hidden font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-teal-50 via-gray-50 to-teal-100 px-6 py-2 overflow-hidden font-sans">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}

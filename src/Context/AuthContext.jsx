@@ -16,22 +16,16 @@ export const AuthProvider = ({ children }) => {
                 const response = await BACKEND_API.Users.GetProfile();
                 if (response?.data) {
                     setUser(response.data);
-                    // Only redirect if on landing page
-                    if (window.location.pathname === "/") {
-                        navigate("/home", { replace: true });
-                    }
                 }
             } catch (error) {
-                console.log("Not logged in");
-                navigate("/", { replace: true });
+                console.error("Error fetching user profile:", error);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchUser();
-    }, [navigate]); // Add navigate to dependency
-    
+    }, []);
 
     const login = (data) => {
         const { user } = data;
