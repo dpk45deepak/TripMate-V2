@@ -28,6 +28,9 @@ import SignUp from "./components/AuthPage/SignUp";
 
 // Admin Pages (optional)
 import Admin from './Pages/Admin';
+import History from "./Pages/(profile)/History";
+import Wishlist from "./Pages/(profile)/WishList";
+import Transactions from "./Pages/(profile)/Transaction";
 
 
 // Auth Context
@@ -105,6 +108,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/transaction"
+            element={
+              <ProtectedRoute>
+                <Transactions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/wishlist"
+            element={
+              <ProtectedRoute>
+                <Wishlist />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/history"
+            element={
+              <ProtectedRoute>
+                <History />
               </ProtectedRoute>
             }
           />

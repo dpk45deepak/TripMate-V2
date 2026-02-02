@@ -7,12 +7,13 @@ import {
   LayoutDashboard, Ticket, Star, MessageSquare, Wallet, Settings,
   LogOut, Search, ChevronDown, MapPin, Filter, Menu, X, ChevronRight,
   Sun, Cloud, Bell, Sparkles, User, Plus, Moon, HelpCircle, Mail,
-  CreditCard, Shield, Globe, Calendar, Heart
+  CreditCard, Shield, Globe, Calendar, Heart, ChevronLeft, Tag, FileText,
+  Clock,
 } from 'lucide-react';
 
 // Components
 import NotificationDropdown from '../components/common/NotificationDropdown';
-// import FilterPanel from '../components/FilterPanel';
+import FilterPanel from '../components/common/FilterPanel';
 
 // Context
 import AuthContext from "../Context/AuthContext";
@@ -28,19 +29,12 @@ const DASHBOARD_CONFIG = {
     { key: 'transaction', name: 'Transaction', icon: Wallet },
     { key: 'setting', name: 'Setting', icon: Settings },
   ],
-  
+
   SCHEDULE_ITEMS: [
     { id: 20, title: 'Crooked Forest', date: '20 May - 23 May', weather: Cloud },
     { id: 21, title: 'Fem Waterfall', date: '22 May - 25 May', weather: Sun },
     { id: 22, title: 'Night Camping', date: '24 May - 28 May', weather: Cloud },
   ],
-
-  INITIAL_FILTERS: {
-    type: 'all',
-    minRating: 0,
-    maxPrice: 50000,
-    sortBy: 'rating',
-  },
 
   ANIMATION: {
     CONTAINER_VARIANTS: {
@@ -55,22 +49,22 @@ const DASHBOARD_CONFIG = {
         },
       },
     },
-    
+
     ITEM_VARIANTS: {
       hidden: { opacity: 0, y: 30 },
       visible: { opacity: 1, y: 0 },
     },
-    
+
     SIDEBAR_VARIANTS: {
       hidden: { x: '-100%', opacity: 0 },
-      visible: { 
-        x: 0, 
-        opacity: 1, 
-        transition: { 
-          type: 'spring', 
-          stiffness: 300, 
-          damping: 30 
-        } 
+      visible: {
+        x: 0,
+        opacity: 1,
+        transition: {
+          type: 'spring',
+          stiffness: 300,
+          damping: 30
+        }
       },
     },
   }
@@ -91,9 +85,9 @@ const useDestinations = (userId) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await BACKEND_API.Recommend.GetRecommendation(userId);
-      
+
       if (response && response.data) {
         // Check if the response has the expected data structure
         if (Array.isArray(response.data)) {
@@ -121,35 +115,13 @@ const useDestinations = (userId) => {
   return { destinations, loading, error, refetch: fetchRecommendations };
 };
 
-const useFilters = (initialFilters = DASHBOARD_CONFIG.INITIAL_FILTERS) => {
-  const [filters, setFilters] = useState(initialFilters);
-  const [showFilters, setShowFilters] = useState(false);
-
-  const resetFilters = useCallback(() => {
-    setFilters(DASHBOARD_CONFIG.INITIAL_FILTERS);
-  }, []);
-
-  const updateFilter = useCallback((key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  }, []);
-
-  return {
-    filters,
-    showFilters,
-    setFilters,
-    setShowFilters,
-    resetFilters,
-    updateFilter,
-  };
-};
-
 // Sub-Components
-const DashboardHeader = ({ 
-  searchTerm, 
-  onSearchChange, 
-  onToggleSidebar, 
+const DashboardHeader = ({
+  searchTerm,
+  onSearchChange,
+  onToggleSidebar,
   userInitial,
-  userDisplayName 
+  userDisplayName
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -219,18 +191,17 @@ const DashboardHeader = ({
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-2 rounded-xl transition-all relative ${
-                showNotifications ? 'bg-blue-50' : 'bg-gray-50 hover:bg-gray-100'
-              }`}
+              className={`p-2 rounded-xl transition-all relative ${showNotifications ? 'bg-blue-50' : 'bg-gray-50 hover:bg-gray-100'
+                }`}
               aria-label="Notifications"
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <Bell className={`w-5 h-5 ${showNotifications ? 'text-blue-600' : 'text-gray-600'}`} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </motion.button>
-            <NotificationDropdown 
-              isOpen={showNotifications} 
-              onClose={() => setShowNotifications(false)} 
+            <NotificationDropdown
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
             />
           </div>
 
@@ -247,7 +218,7 @@ const DashboardHeader = ({
         </div>
 
         {/* Profile Dropdown */}
-        <ProfileDropdown 
+        <ProfileDropdown
           ref={profileRef}
           isOpen={showProfileDropdown}
           onToggle={setShowProfileDropdown}
@@ -260,19 +231,18 @@ const DashboardHeader = ({
   );
 };
 
-const ProfileDropdown = React.forwardRef(({ 
-  isOpen, 
-  onToggle, 
-  userInitial, 
-  userDisplayName, 
-  onLogout 
+const ProfileDropdown = React.forwardRef(({
+  isOpen,
+  onToggle,
+  userInitial,
+  userDisplayName,
+  onLogout
 }, ref) => {
   return (
     <div className="relative" ref={ref}>
       <div
-        className={`flex items-center space-x-2 cursor-pointer p-1.5 rounded-xl transition-all active:scale-95 ${
-          isOpen ? 'bg-blue-50' : 'hover:bg-gray-50'
-        }`}
+        className={`flex items-center space-x-2 cursor-pointer p-1.5 rounded-xl transition-all active:scale-95 ${isOpen ? 'bg-blue-50' : 'hover:bg-gray-50'
+          }`}
         onClick={() => onToggle(!isOpen)}
       >
         <div className="relative">
@@ -351,15 +321,15 @@ const DropdownItem = ({ href, icon: Icon, text }) => (
 
 const NavLink = ({ name, icon: Icon, linkKey, currentActive, onClick }) => {
   const active = linkKey === currentActive;
-  
+
   return (
     <motion.div
       variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
       whileHover={{ x: active ? 0 : 5 }}
       onClick={() => onClick(linkKey)}
       className={`flex items-center space-x-3 p-3 rounded-xl cursor-pointer transition-all duration-200
-        ${active 
-          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' 
+        ${active
+          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
           : 'text-gray-600 hover:bg-gray-100'
         }`}
     >
@@ -371,7 +341,7 @@ const NavLink = ({ name, icon: Icon, linkKey, currentActive, onClick }) => {
   );
 };
 
-const Sidebar = ({ isOpen, onClose, activeNav, onNavClick, onLogout }) => {
+const Sidebar = ({ isOpen, onClose, activeNav, onNavClick, onLogout, openFilterPanel }) => {
   return (
     <AnimatePresence>
       {(isOpen || window.innerWidth >= 1024) && (
@@ -395,13 +365,13 @@ const Sidebar = ({ isOpen, onClose, activeNav, onNavClick, onLogout }) => {
           </div>
 
           <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} className="mt-12 pt-4 border-t border-gray-200">
-            <NavLink
-              name="Log out"
-              icon={LogOut}
-              linkKey="logout"
-              currentActive={activeNav}
+            <button
               onClick={onLogout}
-            />
+              className="flex items-center gap-2 px-4 py-3 rounded-lg w-full text-left transition-all duration-200 text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Log out</span>
+            </button>
           </motion.div>
         </motion.div>
       )}
@@ -427,8 +397,8 @@ const SidebarHeader = ({ onClose }) => (
         </span>
       </div>
     </div>
-    <button 
-      onClick={onClose} 
+    <button
+      onClick={onClose}
       className="lg:hidden p-1 rounded-full text-gray-700 hover:bg-gray-100"
       aria-label="Close Sidebar"
     >
@@ -442,8 +412,8 @@ const Navigation = ({ activeNav, onNavClick }) => (
     {DASHBOARD_CONFIG.NAV_ITEMS.map((item) => (
       <button
         key={item.key}
-        onClick={() => onNavClick(item.key)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full text-left transition-all duration-200 
+        onClick={() => onNavClick(item.key)} // This will call handleItemClick
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full text-left transition-all duration-200
           ${activeNav === item.key
             ? "bg-emerald-600 text-white shadow"
             : "text-gray-600 hover:bg-gray-100"
@@ -476,71 +446,211 @@ const DiscountBanner = () => (
 );
 
 const CalendarDisplay = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarDays, setCalendarDays] = useState([]);
+  const [specialDates, setSpecialDates] = useState([]);
+
   const daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-  const dates = [
-    null, null, null, 1, 2, 3, 4,
-    5, 6, 7, 8, 9, 10, 11,
-    12, 13, 14, 15, 16, 17, 18,
-    19, 20, 21, 22, 23, 24, 25,
-    26, 27, 28, 29, 30, 31, null,
+
+  // Generate random special dates for demonstration
+  useEffect(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Generate 5-8 random special dates
+    const specials = [];
+    const count = Math.floor(Math.random() * 4) + 5;
+
+    for (let i = 0; i < count; i++) {
+      specials.push(Math.floor(Math.random() * daysInMonth) + 1);
+    }
+
+    // Ensure today is always marked if it exists in the current month
+    const today = new Date();
+    if (today.getMonth() === month && today.getFullYear() === year) {
+      if (!specials.includes(today.getDate())) {
+        specials.push(today.getDate());
+      }
+    }
+
+    setSpecialDates([...new Set(specials)].sort((a, b) => a - b));
+  }, [currentDate]);
+
+  // Generate calendar days
+  useEffect(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Get first day of month (0 = Sunday, 1 = Monday, etc.)
+    const firstDay = new Date(year, month, 1).getDay();
+
+    // Get number of days in month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Get number of days in previous month
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const days = [];
+
+    // Previous month's trailing days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      days.push({
+        date: daysInPrevMonth - i,
+        isCurrentMonth: false,
+        isToday: false,
+        isSpecial: false
+      });
+    }
+
+    // Current month's days
+    const today = new Date();
+    for (let i = 1; i <= daysInMonth; i++) {
+      const isToday = today.getDate() === i &&
+        today.getMonth() === month &&
+        today.getFullYear() === year;
+      const isSpecial = specialDates.includes(i);
+
+      days.push({
+        date: i,
+        isCurrentMonth: true,
+        isToday,
+        isSpecial
+      });
+    }
+
+    // Next month's leading days (to fill 42 slots - 6 weeks)
+    const totalCells = 42; // 6 weeks * 7 days
+    const nextMonthDays = totalCells - days.length;
+
+    for (let i = 1; i <= nextMonthDays; i++) {
+      days.push({
+        date: i,
+        isCurrentMonth: false,
+        isToday: false,
+        isSpecial: false
+      });
+    }
+
+    setCalendarDays(days);
+  }, [currentDate, specialDates]);
+
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
-  const specialDates = [15, 20, 21, 23, 24, 29, 30];
+
+  const navigateMonth = (direction) => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + direction);
+      return newDate;
+    });
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  const handleDateClick = (day) => {
+    if (day.isCurrentMonth) {
+      console.log(`Date clicked: ${day.date}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`);
+    }
+  };
 
   return (
     <motion.div
-      variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+      }}
       initial="hidden"
       animate="visible"
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="p-4 sm:p-5 md:p-6 rounded-2xl shadow-md bg-gray-100 w-full max-w-sm mx-auto mb-3"
+      className="p-4 sm:p-5 md:p-6 rounded-2xl shadow-md bg-gray-50 w-full max-w-sm mx-auto mb-3"
     >
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-          May 2025
-        </h3>
-        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+      {/* Header */}
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
+        <div className="flex items-center gap-1">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigateMonth(-1)}
+            className="p-1 rounded-full hover:bg-gray-200 transition-colors"
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+          </motion.button>
+
+          <h3 className="text-sm sm:text-base font-semibold text-gray-800 mx-2">
+            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+          </h3>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigateMonth(1)}
+            className="p-1 rounded-full hover:bg-gray-200 transition-colors"
+            aria-label="Next month"
+          >
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+          </motion.button>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={goToToday}
+          className="px-2 py-1 text-[10px] sm:text-xs font-medium rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+        >
+          Today
+        </motion.button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 sm:gap-3 text-[10px] sm:text-xs text-center select-none">
+      {/* Days of Week */}
+      <div className="grid grid-cols-7 gap-1 mb-1 sm:mb-2 text-[10px] sm:text-xs text-center">
         {daysOfWeek.map((day) => (
           <div
             key={day}
-            className="font-semibold text-gray-600 uppercase tracking-wide"
+            className="font-semibold text-gray-600 uppercase tracking-wide py-1"
           >
             {day}
           </div>
         ))}
+      </div>
 
-        {dates.map((date, index) => {
-          const isToday = date === 31;
-          const isSpecial = specialDates.includes(date);
-
-          return (
-            <div
-              key={index}
-              className={`flex items-center justify-center aspect-square rounded-full transition-all duration-300 
-              ${
-                !date
-                  ? "text-transparent pointer-events-none"
-                  : isToday
-                  ? "bg-teal-500 text-white font-semibold shadow-md"
-                  : isSpecial
-                  ? "border border-teal-400 text-gray-800 font-medium bg-white"
-                  : "text-gray-700 hover:bg-white cursor-pointer"
-              }`}
-            >
-              {date}
-            </div>
-          );
-        })}
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
+        {calendarDays.map((day, index) => (
+          <motion.div
+            key={index}
+            whileHover={day.isCurrentMonth ? { scale: 1.05 } : {}}
+            whileTap={day.isCurrentMonth ? { scale: 0.95 } : {}}
+            onClick={() => handleDateClick(day)}
+            className={`
+              flex items-center justify-center aspect-square rounded-full
+              transition-all duration-200 text-xs sm:text-sm
+              ${!day.isCurrentMonth
+                ? "text-transparent pointer-events-none"
+                : day.isToday
+                  ? "bg-teal-500 text-white font-semibold shadow-sm"
+                  : day.isSpecial
+                    ? "border border-teal-300 text-gray-800 font-medium bg-white hover:bg-gray-50 cursor-pointer"
+                    : "text-gray-700 hover:bg-white cursor-pointer"
+              }
+            `}
+          >
+            {day.date}
+          </motion.div>
+        ))}
       </div>
     </motion.div>
   );
 };
 
 const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
-  <motion.div 
-    variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} 
+  <motion.div
+    variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
     className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer mb-2"
   >
     <div className="flex items-center">
@@ -559,48 +669,6 @@ const ScheduleItem = ({ title, date, weather: WeatherIcon }) => (
   </motion.div>
 );
 
-const FeatureCard = React.memo(({
-  name: title,
-  region: location,
-  rating,
-  image_url: image,
-  average_cost_per_day,
-  best_time_to_visit,
-  country,
-  type,
-  safety_rating,
-  visa_requirements,
-  onClick,
-}) => (
-  <motion.div
-    variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
-    onClick={onClick}
-    whileHover={{ scale: 1.03 }}
-    className="relative h-104 rounded-2xl shadow-lg overflow-hidden cursor-pointer flex flex-col justify-end p-5 transition-all duration-300 ease-in-out hover:shadow-2xl"
-  >
-    <div className="absolute inset-0">
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/40 to-transparent"></div>
-    </div>
-
-    <div className="relative z-10 text-white space-y-2">
-      <h3 className="text-xl font-bold">{title}</h3>
-      <FeatureDetail icon={MapPin} text={`${location}, ${country}`} color="teal" />
-      <FeatureDetail icon={Globe} text={type} color="indigo" />
-      <FeatureDetail icon={Star} text={`${rating} / 10`} color="yellow" isRating />
-      <FeatureDetail icon={Shield} text={`Safety: ${safety_rating}/10`} color="green" />
-      <FeatureDetail icon={Wallet} text={`Avg Cost: ${average_cost_per_day?.toLocaleString()} INR`} color="orange" />
-      <FeatureDetail icon={Calendar} text={`Best Time: ${best_time_to_visit?.join(", ")}`} color="pink" />
-      <FeatureDetail icon={Globe} text={visa_requirements} color="blue" />
-    </div>
-  </motion.div>
-));
-
 const FeatureDetail = ({ icon: Icon, text, color, isRating = false }) => (
   <div className="flex items-center space-x-2 text-sm">
     <Icon className={`w-4 h-4 text-${color}-300 ${isRating ? 'fill-yellow-300' : ''}`} />
@@ -608,12 +676,12 @@ const FeatureDetail = ({ icon: Icon, text, color, isRating = false }) => (
   </div>
 );
 
-const DestinationItem = React.memo(({ 
-  title, 
-  location, 
-  rating = 0, 
-  price = 0, 
-  image, 
+const DestinationItem = React.memo(({
+  title,
+  location,
+  rating = 0,
+  price = 0,
+  image,
   type,
   country,
   safety_rating,
@@ -621,9 +689,9 @@ const DestinationItem = React.memo(({
   onClick
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
-    <motion.div 
+    <motion.div
       variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
       initial="hidden"
       animate="visible"
@@ -633,18 +701,18 @@ const DestinationItem = React.memo(({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-40 overflow-hidden">
-        <img 
-          src={image || 'https://placehold.co/400x300/4CAF50/ffffff?text=No+Image'} 
-          alt={title} 
+        <img
+          src={image || 'https://placehold.co/400x300/4CAF50/ffffff?text=No+Image'}
+          alt={title}
           className={`w-full h-full object-cover transition-transform duration-500 ${isHovered ? 'scale-110' : 'scale-100'}`}
-          loading="lazy" 
+          loading="lazy"
         />
         <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold text-gray-800 flex items-center">
           <MapPin className="w-3 h-3 mr-1 text-emerald-500" />
           {country || 'Global'}
         </div>
       </div>
-      
+
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-gray-900 text-lg line-clamp-1">{title}</h3>
@@ -653,12 +721,12 @@ const DestinationItem = React.memo(({
             {rating?.toFixed(1) || 'N/A'}
           </div>
         </div>
-        
+
         <div className="text-sm text-gray-600 mb-3 flex items-center">
           <MapPin className="w-4 h-4 mr-1 text-gray-400" />
           <span className="line-clamp-1">{location || 'Location not specified'}</span>
         </div>
-        
+
         <div className="mt-auto">
           <div className="flex justify-between items-center mb-2">
             <div className="text-sm text-gray-500">
@@ -670,19 +738,19 @@ const DestinationItem = React.memo(({
               {safety_rating?.toFixed(1) || 'N/A'}
             </div>
           </div>
-          
+
           {best_time_to_visit?.length > 0 && (
             <div className="flex items-center text-xs text-gray-500 mt-1">
               <Calendar className="w-3 h-3 mr-1 text-blue-500" />
               Best: {best_time_to_visit.join(', ')}
             </div>
           )}
-          
+
           <div className="mt-3 flex justify-between items-center">
             <span className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded">
               {type || 'Destination'}
             </span>
-            <button 
+            <button
               className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
               onClick={(e) => {
                 e.stopPropagation();
@@ -698,39 +766,24 @@ const DestinationItem = React.memo(({
   );
 });
 
-const DestinationsGrid = ({ destinations, loading, searchTerm, filters, onFiltersChange, onDestinationSelect }) => {
+const DestinationsGrid = ({ destinations, loading, searchTerm, onDestinationSelect }) => {
   const filteredDestinations = useMemo(() => {
     return destinations.filter(dest => {
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         dest.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dest.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dest.country?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesType = filters.type === 'all' || dest.type === filters.type;
-      const matchesRating = (dest.rating || 0) >= filters.minRating;
-      const matchesPrice = (dest.average_cost_per_day || 0) <= filters.maxPrice;
-      
-      return matchesSearch && matchesType && matchesRating && matchesPrice;
-    }).sort((a, b) => {
-      switch(filters.sortBy) {
-        case 'price':
-          return (a.average_cost_per_day || 0) - (b.average_cost_per_day || 0);
-        case 'rating':
-          return (b.rating || 0) - (a.rating || 0);
-        case 'safety':
-          return (b.safety_rating || 0) - (a.safety_rating || 0);
-        default:
-          return 0;
-      }
+
+      return matchesSearch;
     });
-  }, [destinations, searchTerm, filters]);
+  }, [destinations, searchTerm]);
 
   if (loading) {
     return <LoadingState />;
   }
 
   if (filteredDestinations.length === 0) {
-    return <EmptyState searchTerm={searchTerm} filters={filters} onReset={() => onFiltersChange(DASHBOARD_CONFIG.INITIAL_FILTERS)} />;
+    return <EmptyState searchTerm={searchTerm} />;
   }
 
   return (
@@ -742,10 +795,10 @@ const DestinationsGrid = ({ destinations, loading, searchTerm, filters, onFilter
     >
       {filteredDestinations
         .sort(() => Math.random() - 0.5)
-        .slice(0,4)
+        .slice(0, 4)
         .map((dest) => (
           <div key={dest._id || dest.id} onClick={() => onDestinationSelect(dest)}>
-            <DestinationItem 
+            <DestinationItem
               title={dest.title || dest.name || 'Unnamed Destination'}
               location={dest.location || dest.region || 'Location not specified'}
               rating={dest.rating}
@@ -764,8 +817,8 @@ const DestinationsGrid = ({ destinations, loading, searchTerm, filters, onFilter
 };
 
 const LoadingState = () => (
-  <motion.div 
-    variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} 
+  <motion.div
+    variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS}
     className="flex justify-center items-center py-16"
   >
     <div className="flex flex-col items-center">
@@ -775,204 +828,28 @@ const LoadingState = () => (
   </motion.div>
 );
 
-const EmptyState = ({ searchTerm, filters, onReset }) => {
-  const hasActiveFilters = searchTerm || filters.type !== 'all' || filters.minRating > 0 || filters.maxPrice < 100000;
-  
+const EmptyState = ({ searchTerm }) => {
+  const hasSearchTerm = searchTerm.trim() !== '';
+
   return (
     <div className="col-span-full py-12 text-center">
       <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-50 rounded-full mb-4">
         <Search className="w-8 h-8 text-emerald-500" />
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-1">
-        {hasActiveFilters ? 'No matching destinations found' : 'No destinations available'}
+        {hasSearchTerm ? 'No matching destinations found' : 'No destinations available'}
       </h3>
       <p className="text-gray-500 max-w-md mx-auto">
-        {hasActiveFilters 
-          ? `We couldn't find any destinations matching your criteria. Try adjusting your search or filters.`
+        {hasSearchTerm
+          ? `We couldn't find any destinations matching "${searchTerm}". Try adjusting your search.`
           : 'There are currently no destinations available. Please check back later.'}
       </p>
-      {hasActiveFilters && (
-        <button
-          onClick={onReset}
-          className="mt-4 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors"
-        >
-          Clear all filters
-        </button>
-      )}
     </div>
-  );
-};
-
-const FilterSection = ({ filters, showFilters, onFiltersChange, onToggleFilters, destinationTypes }) => {
-  return (
-    <motion.div variants={DASHBOARD_CONFIG.ANIMATION.ITEM_VARIANTS} className="mb-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-        <div>
-          <h2 className="text-2xl font-bol bg-linear-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent">Best Destinations</h2>
-        </div>
-        
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <FilterToggleButton 
-            isActive={showFilters}
-            onToggle={onToggleFilters}
-          />
-          
-          <SortSelect 
-            value={filters.sortBy}
-            onChange={(value) => onFiltersChange({ ...filters, sortBy: value })}
-          />
-        </div>
-      </div>
-      
-      <FilterPanel 
-        showFilters={showFilters}
-        filters={filters}
-        destinationTypes={destinationTypes}
-        onFiltersChange={onFiltersChange}
-      />
-    </motion.div>
-  );
-};
-
-const FilterToggleButton = ({ isActive, onToggle }) => (
-  <button 
-    onClick={onToggle}
-    className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-  >
-    <Filter className="w-4 h-4" />
-    <span>Filters</span>
-    <ChevronDown className={`w-4 h-4 transition-transform ${isActive ? 'rotate-180' : ''}`} />
-  </button>
-);
-
-const SortSelect = ({ value, onChange }) => (
-  <div className="relative">
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="appearance-none bg-white border border-gray-200 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-    >
-      <option value="rating">Sort by: Rating</option>
-      <option value="price">Sort by: Price</option>
-      <option value="safety">Sort by: Safety</option>
-    </select>
-    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
-  </div>
-);
-
-const FilterPanel = ({ showFilters = true, filters, destinationTypes, onFiltersChange, isModal = false, onClose }) => {
-  const panelContent = (
-    <div className="bg-gray-50 rounded-xl p-4 overflow-hidden">
-      {isModal && (
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Filter Destinations</h3>
-          <button 
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-            aria-label="Close filters"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Destination Type</label>
-          <select
-            value={filters.type}
-            onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 text-sm"
-          >
-            {destinationTypes.map((type) => (
-              <option key={type} value={type}>
-                {type === 'all' ? 'All Types' : type}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Min Rating: {filters.minRating}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="10"
-            step="0.5"
-            value={filters.minRating}
-            onChange={(e) => onFiltersChange({ ...filters, minRating: parseFloat(e.target.value) })}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>0</span>
-            <span>10</span>
-          </div>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Max Price: Rs. {filters.maxPrice.toLocaleString()}
-          </label>
-          <input
-            type="range"
-            min="1000"
-            max="100000"
-            step="1000"
-            value={filters.maxPrice}
-            onChange={(e) => onFiltersChange({ ...filters, maxPrice: parseInt(e.target.value) })}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>1K</span>
-            <span>100K+</span>
-          </div>
-        </div>
-      </div>
-      
-      <div className="mt-6 flex justify-between items-center">
-        <button
-          onClick={() => onFiltersChange(DASHBOARD_CONFIG.INITIAL_FILTERS)}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-        >
-          Reset Filters
-        </button>
-        {isModal && (
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-          >
-            Apply Filters
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
-  if (isModal) {
-    return panelContent;
-  }
-
-  return (
-    <AnimatePresence>
-      {showFilters && (
-        <motion.div 
-          initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-          animate={{ opacity: 1, height: 'auto', marginBottom: '1rem' }}
-          exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-          transition={{ duration: 0.2 }}
-          className="mb-4"
-        >
-          {panelContent}
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 };
 
 const RightPanel = ({ searchTerm }) => {
-  const filteredSchedule = useMemo(() => 
+  const filteredSchedule = useMemo(() =>
     DASHBOARD_CONFIG.SCHEDULE_ITEMS.filter(item =>
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.date.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1012,8 +889,7 @@ const RightPanel = ({ searchTerm }) => {
   );
 };
 
-
-
+// Main Component
 // Main Component
 export default function Dashboard() {
   const { user, logout } = useContext(AuthContext);
@@ -1025,11 +901,9 @@ export default function Dashboard() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [showDetailView, setShowDetailView] = useState(false);
-  const [filterPanels, setFilterPanels] = useState([]);
+  const [filterPanels, setFilterPanels] = useState([]); // This state already exists
 
   const { destinations, loading } = useDestinations(user?._id || user?.id);
-  const { filters, showFilters, setFilters, setShowFilters, resetFilters } = useFilters();
-
 
   const toggleSidebar = useCallback(() => setIsSidebarOpen(prev => !prev), []);
   const closeModal = useCallback(() => {
@@ -1043,14 +917,6 @@ export default function Dashboard() {
     setShowDetailView(true);
   }, []);
 
-  const destinationTypes = useMemo(() => {
-    const types = new Set();
-    destinations.forEach(dest => {
-      if (dest.type) types.add(dest.type);
-    });
-    return ['all', ...Array.from(types)];
-  }, [destinations]);
-
   const handleNavLinkClick = useCallback((key) => {
     setActiveNav(key);
     if (window.innerWidth < 1024) {
@@ -1058,38 +924,34 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Function to open FilterPanel
   const openFilterPanel = useCallback(() => {
     const newPanelId = Date.now().toString();
     setFilterPanels(prev => [...prev, newPanelId]);
+    console.log("Opening FilterPanel from sidebar...");
   }, []);
 
+  // Function to close specific FilterPanel
   const closeFilterPanel = useCallback((panelId) => {
     setFilterPanels(prev => prev.filter(id => id !== panelId));
   }, []);
 
-  const handleFiltersChange = useCallback((newFilters) => {
-    setFilters(prevFilters => ({
-      ...prevFilters,
-      ...newFilters
-    }));
-  }, [setFilters]);
-
   const handleItemClick = useCallback((key) => {
     switch (key) {
       case "favorite":
-        openFilterPanel();
+        openFilterPanel(); // This will open the FilterPanel
         break;
       case "setting":
         navigate("/settings");
         break;
       case "wishlist":
-        alert("Wishlist functionality will be available soon");
+        navigate("/profile/wishlist");
         break;
       case "transaction":
-        alert("Transaction functionality will be available soon");
+        navigate("/profile/transaction");
         break;
       case "history":
-        alert("History functionality will be available soon");
+        navigate("/profile/history");
         break;
       case "logout":
         logout();
@@ -1105,12 +967,12 @@ export default function Dashboard() {
     return user?.email?.split('@')[0] || 'User';
   }, [user]);
 
-  const getIconLetter = useCallback(() => 
+  const getIconLetter = useCallback(() =>
     getUserDisplayName()[0].toUpperCase(), [getUserDisplayName]
   );
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 relative">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -1132,12 +994,13 @@ export default function Dashboard() {
       >
         <div className="lg:grid lg:grid-cols-[250px_1fr_300px] h-full min-h-screen">
           {/* Sidebar */}
-          <Sidebar 
+          <Sidebar
             isOpen={isSidebarOpen}
             onClose={toggleSidebar}
             activeNav={activeNav}
             onNavClick={handleItemClick}
             onLogout={logout}
+            openFilterPanel={openFilterPanel} // Add this
           />
 
           {/* Main Dashboard Content */}
@@ -1153,20 +1016,10 @@ export default function Dashboard() {
             <div className="p-4 sm:p-6 lg:p-8 grow">
               <WelcomeSection userName={getUserDisplayName()} />
 
-              <FilterSection 
-                filters={filters}
-                showFilters={showFilters}
-                onFiltersChange={setFilters}
-                onToggleFilters={() => setShowFilters(!showFilters)}
-                destinationTypes={destinationTypes}
-              />
-
-              <DestinationsGrid 
+              <DestinationsGrid
                 destinations={destinations}
                 loading={loading}
                 searchTerm={searchTerm}
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
                 onDestinationSelect={handleDestinationSelect}
               />
             </div>
@@ -1180,19 +1033,23 @@ export default function Dashboard() {
       {/* Modals & Overlays */}
       <AnimatePresence>
         {showDetailView && selectedDestination && (
-          <DetailModal 
+          <DetailModal
             item={selectedDestination}
             onClose={closeModal}
           />
         )}
       </AnimatePresence>
-      
-      <ModalOverlays 
-        selectedItem={selectedItem}
-        onCloseModal={closeModal}
-        filterPanels={filterPanels}
-        onCloseFilterPanel={closeFilterPanel}
-      />
+
+      {/* FilterPanels */}
+      <AnimatePresence>
+        {filterPanels.map((panelId) => (
+          <FilterPanel
+            key={panelId}
+            isOpenProp={true}
+            onClose={() => closeFilterPanel(panelId)}
+          />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
@@ -1202,96 +1059,71 @@ const WelcomeSection = ({ userName }) => (
     <h1 className="text-4xl font-extrabold bg-linear-to-r from-teal-700 via-blue-500 to-purple-600 bg-clip-text text-transparent py-2">
       Hello, {userName}
     </h1>
-    <p className="text-teal-500 text-sm p-2">Welcome back and explore the world</p>
+    <p className="text-gray-500 text-sm font-bold p-2 mb-4">Welcome back and explore the world</p>
+    <div className="text-center my-10">
+      <h2 className="text-4xl md:text-5xl font-extrabold bg-linear-to-r from-blue-500 via-teal-500 to-indigo-500 bg-clip-text text-transparent">
+        Best Destinations
+      </h2>
+    </div>
+
+
   </motion.div>
 );
 
-const ModalOverlays = ({ selectedItem, onCloseModal, filterPanels, onCloseFilterPanel }) => {
-  const { filters, setFilters } = useFilters();
-  const { destinations } = useDestinations();
-  
-  const destinationTypes = useMemo(() => {
-    const types = new Set();
-    destinations.forEach(dest => {
-      if (dest.type) types.add(dest.type);
-    });
-    return ['all', ...Array.from(types)];
-  }, [destinations]);
-
-  return (
-    <>
-      <AnimatePresence>
-        {selectedItem && (
-          <DetailModal item={selectedItem} onClose={onCloseModal} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {filterPanels.map((panelId) => (
-          <motion.div
-            key={panelId}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-              className="bg-white rounded-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <FilterPanel
-                isModal={true}
-                showFilters={true}
-                filters={filters}
-                destinationTypes={destinationTypes}
-                onFiltersChange={setFilters}
-                onClose={() => onCloseFilterPanel(panelId)}
-              />
-            </motion.div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </>
-  );
-};
 
 const DetailModal = ({ item, onClose }) => {
   if (!item) return null;
 
-  // Fallback to default values if properties are missing
+  // Destructure with proper fallbacks for your data structure
   const {
-    title = 'Unnamed Destination',
-    location = 'Location not specified',
-    rating = 0,
-    price = 0,
+    name = 'Unnamed Destination',
+    region = 'Region not specified',
+    country = 'Country not specified',
     image_url = 'https://placehold.co/600x400/4CAF50/ffffff?text=No+Image',
     type = 'Destination',
-    country = 'Unknown',
+    average_cost_per_day = 0,
     safety_rating = 0,
     best_time_to_visit = [],
-    description = 'No description available for this destination.'
+    description = 'No description available for this destination.',
+    currency = 'INR',
+    visa_requirements = 'Information not available'
   } = item;
+
+  // Calculate rating from safety_rating (scaled to 5)
+  const calculateRating = (safety) => Math.min(5, (safety / 10) * 5);
+  const rating = calculateRating(safety_rating);
+
+  // Format currency symbol
+  const getCurrencySymbol = (curr) => {
+    const symbols = {
+      'INR': '₹',
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£'
+    };
+    return symbols[curr] || curr;
+  };
 
   // Generate star rating display
   const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />);
-      } else {
-        stars.push(<Star key={i} className="w-5 h-5 text-gray-300" />);
-      }
-    }
-    return stars;
+    return Array.from({ length: 5 }).map((_, i) => (
+      <Star
+        key={i}
+        className={`w-5 h-5 ${i < Math.floor(rating)
+            ? 'text-yellow-400 fill-yellow-400'
+            : i < rating
+              ? 'text-yellow-400 fill-yellow-400 opacity-50'
+              : 'text-gray-300'
+          }`}
+      />
+    ));
+  };
+
+  // Format safety rating with color indicator
+  const getSafetyColor = (rating) => {
+    if (rating >= 8) return 'text-emerald-600 bg-emerald-50';
+    if (rating >= 6) return 'text-amber-600 bg-amber-50';
+    return 'text-red-600 bg-red-50';
   };
 
   return (
@@ -1303,124 +1135,196 @@ const DetailModal = ({ item, onClose }) => {
       onClick={onClose}
     >
       <motion.div
-        initial={{ y: -50, opacity: 0, scale: 0.8 }}
+        initial={{ y: -50, opacity: 0, scale: 0.95 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 50, opacity: 0, scale: 0.8 }}
-        className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative my-8 overflow-hidden"
+        exit={{ y: 50, opacity: 0, scale: 0.95 }}
+        transition={{ type: "spring", damping: 25 }}
+        className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative my-8 overflow-hidden max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with close button */}
-        <div className="relative h-48 md:h-64 w-full">
+        <div className="relative h-48 md:h-56 w-full shrink-0">
           <img
             src={image_url}
-            alt={title}
+            alt={name}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.src = 'https://placehold.co/600x400/4CAF50/ffffff?text=No+Image';
+            }}
           />
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+
+          {/* Type badge */}
+          <div className="absolute top-4 left-4">
+            <span className="px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5" />
+              {type}
+            </span>
+          </div>
+
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition"
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-transform hover:scale-110"
             aria-label="Close Modal"
           >
             <X className="w-5 h-5 text-gray-700" />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6 pt-12">
-            <h2 className="text-2xl font-bold text-white">{title}</h2>
-            <div className="flex items-center mt-1 text-white/90">
-              <MapPin className="w-4 h-4 mr-1" />
-              <span className="text-sm">{location}, {country}</span>
+
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1.5">{name}</h2>
+            <div className="flex items-center text-white/90">
+              <MapPin className="w-4 h-4 mr-1.5 shrink-0" />
+              <span className="text-sm md:text-base truncate">{region}, {country}</span>
             </div>
           </div>
         </div>
 
-        {/* Main content */}
-        <div className="p-6">
-          {/* Rating and Price */}
-          <div className="flex flex-wrap justify-between items-center mb-6 pb-6 border-b">
-            <div className="flex items-center">
-              <div className="flex mr-2">
-                {renderStars(rating)}
-              </div>
-              <span className="text-sm font-medium text-gray-700">
-                {rating?.toFixed(1) || 'N/A'}
-              </span>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">Starting from</div>
-              <div className="text-2xl font-bold text-emerald-600">
-                Rs. {price?.toLocaleString() || 'N/A'}
-                <span className="text-sm font-normal text-gray-500"> / night</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">About {title}</h3>
-            <p className="text-gray-600 leading-relaxed">
-              {description}
-            </p>
-          </div>
-
-          {/* Details Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-50 rounded-lg mr-3">
-                <Shield className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Safety</div>
-                <div className="font-medium">{safety_rating?.toFixed(1) || 'N/A'}/5.0</div>
-              </div>
-            </div>
-            
-            {best_time_to_visit?.length > 0 && (
-              <div className="flex items-center">
-                <div className="p-2 bg-green-50 rounded-lg mr-3">
-                  <Calendar className="w-5 h-5 text-green-600" />
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            {/* Rating and Price */}
+            <div className="flex flex-wrap justify-between items-center mb-6 pb-6 border-b border-gray-100">
+              <div className="flex items-center mb-3 md:mb-0">
+                <div className="flex mr-2">
+                  {renderStars(rating)}
                 </div>
-                <div>
-                  <div className="text-xs text-gray-500">Best Time to Visit</div>
-                  <div className="font-medium">{best_time_to_visit.join(', ')}</div>
+                <div className="ml-2">
+                  <div className="text-sm font-medium text-gray-700">
+                    {rating.toFixed(1)} / 5.0
+                  </div>
+                  <div className="text-xs text-gray-500">Based on safety rating</div>
                 </div>
               </div>
-            )}
-            
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-50 rounded-lg mr-3">
-                <MapPin className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Location</div>
-                <div className="font-medium">{location}</div>
+              <div className="text-right">
+                <div className="text-sm text-gray-500">Average cost per day</div>
+                <div className="text-2xl font-bold text-emerald-600">
+                  {getCurrencySymbol(currency)} {average_cost_per_day?.toLocaleString()}
+                  <span className="text-sm font-normal text-gray-500"> / day</span>
+                </div>
               </div>
             </div>
-            
-            <div className="flex items-center">
-              <div className="p-2 bg-amber-50 rounded-lg mr-3">
-                <Globe className="w-5 h-5 text-amber-600" />
+
+            {/* Safety Rating with visual indicator */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Safety Rating</h3>
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getSafetyColor(safety_rating)}`}>
+                  {safety_rating?.toFixed(1)} / 10
+                </span>
               </div>
-              <div>
-                <div className="text-xs text-gray-500">Country</div>
-                <div className="font-medium">{country}</div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full ${safety_rating >= 8 ? 'bg-emerald-500' :
+                      safety_rating >= 6 ? 'bg-amber-500' : 'bg-red-500'
+                    }`}
+                  style={{ width: `${safety_rating * 10}%` }}
+                />
               </div>
+            </div>
+
+            {/* Description */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                About {name}
+              </h3>
+              <p className="text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-xl">
+                {description}
+              </p>
+            </div>
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              {best_time_to_visit?.length > 0 && (
+                <div className="bg-linear-to-br from-green-50 to-emerald-50 p-4 rounded-xl">
+                  <div className="flex items-center mb-2">
+                    <div className="p-2 bg-emerald-100 rounded-lg mr-3">
+                      <Calendar className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 font-medium">Best Time to Visit</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {best_time_to_visit.map((month, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-full"
+                      >
+                        {month}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-linear-to-br from-blue-50 to-indigo-50 p-4 rounded-xl">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                    <Wallet className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 font-medium">Cost Information</div>
+                    <div className="font-semibold text-gray-900">
+                      {getCurrencySymbol(currency)} {average_cost_per_day?.toLocaleString()} / day
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 mt-2">
+                  All prices in {currency}
+                </div>
+              </div>
+
+              <div className="bg-linear-to-br from-purple-50 to-violet-50 p-4 rounded-xl">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg mr-3">
+                    <Globe className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 font-medium">Location</div>
+                    <div className="font-semibold text-gray-900">{region}, {country}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-linear-to-br from-amber-50 to-orange-50 p-4 rounded-xl">
+                <div className="flex items-center">
+                  <div className="p-2 bg-amber-100 rounded-lg mr-3">
+                    <Shield className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 font-medium">Visa Requirements</div>
+                    <div className="font-semibold text-gray-900">{visa_requirements}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Last Updated */}
+            <div className="text-xs text-gray-400 text-center mb-6">
+              Last updated: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'N/A'}
             </div>
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-4 mt-8">
+        {/* Sticky Action Buttons */}
+        <div className="p-6 border-t border-gray-100 bg-white lg:sticky bottom-0">
+          <div className="flex flex-col sm:flex-row gap-3">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex-1 p-3 bg-emerald-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition"
+              className="flex-1 p-2 md:p-4 bg-linear-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all flex items-center justify-center gap-2"
             >
-              Book Now
+              <Calendar className="w-5 h-5" />
+              Plan My Visit
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex-1 p-3 bg-white border-2 border-emerald-500 text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition"
+              className="flex-1 p-2 md:p-4 bg-white border-2 border-emerald-500 text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
             >
+              <Clock className="w-5 h-5" />
               Save for Later
             </motion.button>
           </div>
@@ -1429,4 +1333,3 @@ const DetailModal = ({ item, onClose }) => {
     </motion.div>
   );
 };
-
