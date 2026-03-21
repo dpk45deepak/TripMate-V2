@@ -14,6 +14,7 @@ export default function AuthenticationForm() {
 
   // Global Context
   const { user, updateUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -24,7 +25,6 @@ export default function AuthenticationForm() {
     password: ""
   });
 
-  const navigate = useNavigate();
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -66,7 +66,7 @@ export default function AuthenticationForm() {
     setIsLoading(true);
     try {
       const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-      console.log("Backend URL: ", BACKEND_URL);
+      // console.log("Backend URL: ", BACKEND_URL);
     // implement social sign up logic here
       window.location.href = `${BACKEND_URL}/auth/google`;
       const userResponse = await BACKEND_API.Users.GetProfile();
@@ -83,7 +83,7 @@ export default function AuthenticationForm() {
   };
 
   useEffect(() => {
-    if (user) navigate("/home");
+    if (user) navigate("/home/preferences");
   }, [user]);
 
   return (

@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     const login = (data) => {
         const { user } = data;
         setUser(user);
-        navigate("/home");
+        navigate("/home/preferences");
     };
 
     const logout = () => {

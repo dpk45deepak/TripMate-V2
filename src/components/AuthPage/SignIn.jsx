@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useContext, use } from "react";
 import { Eye, EyeOff, Mail, Lock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
@@ -16,6 +16,8 @@ export default function AuthenticationForm() {
   // Global Context
   const { user, updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  // console.log("Current location:", location.pathname);
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -48,11 +50,10 @@ export default function AuthenticationForm() {
 
     try {
       await BACKEND_API.Auth.SignIn(credentials);
-      // console log success
-      toast.success("Sign in successful! Welcome back!");
       // Set Global Context an navigate user
       const userResponse = await BACKEND_API.Users.GetProfile();
       updateUser(userResponse.data);
+      toast.success("Sign in successful! Welcome back!");
     } catch (error) {
       console.error("Login/Signin failed: ❌ ", error.response?.data || error.msg);
       setErrorMsg(error.response?.data?.msg || "Invalid credentials. Try again.");
@@ -79,7 +80,8 @@ export default function AuthenticationForm() {
   };
 
   useEffect(() => {
-    if (user) navigate("/home"); // already signed in
+
+    if (user ) navigate("/home/preferences");
   }, [user]);
 return (
     <div className="min-h-screen flex flex-col md:flex-row items-center justify-center bg-linear-to-br from-blue-100 via-white to-cyan-100 font-sans overflow-hidden px-6 py-10">

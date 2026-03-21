@@ -1,5 +1,5 @@
 // src/App.js
-import { useEffect, useContext } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -41,6 +41,7 @@ import GoogleCallback from "./GoogleCallback";
 // Utils
 import startBackendPing from "./utils/ping";
 import clearLocalStorageOnLoad from "./utils/clearLocalStorageOnLoad";
+import FilterPanel from "./components/common/FilterPanel";
 
 
 function App() {
@@ -92,6 +93,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/home/preferences"
+            element={
+              <ProtectedRoute>
+                <FilterPanel
+                  isOpenProp={true}
+                />
               </ProtectedRoute>
             }
           />
